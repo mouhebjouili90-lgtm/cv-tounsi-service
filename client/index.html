@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="fr" dir="ltr">
+
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>CV Tounsi — Votre parcours, rendu visible</title>    
+    <!-- CV Tounsi — ورق الزيتون: خطوط DM Serif Display و IBM Plex Sans Arabic. -->
+    <meta name="description" content="CV Tounsi transforme votre parcours en CV clair, professionnel et prêt à envoyer." />
+
+    <!-- Meta Pixel (Facebook) — Remplacez YOUR_PIXEL_ID par votre vrai Pixel ID -->
+    <script>
+      !function(f,b,e,v,n,t,s)
+      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+      n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s)}(window, document,'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', 'YOUR_PIXEL_ID');
+      fbq('track', 'PageView');
+    </script>
+
+    <!-- Google Analytics 4 — Remplacez YOUR_GA4_ID par votre vrai Measurement ID (G-XXXXXXX) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=YOUR_GA4_ID"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'YOUR_GA4_ID');
+    </script>
+  </head>
+
+  <body>
+    <!-- Meta Pixel NoScript Fallback -->
+    <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=YOUR_PIXEL_ID&ev=PageView&noscript=1"/></noscript>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+
+</html>
