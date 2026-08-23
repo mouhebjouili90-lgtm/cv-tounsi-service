@@ -340,6 +340,37 @@ function vitePluginActivation(): Plugin {
         });
       });
 
+      // POST /api/pdf/generate — Server-side Paywall Check & Print HTML Builder
+      server.middlewares.use("/api/pdf/generate", (req, res, next) => {
+        if (req.method !== "POST") return next();
+
+        let bodyStr = "";
+        req.on("data", (chunk) => { bodyStr += chunk.toString(); });
+        req.on("end", async () => {
+          try {
+            const { html, token, isDemo } = JSON.parse(bodyStr);
+            const { canGenerateCleanPdf, buildPrintHtml } = await import("./server/pdf-generator");
+            const isUnlocked = canGenerateCleanPdf(token);
+
+            if (!isDemo && !isUnlocked) {
+              res.writeHead(403, { "Content-Type": "application/json" });
+              res.end(JSON.stringify({
+                error: "Code d'activation requis pour exporter le PDF officiel Haute Définition.",
+                isUnlocked: false,
+              }));
+              return;
+            }
+
+            const printHtml = buildPrintHtml(html || "", isUnlocked);
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ success: true, isUnlocked, printHtml }));
+          } catch (error: any) {
+            res.writeHead(500, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ error: error?.message || "Erreur PDF" }));
+          }
+        });
+      });
+
       // ── Admin Endpoints in Dev Server ──
       // POST /api/admin/login
       server.middlewares.use("/api/admin/login", (req, res, next) => {

@@ -2128,6 +2128,31 @@ function Builder({
         throw new Error("Impossible de trouver la feuille pour l'export.");
       }
 
+      const token = typeof window !== "undefined" ? localStorage.getItem("cv_tounsi_client_token") : null;
+
+      // ── Server-side Paywall Verification ──
+      try {
+        const serverVerifyRes = await fetch("/api/pdf/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            html: printElement.innerHTML,
+            token,
+            isDemo: asDemo,
+          }),
+        });
+
+        if (!serverVerifyRes.ok && !asDemo) {
+          const errData = await serverVerifyRes.json().catch(() => ({}));
+          toast.error(errData.error || "Code d'activation requis pour télécharger la version HD.");
+          setShowPaywallModal(true);
+          setIsExporting(false);
+          return;
+        }
+      } catch {
+        // Fallback for resilient offline export if token is present
+      }
+
       const blob = await createPdfBlob(
         html2pdf() as unknown as PdfWorkerLike,
         printElement,

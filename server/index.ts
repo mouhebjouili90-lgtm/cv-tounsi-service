@@ -157,6 +157,33 @@ async function startServer() {
     }
   });
 
+  // ── Server-side PDF Generator & Paywall Verification ──
+  app.post("/api/pdf/generate", async (req: Request, res: Response) => {
+    try {
+      const { html, token, isDemo } = req.body;
+      const { canGenerateCleanPdf, buildPrintHtml } = await import("./pdf-generator");
+
+      const isUnlocked = canGenerateCleanPdf(token);
+
+      if (!isDemo && !isUnlocked) {
+        res.status(403).json({
+          error: "Code d'activation requis pour exporter le PDF officiel Haute Définition.",
+          isUnlocked: false,
+        });
+        return;
+      }
+
+      const printHtml = buildPrintHtml(html || "", isUnlocked);
+      res.json({
+        success: true,
+        isUnlocked,
+        printHtml,
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error?.message || "Erreur de génération PDF" });
+    }
+  });
+
   // ── Admin Authentication Middleware ──
   const ADMIN_PASSWORD = (process.env.ADMIN_PASSWORD || "cvtounsi_admin_2026").trim();
 
