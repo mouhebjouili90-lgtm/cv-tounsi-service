@@ -5,6 +5,14 @@ import {
   generateActivationToken,
   verifyActivationToken,
 } from "../server/activation-server";
+import {
+  getSaaSStatsFromDb,
+  getAllActivationCodesFromDb,
+  createActivationCodeInDb,
+  updateCodeStatusInDb,
+  deleteActivationCodeFromDb,
+  getRecentCvGenerationsFromDb,
+} from "../server/db";
 
 dotenv.config();
 
@@ -172,7 +180,6 @@ app.post("/api/admin/login", (req: Request, res: Response) => {
 // ── SaaS Analytics & Admin Stats Endpoint ──
 app.get("/api/admin/stats", checkAdminAuth, async (_req: Request, res: Response) => {
   try {
-    const { getSaaSStatsFromDb } = await import("../server/db");
     const stats = await getSaaSStatsFromDb();
     res.json(stats);
   } catch (error: any) {
@@ -183,7 +190,6 @@ app.get("/api/admin/stats", checkAdminAuth, async (_req: Request, res: Response)
 // ── Admin: List all codes ──
 app.get("/api/admin/codes", checkAdminAuth, async (_req: Request, res: Response) => {
   try {
-    const { getAllActivationCodesFromDb } = await import("../server/db");
     const codes = await getAllActivationCodesFromDb();
     res.json({ codes });
   } catch (error: any) {
@@ -194,7 +200,6 @@ app.get("/api/admin/codes", checkAdminAuth, async (_req: Request, res: Response)
 // ── Admin: Create a new activation code ──
 app.post("/api/admin/codes/create", checkAdminAuth, async (req: Request, res: Response) => {
   try {
-    const { createActivationCodeInDb } = await import("../server/db");
     const success = await createActivationCodeInDb(req.body);
     if (success) {
       res.json({ success: true, message: "Code créé avec succès" });
@@ -209,7 +214,6 @@ app.post("/api/admin/codes/create", checkAdminAuth, async (req: Request, res: Re
 // ── Admin: Toggle code status (active / revoked) ──
 app.post("/api/admin/codes/toggle-status", checkAdminAuth, async (req: Request, res: Response) => {
   try {
-    const { updateCodeStatusInDb } = await import("../server/db");
     const { code, status } = req.body;
     const success = await updateCodeStatusInDb(code, status);
     res.json({ success });
@@ -221,7 +225,6 @@ app.post("/api/admin/codes/toggle-status", checkAdminAuth, async (req: Request, 
 // ── Admin: Delete a code ──
 app.delete("/api/admin/codes/delete", checkAdminAuth, async (req: Request, res: Response) => {
   try {
-    const { deleteActivationCodeFromDb } = await import("../server/db");
     const { code } = req.body;
     const success = await deleteActivationCodeFromDb(code);
     res.json({ success });
@@ -233,7 +236,6 @@ app.delete("/api/admin/codes/delete", checkAdminAuth, async (req: Request, res: 
 // ── Admin: Recent CV generations ──
 app.get("/api/admin/cvs", checkAdminAuth, async (_req: Request, res: Response) => {
   try {
-    const { getRecentCvGenerationsFromDb } = await import("../server/db");
     const cvs = await getRecentCvGenerationsFromDb(30);
     res.json({ cvs });
   } catch (error: any) {
