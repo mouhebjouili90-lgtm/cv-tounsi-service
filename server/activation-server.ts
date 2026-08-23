@@ -1,18 +1,19 @@
 /**
  * CV Tounsi — Server-side Activation Code Validation & HMAC Token System
  * 
- * This module mirrors the client-side activation.ts logic but runs on the server,
- * making it impossible for clients to bypass the validation by modifying localStorage.
+ * This module validates codes against the Database (MySQL/TiDB/PlanetScale)
+ * with dynamic memorable pattern matching fallback.
  * 
  * Tokens are signed with HMAC-SHA256 using the ACTIVATION_SECRET env variable.
  */
 
 import crypto from "node:crypto";
+import { getActivationCodeFromDb, recordCodeUsageInDb } from "./db";
 
 const ACTIVATION_SECRET = process.env.ACTIVATION_SECRET || "cvtounsi_default_fallback_secret";
 
 /* ── Normalize code string (remove accents, uppercase, keep only A-Z0-9) ── */
-function normalizeCodeString(str: string): string {
+export function normalizeCodeString(str: string): string {
   return (str || "")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -20,14 +21,37 @@ function normalizeCodeString(str: string): string {
     .replace(/[^A-Z0-9]/g, "");
 }
 
-/* ── Validate activation code (server-side, same logic as client) ── */
-export function validateActivationCode(inputCode: string, fullName: string): boolean {
+/* ── Validate activation code (Database first + Dynamic Algorithmic Fallback) ── */
+export async function validateActivationCode(inputCode: string, fullName: string): Promise<boolean> {
   if (!inputCode) return false;
 
   const cleanInput = normalizeCodeString(inputCode);
   if (cleanInput.length < 3) return false;
 
-  // 1. Standard permanent codes
+  // 1. Priority 1: Check in connected Database
+  try {
+    const dbCode = await getActivationCodeFromDb(cleanInput);
+    if (dbCode) {
+      // Check code status and expiration
+      if (dbCode.status === "revoked" || dbCode.status === "expired") {
+        return false;
+      }
+      if (dbCode.expiresAt && new Date(dbCode.expiresAt).getTime() < Date.now()) {
+        return false;
+      }
+      if (dbCode.usageCount >= dbCode.maxUsage) {
+        return false;
+      }
+
+      // Record successful usage in DB
+      await recordCodeUsageInDb(cleanInput);
+      return true;
+    }
+  } catch (err) {
+    console.warn("[Activation Server] DB check skipped, falling back to algorithmic validation:", err);
+  }
+
+  // 2. Priority 2: Standard permanent codes
   const standardCodes = [
     "TN19", "CV19", "TOUNSI19", "TOUNSI2026",
     "CVTOUNSI", "CVTOUNSI19", "PASS19", "PRO19",
@@ -36,7 +60,7 @@ export function validateActivationCode(inputCode: string, fullName: string): boo
   ];
   if (standardCodes.includes(cleanInput)) return true;
 
-  // 2. Date-based dynamic codes
+  // 3. Priority 3: Date-based dynamic codes
   const now = new Date();
   const dayStr = String(now.getDate()).padStart(2, "0");
   const monthStr = String(now.getMonth() + 1).padStart(2, "0");
@@ -48,7 +72,7 @@ export function validateActivationCode(inputCode: string, fullName: string): boo
   ];
   if (dateCodes.includes(cleanInput)) return true;
 
-  // 3. Name-based personalized codes
+  // 4. Priority 4: Name-based personalized codes
   if (fullName && fullName.trim().length > 0) {
     const rawWords = fullName.trim().split(/\s+/)
       .map((w) => normalizeCodeString(w))
@@ -72,7 +96,7 @@ export function validateActivationCode(inputCode: string, fullName: string): boo
     ) return true;
   }
 
-  // 4. Structured code with official prefix/suffix
+  // 5. Priority 5: Structured code with official prefix/suffix
   if (
     cleanInput.startsWith("TN") || cleanInput.startsWith("CV") ||
     cleanInput.startsWith("PRO") || cleanInput.startsWith("VIP") ||

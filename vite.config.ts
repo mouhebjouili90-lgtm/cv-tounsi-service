@@ -284,10 +284,10 @@ function vitePluginActivation(): Plugin {
 
         let bodyStr = "";
         req.on("data", (chunk) => { bodyStr += chunk.toString(); });
-        req.on("end", () => {
+        req.on("end", async () => {
           try {
             const { code, fullName } = JSON.parse(bodyStr);
-            const isValid = validateActivationCode(code || "", fullName || "");
+            const isValid = await validateActivationCode(code || "", fullName || "");
 
             if (isValid) {
               const token = generateActivationToken(fullName || "Client");

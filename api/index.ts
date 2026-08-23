@@ -103,10 +103,10 @@ app.post("/api/ai/generate", checkRateLimit, async (req: Request, res: Response)
 });
 
 // ── Activation Code Validation ──
-app.post("/api/validate-code", (req: Request, res: Response) => {
+app.post("/api/validate-code", async (req: Request, res: Response) => {
   try {
     const { code, fullName } = req.body;
-    const isValid = validateActivationCode(code || "", fullName || "");
+    const isValid = await validateActivationCode(code || "", fullName || "");
 
     if (isValid) {
       const token = generateActivationToken(fullName || "Client");
@@ -127,6 +127,17 @@ app.post("/api/verify-token", (req: Request, res: Response) => {
     res.json(result);
   } catch {
     res.json({ valid: false });
+  }
+});
+
+// ── SaaS Analytics & Admin Stats Endpoint ──
+app.get("/api/admin/stats", async (_req: Request, res: Response) => {
+  try {
+    const { getSaaSStatsFromDb } = await import("../server/db");
+    const stats = await getSaaSStatsFromDb();
+    res.json(stats);
+  } catch (error: any) {
+    res.status(500).json({ error: error?.message || "Failed to fetch stats" });
   }
 });
 
