@@ -17,16 +17,32 @@ async function fetchGeminiWithTimeout(prompt: string, systemInstruction?: string
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 1800);
 
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  try {
+    const token = typeof window !== "undefined" ? localStorage.getItem("cv_tounsi_client_token") : null;
+    if (token) {
+      headers["x-activation-token"] = token;
+    }
+  } catch {
+    // ignore
+  }
+
   try {
     const response = await fetch("/api/ai/generate", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify({ prompt, systemInstruction }),
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
 
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    if (!response.ok) {
+      if (response.status === 429) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Limite d'améliorations IA atteinte (5 par heure).");
+      }
+      throw new Error(`HTTP ${response.status}`);
+    }
     const data = await response.json();
     if (data.error || !data.text) throw new Error(data.error || "No text");
     return cleanAiText(data.text);

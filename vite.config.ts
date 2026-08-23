@@ -152,9 +152,11 @@ function vitePluginManusDebugCollector(): Plugin {
 
 // =============================================================================
 // Rate Limiter — In-memory per-IP tracking for AI endpoint protection
+// Rapport SaaS Tâche 1.5 : Maximum 5 améliorations par IP par heure (Gratuit) / 50 par heure (Payant)
 // =============================================================================
-const RATE_LIMIT_MAX = 10; // Max AI calls per window
-const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+const RATE_LIMIT_FREE_MAX = 5;
+const RATE_LIMIT_PREMIUM_MAX = 50;
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 heure
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 
 function getClientIp(req: any): string {
@@ -165,9 +167,10 @@ function getClientIp(req: any): string {
   );
 }
 
-function isRateLimited(ip: string): boolean {
+function isRateLimited(ip: string, isPremium: boolean): boolean {
+  const maxAllowed = isPremium ? RATE_LIMIT_PREMIUM_MAX : RATE_LIMIT_FREE_MAX;
   const now = Date.now();
-  const entry = rateLimitMap.get(ip);
+  let entry = rateLimitMap.get(ip);
 
   if (!entry || now > entry.resetAt) {
     rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
@@ -175,14 +178,14 @@ function isRateLimited(ip: string): boolean {
   }
 
   entry.count++;
-  if (entry.count > RATE_LIMIT_MAX) return true;
+  if (entry.count > maxAllowed) return true;
   return false;
 }
 
 /**
  * Fast direct AI Proxy middleware for Google Gemini 3.6 Flash
  * - Sub-second latency (< 400ms) with hard 6s timeout protection
- * - Rate limited: 10 calls per 15 minutes per IP
+ * - Rate limited: 5 calls per hour per IP (free tier), 50 per hour (paid)
  * - API key is server-side only (never exposed to client)
  */
 function vitePluginAi(): Plugin {
@@ -194,11 +197,15 @@ function vitePluginAi(): Plugin {
 
         // Rate limit check
         const clientIp = getClientIp(req);
-        if (isRateLimited(clientIp)) {
+        const token = req.headers["x-activation-token"]?.toString();
+        const isPremium = token ? verifyActivationToken(token).valid : false;
+
+        if (isRateLimited(clientIp, isPremium)) {
           res.writeHead(429, { "Content-Type": "application/json" });
           res.end(JSON.stringify({
-            error: "Trop de requêtes IA. Veuillez patienter 15 minutes avant de réessayer.",
+            error: "Limite de 5 améliorations IA par heure atteinte. Veuillez patienter ou débloquez votre CV avec votre code d'activation.",
             retryAfterMs: RATE_LIMIT_WINDOW_MS,
+            limit: isPremium ? RATE_LIMIT_PREMIUM_MAX : RATE_LIMIT_FREE_MAX,
           }));
           return;
         }

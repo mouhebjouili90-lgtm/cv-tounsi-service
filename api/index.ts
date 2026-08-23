@@ -12,8 +12,10 @@ const app = express();
 app.use(express.json({ limit: "2mb" }));
 
 // Rate Limiter — In-memory per-IP tracking for AI endpoint
-const RATE_LIMIT_MAX = 10;
-const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+// Rapport SaaS Tâche 1.5 : Maximum 5 améliorations par IP par heure (Gratuit) / 50 par heure (Payant)
+const RATE_LIMIT_FREE_MAX = 5;
+const RATE_LIMIT_PREMIUM_MAX = 50;
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 heure
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 
 function getClientIp(req: Request): string {
@@ -27,18 +29,33 @@ function getClientIp(req: Request): string {
 function checkRateLimit(req: Request, res: Response, next: NextFunction) {
   const ip = getClientIp(req);
   const now = Date.now();
-  const entry = rateLimitMap.get(ip);
+  const token = req.headers["x-activation-token"]?.toString() || req.body?.token;
+
+  // Check if user is a paid customer with valid HMAC token
+  const isPremium = token ? verifyActivationToken(token).valid : false;
+  const maxAllowed = isPremium ? RATE_LIMIT_PREMIUM_MAX : RATE_LIMIT_FREE_MAX;
+
+  let entry = rateLimitMap.get(ip);
 
   if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return next();
+    entry = { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS };
+    rateLimitMap.set(ip, entry);
+  } else {
+    entry.count++;
   }
 
-  entry.count++;
-  if (entry.count > RATE_LIMIT_MAX) {
+  const remaining = Math.max(0, maxAllowed - entry.count);
+  res.setHeader("X-RateLimit-Limit", maxAllowed);
+  res.setHeader("X-RateLimit-Remaining", remaining);
+  res.setHeader("X-RateLimit-Reset", Math.ceil(entry.resetAt / 1000));
+
+  if (entry.count > maxAllowed) {
+    const minutesLeft = Math.ceil((entry.resetAt - now) / (60 * 1000));
     res.status(429).json({
-      error: "Trop de requêtes IA. Veuillez patienter 15 minutes avant de réessayer.",
-      retryAfterMs: RATE_LIMIT_WINDOW_MS,
+      error: `Limite de 5 améliorations IA par heure atteinte. Veuillez patienter ${minutesLeft} minute(s) ou débloquez votre CV avec votre code d'activation.`,
+      retryAfterMs: entry.resetAt - now,
+      limit: maxAllowed,
+      isPremium,
     });
     return;
   }
