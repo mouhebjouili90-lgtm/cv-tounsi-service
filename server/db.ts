@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { eq, desc, sql } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/mysql2";
-import mysql from "mysql2/promise";
+import { drizzle } from "drizzle-orm/tidb-serverless";
+import { connect } from "@tidbcloud/serverless";
 import {
   activationCodes,
   cvGenerations,
@@ -11,7 +11,7 @@ import {
 } from "../drizzle/schema";
 
 let _db: ReturnType<typeof drizzle> | null = null;
-let _pool: mysql.Pool | null = null;
+let _pool: any = null;
 
 // ── In-Memory Resilient Store (Always ready even if DB is offline or cold-starting) ──
 const initialMasterCodes: ActivationCode[] = [
@@ -99,31 +99,12 @@ export async function getDb() {
   if (!_db && dbUrl) {
     try {
       if (!_pool) {
-        // Parse TiDB connection URI or URL string
-        const cleanUrl = dbUrl.trim();
-        if (cleanUrl.startsWith("mysql://") || cleanUrl.startsWith("mysql2://")) {
-          const parsed = new URL(cleanUrl.replace(/^mysql2?:\/\//, "http://"));
-          _pool = mysql.createPool({
-            host: parsed.hostname,
-            port: Number(parsed.port) || 4000,
-            user: decodeURIComponent(parsed.username),
-            password: decodeURIComponent(parsed.password),
-            database: parsed.pathname.replace(/^\//, "") || "test",
-            ssl: {
-              rejectUnauthorized: true,
-              minVersion: "TLSv1.2",
-            },
-            waitForConnections: true,
-            connectionLimit: 10,
-            queueLimit: 0,
-          });
-        } else {
-          _pool = mysql.createPool(cleanUrl);
-        }
+        // Use TiDB Serverless HTTP driver for Vercel/Edge compatibility
+        _pool = connect({ url: dbUrl.trim() });
       }
 
       _db = drizzle(_pool);
-      console.log("[Database] Connected successfully to TiDB Cloud MySQL");
+      console.log("[Database] Connected successfully to TiDB Cloud Serverless (HTTP)");
     } catch (error) {
       console.warn("[Database] Connection failed, operating in resilient fallback mode:", error);
       _db = null;
