@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { eq, desc, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
@@ -10,6 +11,7 @@ import {
 } from "../drizzle/schema";
 
 let _db: ReturnType<typeof drizzle> | null = null;
+let _pool: mysql.Pool | null = null;
 
 // ── In-Memory Resilient Store (Always ready even if DB is offline or cold-starting) ──
 const initialMasterCodes: ActivationCode[] = [
@@ -93,14 +95,39 @@ const inMemoryCodes = new Map<string, ActivationCode>(
  * ── Connexion à la Base de Données (MySQL / TiDB / PlanetScale / Aiven) ──
  */
 export async function getDb() {
-  if (!_db && process.env.DATABASE_URL) {
+  const dbUrl = process.env.DATABASE_URL;
+  if (!_db && dbUrl) {
     try {
-      const poolConnection = mysql.createPool(process.env.DATABASE_URL);
-      _db = drizzle(poolConnection);
-      console.log("[Database] Connected successfully to MySQL/TiDB database");
+      if (!_pool) {
+        // Parse TiDB connection URI or URL string
+        const cleanUrl = dbUrl.trim();
+        if (cleanUrl.startsWith("mysql://") || cleanUrl.startsWith("mysql2://")) {
+          const parsed = new URL(cleanUrl.replace(/^mysql2?:\/\//, "http://"));
+          _pool = mysql.createPool({
+            host: parsed.hostname,
+            port: Number(parsed.port) || 4000,
+            user: decodeURIComponent(parsed.username),
+            password: decodeURIComponent(parsed.password),
+            database: parsed.pathname.replace(/^\//, "") || "test",
+            ssl: {
+              rejectUnauthorized: true,
+              minVersion: "TLSv1.2",
+            },
+            waitForConnections: true,
+            connectionLimit: 10,
+            queueLimit: 0,
+          });
+        } else {
+          _pool = mysql.createPool(cleanUrl);
+        }
+      }
+
+      _db = drizzle(_pool);
+      console.log("[Database] Connected successfully to TiDB Cloud MySQL");
     } catch (error) {
       console.warn("[Database] Connection failed, operating in resilient fallback mode:", error);
       _db = null;
+      _pool = null;
     }
   }
   return _db;
