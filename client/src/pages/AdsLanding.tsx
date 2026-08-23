@@ -81,28 +81,34 @@ export default function AdsLanding() {
       </header>
 
       {/* ── Hero Section ── */}
-      <section className="pt-8 sm:pt-16 pb-12 sm:pb-20 px-4 sm:px-6 max-w-5xl mx-auto text-center">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#EBF0E9] text-[#43523e] text-xs sm:text-sm font-semibold mb-6 border border-[#60735A]/20">
+      <section className="pt-8 sm:pt-16 pb-12 sm:pb-20 px-4 sm:px-6 max-w-4xl mx-auto flex flex-col items-center justify-center text-center">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#EBF0E9] text-[#43523e] text-xs sm:text-sm font-semibold mb-6 border border-[#60735A]/20 shadow-sm">
           <Sparkles className="w-4 h-4 text-[#60735A]" />
           <span>N°1 de la création de CV assistée par l'IA en Tunisie</span>
         </div>
 
-        <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold font-serif text-[#0F172A] leading-[1.18] tracking-tight max-w-4xl mx-auto mb-6">
+        <h1
+          className="text-3xl sm:text-5xl lg:text-6xl font-bold font-serif text-[#0F172A] leading-[1.22] tracking-tight max-w-3xl mx-auto mb-6 text-center"
+          style={{ textWrap: "balance" }}
+        >
           Décrochez plus d'entretiens avec un CV{" "}
-          <span className="text-[#60735A] underline decoration-[#D97706]/40 decoration-wavy decoration-2">
+          <span className="text-[#60735A] font-serif">
             professionnel et percutant
           </span>
         </h1>
 
-        <p className="text-base sm:text-xl text-[#475569] max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed">
+        <p
+          className="text-base sm:text-lg lg:text-xl text-[#475569] max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed text-center"
+          style={{ textWrap: "balance" }}
+        >
           Générez un CV conforme aux formats <strong>Tunisiens</strong>, <strong>Canadiens (IRCC)</strong> et <strong>Européens (Europass)</strong>. L'intelligence artificielle sublime vos phrases en 1 clic.
         </p>
 
         {/* Hero CTA Box */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 max-w-md mx-auto mb-8">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full max-w-md mx-auto mb-8">
           <button
             onClick={() => handleStartNow("hero_primary")}
-            className="w-full sm:w-auto flex-1 bg-[#60735A] hover:bg-[#4d5c48] text-white text-base sm:text-lg font-bold px-7 py-4 rounded-2xl shadow-lg shadow-[#60735A]/25 transition-all transform hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2"
+            className="w-full bg-[#60735A] hover:bg-[#4d5c48] text-white text-base sm:text-lg font-bold px-8 py-4 rounded-2xl shadow-lg shadow-[#60735A]/25 transition-all transform hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2"
           >
             <span>Créer mon CV maintenant</span>
             <ArrowRight className="w-5 h-5" />
@@ -110,7 +116,7 @@ export default function AdsLanding() {
         </div>
 
         {/* Trust Points */}
-        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-xs sm:text-sm text-[#64748B]">
+        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs sm:text-sm text-[#64748B] max-w-2xl mx-auto">
           <div className="flex items-center gap-1.5">
             <CheckCircle2 className="w-4 h-4 text-[#60735A]" />
             <span>Essai & Aperçu 100% gratuit</span>
@@ -126,7 +132,7 @@ export default function AdsLanding() {
         </div>
 
         {/* Social Proof Stars */}
-        <div className="mt-8 pt-6 border-t border-[#E2E8F0]/70 flex items-center justify-center gap-3 text-xs sm:text-sm text-[#475569]">
+        <div className="mt-8 pt-6 border-t border-[#E2E8F0] w-full max-w-xl mx-auto flex items-center justify-center gap-3 text-xs sm:text-sm text-[#475569]">
           <div className="flex text-[#D97706]">
             {[...Array(5)].map((_, i) => (
               <Star key={i} className="w-4 h-4 fill-current" />
