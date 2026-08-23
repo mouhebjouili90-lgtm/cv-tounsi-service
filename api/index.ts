@@ -148,11 +148,12 @@ app.post("/api/verify-token", (req: Request, res: Response) => {
 });
 
 // ── Admin Authentication Middleware ──
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "cvtounsi_admin_2026";
+const ADMIN_PASSWORD = (process.env.ADMIN_PASSWORD || "cvtounsi_admin_2026").trim();
 
 const checkAdminAuth = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers["authorization"] || req.headers["x-admin-key"];
-  if (authHeader === `Bearer ${ADMIN_PASSWORD}` || authHeader === ADMIN_PASSWORD) {
+  const token = (authHeader || "").replace(/^Bearer\s+/i, "").trim();
+  if (token === ADMIN_PASSWORD) {
     return next();
   }
   return res.status(401).json({ error: "Mot de passe administrateur incorrect" });
@@ -160,7 +161,7 @@ const checkAdminAuth = (req: Request, res: Response, next: NextFunction) => {
 
 // ── Admin Login ──
 app.post("/api/admin/login", (req: Request, res: Response) => {
-  const { password } = req.body;
+  const password = (req.body?.password || "").trim();
   if (password === ADMIN_PASSWORD) {
     res.json({ success: true, token: ADMIN_PASSWORD });
   } else {

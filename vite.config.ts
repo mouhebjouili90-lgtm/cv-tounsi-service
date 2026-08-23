@@ -273,13 +273,23 @@ function vitePluginAi(): Plugin {
 }
 
 // =============================================================================
-// Server-side Activation Code Validation Plugin
+// Server-side Activation Code Validation & Admin Plugin
 // =============================================================================
 import {
   validateActivationCode,
   generateActivationToken,
   verifyActivationToken,
 } from "./server/activation-server";
+import {
+  getSaaSStatsFromDb,
+  getAllActivationCodesFromDb,
+  createActivationCodeInDb,
+  updateCodeStatusInDb,
+  deleteActivationCodeFromDb,
+  getRecentCvGenerationsFromDb,
+} from "./server/db";
+
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "cvtounsi_admin_2026";
 
 function vitePluginActivation(): Plugin {
   return {
@@ -328,6 +338,143 @@ function vitePluginActivation(): Plugin {
             res.end(JSON.stringify({ valid: false }));
           }
         });
+      });
+
+      // ── Admin Endpoints in Dev Server ──
+      // POST /api/admin/login
+      server.middlewares.use("/api/admin/login", (req, res, next) => {
+        if (req.method !== "POST") return next();
+        let bodyStr = "";
+        req.on("data", (chunk) => { bodyStr += chunk.toString(); });
+        req.on("end", () => {
+          try {
+            const { password } = JSON.parse(bodyStr);
+            if (password === ADMIN_PASSWORD) {
+              res.writeHead(200, { "Content-Type": "application/json" });
+              res.end(JSON.stringify({ success: true, token: ADMIN_PASSWORD }));
+            } else {
+              res.writeHead(401, { "Content-Type": "application/json" });
+              res.end(JSON.stringify({ success: false, error: "Mot de passe incorrect" }));
+            }
+          } catch {
+            res.writeHead(400, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ success: false, error: "Requête invalide" }));
+          }
+        });
+      });
+
+      // GET /api/admin/stats
+      server.middlewares.use("/api/admin/stats", async (req, res, next) => {
+        if (req.method !== "GET") return next();
+        const auth = req.headers["authorization"];
+        if (auth !== `Bearer ${ADMIN_PASSWORD}`) {
+          res.writeHead(401, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Non autorisé" }));
+          return;
+        }
+        const stats = await getSaaSStatsFromDb();
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(stats));
+      });
+
+      // GET /api/admin/codes
+      server.middlewares.use("/api/admin/codes", async (req, res, next) => {
+        if (req.method !== "GET") return next();
+        const auth = req.headers["authorization"];
+        if (auth !== `Bearer ${ADMIN_PASSWORD}`) {
+          res.writeHead(401, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Non autorisé" }));
+          return;
+        }
+        const codes = await getAllActivationCodesFromDb();
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ codes }));
+      });
+
+      // POST /api/admin/codes/create
+      server.middlewares.use("/api/admin/codes/create", (req, res, next) => {
+        if (req.method !== "POST") return next();
+        const auth = req.headers["authorization"];
+        if (auth !== `Bearer ${ADMIN_PASSWORD}`) {
+          res.writeHead(401, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Non autorisé" }));
+          return;
+        }
+        let bodyStr = "";
+        req.on("data", (chunk) => { bodyStr += chunk.toString(); });
+        req.on("end", async () => {
+          try {
+            const data = JSON.parse(bodyStr);
+            const success = await createActivationCodeInDb(data);
+            res.writeHead(success ? 200 : 400, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ success, message: success ? "Code créé" : "Erreur création" }));
+          } catch {
+            res.writeHead(400, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ success: false, error: "Requête invalide" }));
+          }
+        });
+      });
+
+      // POST /api/admin/codes/toggle-status
+      server.middlewares.use("/api/admin/codes/toggle-status", (req, res, next) => {
+        if (req.method !== "POST") return next();
+        const auth = req.headers["authorization"];
+        if (auth !== `Bearer ${ADMIN_PASSWORD}`) {
+          res.writeHead(401, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Non autorisé" }));
+          return;
+        }
+        let bodyStr = "";
+        req.on("data", (chunk) => { bodyStr += chunk.toString(); });
+        req.on("end", async () => {
+          try {
+            const { code, status } = JSON.parse(bodyStr);
+            const success = await updateCodeStatusInDb(code, status);
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ success }));
+          } catch {
+            res.writeHead(400, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ success: false }));
+          }
+        });
+      });
+
+      // DELETE /api/admin/codes/delete
+      server.middlewares.use("/api/admin/codes/delete", (req, res, next) => {
+        if (req.method !== "DELETE") return next();
+        const auth = req.headers["authorization"];
+        if (auth !== `Bearer ${ADMIN_PASSWORD}`) {
+          res.writeHead(401, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Non autorisé" }));
+          return;
+        }
+        let bodyStr = "";
+        req.on("data", (chunk) => { bodyStr += chunk.toString(); });
+        req.on("end", async () => {
+          try {
+            const { code } = JSON.parse(bodyStr);
+            const success = await deleteActivationCodeFromDb(code);
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ success }));
+          } catch {
+            res.writeHead(400, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ success: false }));
+          }
+        });
+      });
+
+      // GET /api/admin/cvs
+      server.middlewares.use("/api/admin/cvs", async (req, res, next) => {
+        if (req.method !== "GET") return next();
+        const auth = req.headers["authorization"];
+        if (auth !== `Bearer ${ADMIN_PASSWORD}`) {
+          res.writeHead(401, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Non autorisé" }));
+          return;
+        }
+        const cvs = await getRecentCvGenerationsFromDb(30);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ cvs }));
       });
     },
   };
