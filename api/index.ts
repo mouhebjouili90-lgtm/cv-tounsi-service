@@ -4,7 +4,7 @@ import {
   validateActivationCode,
   generateActivationToken,
   verifyActivationToken,
-} from "../server/activation-server";
+} from "../server/activation-server.js";
 import {
   getSaaSStatsFromDb,
   getAllActivationCodesFromDb,
@@ -12,7 +12,7 @@ import {
   updateCodeStatusInDb,
   deleteActivationCodeFromDb,
   getRecentCvGenerationsFromDb,
-} from "../server/db";
+} from "../server/db.js";
 
 dotenv.config();
 
@@ -156,7 +156,7 @@ app.post("/api/verify-token", (req: Request, res: Response) => {
 });
 
 // ── Server-side PDF Generator & Paywall Verification ──
-import { canGenerateCleanPdf, buildPrintHtml } from "../server/pdf-generator";
+import { canGenerateCleanPdf, buildPrintHtml } from "../server/pdf-generator.js";
 
 app.post("/api/pdf/generate", async (req: Request, res: Response) => {
   try {

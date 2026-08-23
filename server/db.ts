@@ -8,7 +8,7 @@ import {
   type ActivationCode,
   type InsertActivationCode,
   type InsertCvGeneration,
-} from "../drizzle/schema";
+} from "../drizzle/schema.js";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 let _pool: any = null;

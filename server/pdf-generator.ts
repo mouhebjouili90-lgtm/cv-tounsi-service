@@ -1,4 +1,4 @@
-import { verifyActivationToken } from "./activation-server";
+import { verifyActivationToken } from "./activation-server.js";
 
 export interface GeneratePdfOptions {
   html: string;

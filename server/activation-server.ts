@@ -8,7 +8,7 @@
  */
 
 import crypto from "node:crypto";
-import { getActivationCodeFromDb, recordCodeUsageInDb } from "./db";
+import { getActivationCodeFromDb, recordCodeUsageInDb } from "./db.js";
 
 const ACTIVATION_SECRET = process.env.ACTIVATION_SECRET || "cvtounsi_default_fallback_secret";
 
