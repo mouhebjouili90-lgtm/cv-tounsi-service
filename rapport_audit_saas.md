@@ -239,11 +239,11 @@ graph TB
 
 | # | Tâche | Effort |
 |:---|:---|:---|
-| 3.1 | **Dashboard admin** : Page pour générer/voir/révoquer les codes d'activation | 8h |
-| 3.2 | **Intégrer Flouci ou Konnect** : Paiement automatique en TND, code généré après paiement | 6h |
-| 3.3 | **Générer le PDF côté serveur** (Puppeteer) pour une protection réelle du flou | 6h |
-| 3.4 | **Système de comptes utilisateurs** (login par email ou Google) | 8h |
-| 3.5 | **Sauvegarde automatique des CVs en BDD** | 4h |
+| 3.1 | **Dashboard admin** : Page pour générer/voir/révoquer les codes d'activation | ✅ Fait (8h) |
+| 3.2 | **Intégrer Flouci ou Konnect** : Paiement automatique en TND, code généré après paiement | ⏸️ En attente patente (6h) |
+| 3.3 | **Générer le PDF côté serveur** (Puppeteer) pour une protection réelle du flou | ✅ Fait (6h) |
+| 3.4 | **Système de comptes utilisateurs** (login par email ou Google) | ✅ Fait (8h) |
+| 3.5 | **Sauvegarde automatique des CVs en BDD** | ✅ Fait (4h) |
 
 ### 🔵 Phase 4 — Croissance (Mois 2+)
 *Pour devenir un vrai business.*
