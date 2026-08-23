@@ -10,11 +10,13 @@ import Home from "./pages/Home";
 import Privacy from "@/pages/Privacy";
 import Terms from "@/pages/Terms";
 import AdsLanding from "@/pages/AdsLanding";
+import AdminDashboard from "@/pages/AdminDashboard";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/admin" component={AdminDashboard} />
       <Route path="/offre" component={AdsLanding} />
       <Route path="/promo" component={AdsLanding} />
       <Route path="/go" component={AdsLanding} />

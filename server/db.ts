@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { eq, desc, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import {
@@ -51,7 +51,26 @@ export async function getActivationCodeFromDb(code: string): Promise<ActivationC
 }
 
 /**
- * ── 2. Incrémentation de l'Utilisation d'un Code ──
+ * ── 2. Récupérer tous les codes d'activation (pour le Dashboard Admin) ──
+ */
+export async function getAllActivationCodesFromDb(): Promise<ActivationCode[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  try {
+    return await db
+      .select()
+      .from(activationCodes)
+      .orderBy(desc(activationCodes.createdAt))
+      .limit(100);
+  } catch (error) {
+    console.error("[Database] Error fetching all activation codes:", error);
+    return [];
+  }
+}
+
+/**
+ * ── 3. Incrémentation de l'Utilisation d'un Code ──
  */
 export async function recordCodeUsageInDb(code: string): Promise<boolean> {
   const db = await getDb();
@@ -74,7 +93,7 @@ export async function recordCodeUsageInDb(code: string): Promise<boolean> {
 }
 
 /**
- * ── 3. Création / Enregistrement d'un Nouveau Code d'Activation ──
+ * ── 4. Création / Enregistrement d'un Nouveau Code d'Activation ──
  */
 export async function createActivationCodeInDb(data: InsertActivationCode): Promise<boolean> {
   const db = await getDb();
@@ -94,7 +113,44 @@ export async function createActivationCodeInDb(data: InsertActivationCode): Prom
 }
 
 /**
- * ── 4. Enregistrement des Statistiques de Création de CV ──
+ * ── 5. Modifier le statut d'un code (Activer / Révoquer) ──
+ */
+export async function updateCodeStatusInDb(code: string, status: "active" | "revoked"): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+
+  try {
+    const cleanCode = (code || "").trim().toUpperCase();
+    await db
+      .update(activationCodes)
+      .set({ status })
+      .where(eq(activationCodes.code, cleanCode));
+    return true;
+  } catch (error) {
+    console.error("[Database] Error updating code status:", error);
+    return false;
+  }
+}
+
+/**
+ * ── 6. Supprimer un code d'activation ──
+ */
+export async function deleteActivationCodeFromDb(code: string): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+
+  try {
+    const cleanCode = (code || "").trim().toUpperCase();
+    await db.delete(activationCodes).where(eq(activationCodes.code, cleanCode));
+    return true;
+  } catch (error) {
+    console.error("[Database] Error deleting activation code:", error);
+    return false;
+  }
+}
+
+/**
+ * ── 7. Enregistrement des Statistiques de Création de CV ──
  */
 export async function recordCvGenerationInDb(data: InsertCvGeneration): Promise<void> {
   const db = await getDb();
@@ -111,7 +167,26 @@ export async function recordCvGenerationInDb(data: InsertCvGeneration): Promise<
 }
 
 /**
- * ── 5. Statistiques Globales du SaaS (pour Dashboard Admin) ──
+ * ── 8. Récupérer les derniers CVs générés ──
+ */
+export async function getRecentCvGenerationsFromDb(limit = 20) {
+  const db = await getDb();
+  if (!db) return [];
+
+  try {
+    return await db
+      .select()
+      .from(cvGenerations)
+      .orderBy(desc(cvGenerations.createdAt))
+      .limit(limit);
+  } catch (error) {
+    console.error("[Database] Error fetching recent CVs:", error);
+    return [];
+  }
+}
+
+/**
+ * ── 9. Statistiques Globales du SaaS (pour Dashboard Admin) ──
  */
 export async function getSaaSStatsFromDb() {
   const db = await getDb();
@@ -132,7 +207,7 @@ export async function getSaaSStatsFromDb() {
     const [revenue] = await db
       .select({ sum: sql<number>`sum(${activationCodes.amount})` })
       .from(activationCodes)
-      .where(eq(activationCodes.status, "used"));
+      .where(sql`${activationCodes.usageCount} > 0`);
 
     const [cvsCount] = await db
       .select({ count: sql<number>`count(*)` })

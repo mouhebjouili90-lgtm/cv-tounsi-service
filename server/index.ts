@@ -157,14 +157,96 @@ async function startServer() {
     }
   });
 
+  // ── Admin Authentication Middleware ──
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "cvtounsi_admin_2026";
+
+  const checkAdminAuth = (req: Request, res: Response, next: NextFunction) => {
+    const authHeader = req.headers["authorization"] || req.headers["x-admin-key"];
+    if (authHeader === `Bearer ${ADMIN_PASSWORD}` || authHeader === ADMIN_PASSWORD) {
+      return next();
+    }
+    return res.status(401).json({ error: "Mot de passe administrateur incorrect" });
+  };
+
+  // ── Admin Login ──
+  app.post("/api/admin/login", (req: Request, res: Response) => {
+    const { password } = req.body;
+    if (password === ADMIN_PASSWORD) {
+      res.json({ success: true, token: ADMIN_PASSWORD });
+    } else {
+      res.status(401).json({ success: false, error: "Mot de passe incorrect" });
+    }
+  });
+
   // ── SaaS Analytics & Admin Stats Endpoint ──
-  app.get("/api/admin/stats", async (_req: Request, res: Response) => {
+  app.get("/api/admin/stats", checkAdminAuth, async (_req: Request, res: Response) => {
     try {
       const { getSaaSStatsFromDb } = await import("./db");
       const stats = await getSaaSStatsFromDb();
       res.json(stats);
     } catch (error: any) {
       res.status(500).json({ error: error?.message || "Failed to fetch stats" });
+    }
+  });
+
+  // ── Admin: List all codes ──
+  app.get("/api/admin/codes", checkAdminAuth, async (_req: Request, res: Response) => {
+    try {
+      const { getAllActivationCodesFromDb } = await import("./db");
+      const codes = await getAllActivationCodesFromDb();
+      res.json({ codes });
+    } catch (error: any) {
+      res.status(500).json({ error: error?.message || "Failed to fetch codes" });
+    }
+  });
+
+  // ── Admin: Create a new activation code ──
+  app.post("/api/admin/codes/create", checkAdminAuth, async (req: Request, res: Response) => {
+    try {
+      const { createActivationCodeInDb } = await import("./db");
+      const success = await createActivationCodeInDb(req.body);
+      if (success) {
+        res.json({ success: true, message: "Code créé avec succès" });
+      } else {
+        res.status(400).json({ success: false, error: "Impossible de créer le code (peut-être déjà existant)" });
+      }
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: error?.message });
+    }
+  });
+
+  // ── Admin: Toggle code status (active / revoked) ──
+  app.post("/api/admin/codes/toggle-status", checkAdminAuth, async (req: Request, res: Response) => {
+    try {
+      const { updateCodeStatusInDb } = await import("./db");
+      const { code, status } = req.body;
+      const success = await updateCodeStatusInDb(code, status);
+      res.json({ success });
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: error?.message });
+    }
+  });
+
+  // ── Admin: Delete a code ──
+  app.delete("/api/admin/codes/delete", checkAdminAuth, async (req: Request, res: Response) => {
+    try {
+      const { deleteActivationCodeFromDb } = await import("./db");
+      const { code } = req.body;
+      const success = await deleteActivationCodeFromDb(code);
+      res.json({ success });
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: error?.message });
+    }
+  });
+
+  // ── Admin: Recent CV generations ──
+  app.get("/api/admin/cvs", checkAdminAuth, async (_req: Request, res: Response) => {
+    try {
+      const { getRecentCvGenerationsFromDb } = await import("./db");
+      const cvs = await getRecentCvGenerationsFromDb(30);
+      res.json({ cvs });
+    } catch (error: any) {
+      res.status(500).json({ error: error?.message || "Failed to fetch CVs" });
     }
   });
 
