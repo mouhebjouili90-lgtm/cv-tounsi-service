@@ -91,19 +91,18 @@ const inMemoryCodes = new Map<string, ActivationCode>(
   initialMasterCodes.map((c) => [c.code, c])
 );
 
-const DEFAULT_TIDB_URL = "mysql://3kbxvcef4Ry9Em5.root:1Odo0Xk7bv1QICvU@gateway01.eu-central-1.prod.aws.tidbcloud.com:4000/test?ssl={\"rejectUnauthorized\":true}";
-
 /**
  * ── Connexion à la Base de Données (MySQL / TiDB / PlanetScale / Aiven) ──
  */
 export async function getDb() {
-  const dbUrl = (process.env.DATABASE_URL || DEFAULT_TIDB_URL).trim();
+  const dbUrl = process.env.DATABASE_URL;
   if (!_db && dbUrl) {
     try {
       if (!_pool) {
         // Parse TiDB connection URI or URL string
-        if (dbUrl.startsWith("mysql://") || dbUrl.startsWith("mysql2://")) {
-          const parsed = new URL(dbUrl.replace(/^mysql2?:\/\//, "http://"));
+        const cleanUrl = dbUrl.trim();
+        if (cleanUrl.startsWith("mysql://") || cleanUrl.startsWith("mysql2://")) {
+          const parsed = new URL(cleanUrl.replace(/^mysql2?:\/\//, "http://"));
           _pool = mysql.createPool({
             host: parsed.hostname,
             port: Number(parsed.port) || 4000,
@@ -117,10 +116,9 @@ export async function getDb() {
             waitForConnections: true,
             connectionLimit: 10,
             queueLimit: 0,
-            connectTimeout: 10000,
           });
         } else {
-          _pool = mysql.createPool(dbUrl);
+          _pool = mysql.createPool(cleanUrl);
         }
       }
 
