@@ -6,12 +6,25 @@ import {
   verifyActivationToken,
 } from "../server/activation-server.js";
 import {
+  registerWithEmail,
+  loginWithEmail,
+  loginWithGoogle,
+  verifyUserToken,
+  requireUserAuth,
+  type AuthenticatedRequest,
+} from "../server/auth-service.js";
+import {
   getSaaSStatsFromDb,
   getAllActivationCodesFromDb,
   createActivationCodeInDb,
   updateCodeStatusInDb,
   deleteActivationCodeFromDb,
   getRecentCvGenerationsFromDb,
+  findUserByIdInDb,
+  saveUserCvInDb,
+  getUserCvsFromDb,
+  deleteUserCvFromDb,
+  createUserInDb,
 } from "../server/db.js";
 
 dotenv.config();
@@ -180,6 +193,152 @@ app.post("/api/pdf/generate", async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     res.status(500).json({ error: error?.message || "Erreur de génération PDF" });
+  }
+});
+
+// ── User Authentication (Email/Password & Google) ──
+
+app.post("/api/auth/register", async (req: Request, res: Response) => {
+  try {
+    const { email, password, name } = req.body;
+    const result = await registerWithEmail(email, password, name);
+    res.json(result);
+  } catch (error: any) {
+    res.status(400).json({ error: error?.message || "Erreur d'inscription" });
+  }
+});
+
+app.post("/api/auth/login", async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+    const result = await loginWithEmail(email, password);
+    res.json(result);
+  } catch (error: any) {
+    res.status(400).json({ error: error?.message || "Erreur de connexion" });
+  }
+});
+
+app.post("/api/auth/google", async (req: Request, res: Response) => {
+  try {
+    const { credential, idToken } = req.body;
+    const tokenToVerify = credential || idToken;
+
+    if (!tokenToVerify) {
+      res.status(400).json({ error: "Token Google manquant" });
+      return;
+    }
+
+    const result = await loginWithGoogle(tokenToVerify);
+    res.json(result);
+  } catch (error: any) {
+    res.status(400).json({ error: error?.message || "Erreur lors de la connexion Google" });
+  }
+});
+
+// Demo fallback Google login (allows testing even before user inputs Google Client ID in Cloud Console)
+app.post("/api/auth/google/demo", async (req: Request, res: Response) => {
+  try {
+    const { email, name, avatarUrl } = req.body;
+    const cleanEmail = (email || "demo.user@gmail.com").trim().toLowerCase();
+    
+    let user = await findUserByIdInDb(1);
+    if (!user) {
+      user = await createUserInDb({
+        email: cleanEmail,
+        name: name || "Utilisateur Google Demo",
+        avatarUrl: avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
+        googleId: "demo-google-id-123456",
+        role: "user",
+      });
+    }
+
+    const { generateUserToken } = await import("../server/auth-service.js");
+    const token = generateUserToken(user);
+
+    res.json({
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        avatarUrl: user.avatarUrl,
+        role: user.role,
+      },
+      token,
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error?.message || "Erreur demo login" });
+  }
+});
+
+app.get("/api/auth/me", requireUserAuth, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.user!.userId;
+    const user = await findUserByIdInDb(userId);
+    if (!user) {
+      res.status(404).json({ error: "Utilisateur non trouvé" });
+      return;
+    }
+
+    res.json({
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        avatarUrl: user.avatarUrl,
+        role: user.role,
+      },
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error?.message || "Erreur de session" });
+  }
+});
+
+// ── User Saved CVs Endpoints ──
+
+app.get("/api/user/cvs", requireUserAuth, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.user!.userId;
+    const cvList = await getUserCvsFromDb(userId);
+    res.json({ cvs: cvList });
+  } catch (error: any) {
+    res.status(500).json({ error: error?.message || "Erreur lors du chargement des CVs" });
+  }
+});
+
+app.post("/api/user/cvs/save", requireUserAuth, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.user!.userId;
+    const { id, title, dataJson, template, language, isUnlocked } = req.body;
+
+    if (!dataJson) {
+      res.status(400).json({ error: "Données du CV manquantes" });
+      return;
+    }
+
+    const saved = await saveUserCvInDb({
+      id: id ? Number(id) : undefined,
+      userId,
+      title: title || "Mon CV Tounsi",
+      dataJson: typeof dataJson === "string" ? dataJson : JSON.stringify(dataJson),
+      template: template || "professional",
+      language: language || "fr",
+      isUnlocked: !!isUnlocked,
+    });
+
+    res.json({ success: true, cv: saved });
+  } catch (error: any) {
+    res.status(500).json({ error: error?.message || "Erreur lors de la sauvegarde du CV" });
+  }
+});
+
+app.delete("/api/user/cvs/:id", requireUserAuth, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.user!.userId;
+    const cvId = Number(req.params.id);
+    const success = await deleteUserCvFromDb(userId, cvId);
+    res.json({ success });
+  } catch (error: any) {
+    res.status(500).json({ error: error?.message || "Erreur lors de la suppression du CV" });
   }
 });
 

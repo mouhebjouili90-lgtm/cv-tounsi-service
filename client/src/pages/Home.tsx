@@ -23,6 +23,8 @@ import {
 } from "@/lib/analytics";
 import { Link } from "wouter";
 import { toast } from "sonner";
+import { useAuth, type SavedCvItem } from "@/contexts/AuthContext";
+import { UserSavedCvsModal } from "@/components/auth/UserSavedCvsModal";
 import {
   ArrowLeft,
   ArrowUpLeft,
@@ -59,6 +61,11 @@ import {
   Crown,
   Key,
   MessageCircle,
+  User as UserIcon,
+  Cloud,
+  FolderOpen,
+  LogOut,
+  Save,
 } from "lucide-react";
 
 const heroImage = "/manus-storage/cv-tounsi-hero-reference_82281e8d.jpg";
@@ -1733,16 +1740,49 @@ function Builder({
   data,
   setData,
   onBack,
+  activeCvId,
+  setActiveCvId,
+  onOpenSavedCvs,
 }: {
   data: CvData;
   setData: React.Dispatch<React.SetStateAction<CvData>>;
   onBack: () => void;
+  activeCvId?: number | null;
+  setActiveCvId?: (id: number | null) => void;
+  onOpenSavedCvs?: () => void;
 }) {
+  const { user, openAuthModal, saveCvToCloud, savedCvs } = useAuth();
+  const [isSavingCloud, setIsSavingCloud] = useState(false);
   const [step, setStep] = useState<BuilderStep>(0);
   const [deviceMode, setDeviceMode] = useState<DeviceMode>(() =>
     typeof window !== "undefined" && window.innerWidth < 850 ? "mobile" : "desktop"
   );
   const [mobileTab, setMobileTab] = useState<"form" | "preview">("form");
+
+  const handleSaveToCloud = async () => {
+    if (!user) {
+      openAuthModal("login");
+      return;
+    }
+
+    setIsSavingCloud(true);
+    try {
+      const saved = await saveCvToCloud({
+        id: activeCvId || undefined,
+        title: `${data.fullName || "Mon CV"} — ${data.targetRole || "Candidat"}`,
+        dataJson: data,
+        template: data.template,
+        language: data.language,
+        isUnlocked,
+      });
+
+      if (saved && setActiveCvId) {
+        setActiveCvId(saved.id);
+      }
+    } finally {
+      setIsSavingCloud(false);
+    }
+  };
 
   /* ── SaaS Monetization & Client Activation Code State ── */
   const [isUnlocked, setIsUnlocked] = useState<boolean>(() => {
@@ -2798,6 +2838,46 @@ function Builder({
           </div>
 
           <div className="builder-topbar-actions">
+            {/* User Account / Save Button */}
+            <button
+              type="button"
+              className="button button-quiet"
+              onClick={handleSaveToCloud}
+              disabled={isSavingCloud}
+              title={user ? "Sauvegarder les modifications de votre CV dans votre compte" : "Connectez-vous pour sauvegarder votre CV en ligne"}
+              style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "0.78rem" }}
+            >
+              {isSavingCloud ? (
+                <>
+                  <span className="button-spinner-sm" />
+                  <span>Enregistrement...</span>
+                </>
+              ) : (
+                <>
+                  <Cloud size={14} className={user ? "text-emerald-600" : "text-stone-400"} />
+                  <span>{user ? "Sauvegarder" : "Sauvegarder (Cloud)"}</span>
+                </>
+              )}
+            </button>
+
+            {user && (
+              <button
+                type="button"
+                className="button button-quiet"
+                onClick={onOpenSavedCvs}
+                title="Consulter et gérer vos CVs enregistrés"
+                style={{ display: "inline-flex", alignItems: "center", gap: "5px", fontSize: "0.78rem" }}
+              >
+                <FolderOpen size={14} />
+                <span>Mes CVs</span>
+                {savedCvs.length > 0 && (
+                  <span style={{ background: "#2d6a4f", color: "#fff", borderRadius: "10px", padding: "1px 6px", fontSize: "0.68rem", fontWeight: "bold" }}>
+                    {savedCvs.length}
+                  </span>
+                )}
+              </button>
+            )}
+
             {/* Client Status Badge or Unlock Trigger */}
             {isUnlocked ? (
               <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -3084,14 +3164,37 @@ function Builder({
 
 /* ─── Main Page ─── */
 export default function Home() {
+  const { user, openAuthModal, logout, savedCvs } = useAuth();
   const [isBuilder, setIsBuilder] = useState(false);
   const [mobileNav, setMobileNav] = useState(false);
   const [data, setData] = useState<CvData>(initialData);
+  const [activeCvId, setActiveCvId] = useState<number | null>(null);
+  const [isSavedCvsOpen, setIsSavedCvsOpen] = useState(false);
 
   const startBuilder = () => {
     trackBuilderStarted(data.template, data.language);
     setIsBuilder(true);
     setMobileNav(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleLoadCv = (savedCv: SavedCvItem) => {
+    try {
+      const parsed = JSON.parse(savedCv.dataJson);
+      setData(parsed);
+      setActiveCvId(savedCv.id);
+      setIsBuilder(true);
+      toast.success(`CV "${savedCv.title}" chargé dans l'éditeur.`);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch {
+      toast.error("Erreur lors du chargement des données du CV.");
+    }
+  };
+
+  const handleNewCv = () => {
+    setData(initialData);
+    setActiveCvId(null);
+    setIsBuilder(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -3127,8 +3230,62 @@ export default function Home() {
               >
                 Formats ATS & UE
               </button>
+              {user && (
+                <button
+                  onClick={() => {
+                    setIsSavedCvsOpen(true);
+                    setMobileNav(false);
+                  }}
+                  className="font-semibold text-emerald-800"
+                >
+                  Mes CVs ({savedCvs.length})
+                </button>
+              )}
             </nav>
             <div className="header-actions">
+              {user ? (
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsSavedCvsOpen(true)}
+                    className="button button-quiet"
+                    style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "0.82rem" }}
+                    title="Ouvrir mes CVs sauvegardés"
+                  >
+                    <FolderOpen size={15} className="text-emerald-700" />
+                    <span>Mes CVs</span>
+                    {savedCvs.length > 0 && (
+                      <span style={{ background: "#2d6a4f", color: "#fff", borderRadius: "10px", padding: "1px 6px", fontSize: "0.68rem", fontWeight: "bold" }}>
+                        {savedCvs.length}
+                      </span>
+                    )}
+                  </button>
+                  <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-900">
+                    <UserIcon size={12} className="text-emerald-700" />
+                    <span className="max-w-[100px] truncate">{user.name}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={logout}
+                    className="button button-quiet"
+                    style={{ padding: "0.4rem 0.6rem", fontSize: "0.75rem", color: "#888" }}
+                    title="Se déconnecter"
+                  >
+                    <LogOut size={14} />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => openAuthModal("login")}
+                  className="button button-quiet"
+                  style={{ fontSize: "0.82rem" }}
+                >
+                  <UserIcon size={14} />
+                  <span>Connexion</span>
+                </button>
+              )}
+
               <button className="header-cta" onClick={startBuilder}>
                 Créer mon CV <ArrowLeft size={15} />
               </button>
@@ -3146,11 +3303,25 @@ export default function Home() {
 
       <div id="top">
         {isBuilder ? (
-          <Builder data={data} setData={setData} onBack={() => setIsBuilder(false)} />
+          <Builder
+            data={data}
+            setData={setData}
+            onBack={() => setIsBuilder(false)}
+            activeCvId={activeCvId}
+            setActiveCvId={setActiveCvId}
+            onOpenSavedCvs={() => setIsSavedCvsOpen(true)}
+          />
         ) : (
           <Landing onStart={startBuilder} />
         )}
       </div>
+
+      <UserSavedCvsModal
+        isOpen={isSavedCvsOpen}
+        onClose={() => setIsSavedCvsOpen(false)}
+        onLoadCv={handleLoadCv}
+        onNewCv={handleNewCv}
+      />
 
       {!isBuilder && (
         <footer className="site-footer">

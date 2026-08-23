@@ -184,6 +184,189 @@ async function startServer() {
     }
   });
 
+  // ── User Authentication (Email/Password & Google) ──
+  app.post("/api/auth/register", async (req: Request, res: Response) => {
+    try {
+      const { registerWithEmail } = await import("./auth-service.js");
+      const { email, password, name } = req.body;
+      const result = await registerWithEmail(email, password, name);
+      res.json(result);
+    } catch (error: any) {
+      res.status(400).json({ error: error?.message || "Erreur d'inscription" });
+    }
+  });
+
+  app.post("/api/auth/login", async (req: Request, res: Response) => {
+    try {
+      const { loginWithEmail } = await import("./auth-service.js");
+      const { email, password } = req.body;
+      const result = await loginWithEmail(email, password);
+      res.json(result);
+    } catch (error: any) {
+      res.status(400).json({ error: error?.message || "Erreur de connexion" });
+    }
+  });
+
+  app.post("/api/auth/google", async (req: Request, res: Response) => {
+    try {
+      const { loginWithGoogle } = await import("./auth-service.js");
+      const { credential, idToken } = req.body;
+      const tokenToVerify = credential || idToken;
+
+      if (!tokenToVerify) {
+        res.status(400).json({ error: "Token Google manquant" });
+        return;
+      }
+
+      const result = await loginWithGoogle(tokenToVerify);
+      res.json(result);
+    } catch (error: any) {
+      res.status(400).json({ error: error?.message || "Erreur lors de la connexion Google" });
+    }
+  });
+
+  app.post("/api/auth/google/demo", async (req: Request, res: Response) => {
+    try {
+      const { findUserByIdInDb, createUserInDb } = await import("./db.js");
+      const { generateUserToken } = await import("./auth-service.js");
+      const { email, name, avatarUrl } = req.body;
+      const cleanEmail = (email || "demo.user@gmail.com").trim().toLowerCase();
+      
+      let user = await findUserByIdInDb(1);
+      if (!user) {
+        user = await createUserInDb({
+          email: cleanEmail,
+          name: name || "Utilisateur Google Demo",
+          avatarUrl: avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
+          googleId: "demo-google-id-123456",
+          role: "user",
+        });
+      }
+
+      const token = generateUserToken(user);
+
+      res.json({
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          avatarUrl: user.avatarUrl,
+          role: user.role,
+        },
+        token,
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error?.message || "Erreur demo login" });
+    }
+  });
+
+  app.get("/api/auth/me", async (req: Request, res: Response) => {
+    try {
+      const { verifyUserToken } = await import("./auth-service.js");
+      const { findUserByIdInDb } = await import("./db.js");
+      const authHeader = req.headers["authorization"] || req.headers["x-auth-token"];
+      const payload = verifyUserToken(authHeader?.toString() || "");
+
+      if (!payload) {
+        res.status(401).json({ error: "Non authentifié" });
+        return;
+      }
+
+      const user = await findUserByIdInDb(payload.userId);
+      if (!user) {
+        res.status(404).json({ error: "Utilisateur non trouvé" });
+        return;
+      }
+
+      res.json({
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          avatarUrl: user.avatarUrl,
+          role: user.role,
+        },
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error?.message || "Erreur session" });
+    }
+  });
+
+  // ── User Saved CVs Endpoints ──
+
+  app.get("/api/user/cvs", async (req: Request, res: Response) => {
+    try {
+      const { verifyUserToken } = await import("./auth-service.js");
+      const { getUserCvsFromDb } = await import("./db.js");
+      const authHeader = req.headers["authorization"] || req.headers["x-auth-token"];
+      const payload = verifyUserToken(authHeader?.toString() || "");
+
+      if (!payload) {
+        res.status(401).json({ error: "Authentification requise" });
+        return;
+      }
+
+      const cvList = await getUserCvsFromDb(payload.userId);
+      res.json({ cvs: cvList });
+    } catch (error: any) {
+      res.status(500).json({ error: error?.message || "Erreur lors du chargement des CVs" });
+    }
+  });
+
+  app.post("/api/user/cvs/save", async (req: Request, res: Response) => {
+    try {
+      const { verifyUserToken } = await import("./auth-service.js");
+      const { saveUserCvInDb } = await import("./db.js");
+      const authHeader = req.headers["authorization"] || req.headers["x-auth-token"];
+      const payload = verifyUserToken(authHeader?.toString() || "");
+
+      if (!payload) {
+        res.status(401).json({ error: "Authentification requise" });
+        return;
+      }
+
+      const { id, title, dataJson, template, language, isUnlocked } = req.body;
+      if (!dataJson) {
+        res.status(400).json({ error: "Données du CV manquantes" });
+        return;
+      }
+
+      const saved = await saveUserCvInDb({
+        id: id ? Number(id) : undefined,
+        userId: payload.userId,
+        title: title || "Mon CV Tounsi",
+        dataJson: typeof dataJson === "string" ? dataJson : JSON.stringify(dataJson),
+        template: template || "professional",
+        language: language || "fr",
+        isUnlocked: !!isUnlocked,
+      });
+
+      res.json({ success: true, cv: saved });
+    } catch (error: any) {
+      res.status(500).json({ error: error?.message || "Erreur sauvegarde CV" });
+    }
+  });
+
+  app.delete("/api/user/cvs/:id", async (req: Request, res: Response) => {
+    try {
+      const { verifyUserToken } = await import("./auth-service.js");
+      const { deleteUserCvFromDb } = await import("./db.js");
+      const authHeader = req.headers["authorization"] || req.headers["x-auth-token"];
+      const payload = verifyUserToken(authHeader?.toString() || "");
+
+      if (!payload) {
+        res.status(401).json({ error: "Authentification requise" });
+        return;
+      }
+
+      const cvId = Number(req.params.id);
+      const success = await deleteUserCvFromDb(payload.userId, cvId);
+      res.json({ success });
+    } catch (error: any) {
+      res.status(500).json({ error: error?.message || "Erreur suppression CV" });
+    }
+  });
+
   // ── Admin Authentication Middleware ──
   const ADMIN_PASSWORD = (process.env.ADMIN_PASSWORD || "cvtounsi_admin_2026").trim();
 
