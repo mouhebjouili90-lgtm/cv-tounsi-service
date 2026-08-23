@@ -156,10 +156,11 @@ app.post("/api/verify-token", (req: Request, res: Response) => {
 });
 
 // ── Server-side PDF Generator & Paywall Verification ──
+import { canGenerateCleanPdf, buildPrintHtml } from "../server/pdf-generator";
+
 app.post("/api/pdf/generate", async (req: Request, res: Response) => {
   try {
     const { html, token, isDemo } = req.body;
-    const { canGenerateCleanPdf, buildPrintHtml } = await import("../server/pdf-generator");
 
     const isUnlocked = canGenerateCleanPdf(token);
 
