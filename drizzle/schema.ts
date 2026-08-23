@@ -26,7 +26,6 @@ export type InsertActivationCode = typeof activationCodes.$inferInsert;
 
 /**
  * ── Table: CV Analytics & Generations (Statistiques d'utilisation) ──
- * Enregistre les CVs créés pour analyser les tendances (métiers les plus demandés, langues, etc.)
  */
 export const cvGenerations = mysqlTable("cv_generations", {
   id: serial("id").primaryKey(),
@@ -43,15 +42,37 @@ export type CvGeneration = typeof cvGenerations.$inferSelect;
 export type InsertCvGeneration = typeof cvGenerations.$inferInsert;
 
 /**
- * ── Table: Admin Users (Gestionnaires du SaaS) ──
+ * ── Table: Users (Comptes Candidats & Administrateurs) ──
  */
 export const users = mysqlTable("users", {
   id: serial("id").primaryKey(),
-  email: varchar("email", { length: 191 }).unique(),
+  email: varchar("email", { length: 191 }).notNull().unique(),
   name: varchar("name", { length: 128 }),
-  role: varchar("role", { length: 32 }).default("user").notNull(), // admin, user
+  passwordHash: varchar("password_hash", { length: 255 }),
+  googleId: varchar("google_id", { length: 128 }),
+  avatarUrl: varchar("avatar_url", { length: 255 }),
+  role: varchar("role", { length: 32 }).default("user").notNull(), // user, admin
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  lastLoginAt: timestamp("last_login_at"),
 });
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
+
+/**
+ * ── Table: User Saved CVs (Sauvegarde automatique des CVs en BDD) ──
+ */
+export const userCvs = mysqlTable("user_cvs", {
+  id: serial("id").primaryKey(),
+  userId: int("user_id").notNull(),
+  title: varchar("title", { length: 128 }).notNull(),
+  dataJson: text("data_json").notNull(),
+  template: varchar("template", { length: 32 }).default("professional").notNull(),
+  language: varchar("language", { length: 8 }).default("fr").notNull(),
+  isUnlocked: boolean("is_unlocked").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type UserCv = typeof userCvs.$inferSelect;
+export type InsertUserCv = typeof userCvs.$inferInsert;

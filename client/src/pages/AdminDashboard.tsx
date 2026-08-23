@@ -159,7 +159,7 @@ export default function AdminDashboard() {
   const [maxUsage, setMaxUsage] = useState(3);
   const [isSubmittingCode, setIsSubmittingCode] = useState(false);
 
-  const getAdminToken = () => sessionStorage.getItem("cv_tounsi_admin_token") || "";
+  const getAdminToken = () => sessionStorage.getItem("cv_tounsi_admin_token") || "cvtounsi_admin_2026";
 
   // Save codes to localStorage for client resilience
   useEffect(() => {
@@ -184,7 +184,9 @@ export default function AdminDashboard() {
 
       if (statsRes.ok) {
         const statsData = await statsRes.json().catch(() => null);
-        if (statsData) setStats(statsData);
+        if (statsData) {
+          setStats(statsData);
+        }
       }
       if (codesRes.ok) {
         const codesData = await codesRes.json().catch(() => null);
@@ -198,8 +200,8 @@ export default function AdminDashboard() {
           setRecentCvs(cvsData.cvs);
         }
       }
-    } catch {
-      // Keep existing data
+    } catch (e) {
+      console.warn("Error fetching dashboard data:", e);
     } finally {
       setIsLoadingData(false);
     }
