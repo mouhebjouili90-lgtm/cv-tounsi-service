@@ -78,14 +78,17 @@ async function runActivationVerification() {
     process.exit(1);
   }
 
-  // 5. Test d'un faux code pirate
-  console.log(`\n5️⃣ Test de sécurité : tentative avec un code pirate inexistant (HACK1234)`);
-  const isFakeValid = await validateActivationCode("HACK1234", "Candidat");
-  console.log(`Résultat code invalide : ${!isFakeValid ? "✅ REJETÉ AVEC SUCCÈS" : "❌ ACCEPTÉ PAR ERREUR"}`);
-
-  if (isFakeValid) {
-    console.error("❌ La sécurité a échoué : un faux code a été accepté !");
-    process.exit(1);
+  // 5. Test de sécurité : codes devinables avec préfixes/suffixes arbitraires
+  console.log(`\n5️⃣ Test de sécurité : vérification du rejet des codes devinables`);
+  const fakeCodes = ["HACK1234", "TN1234", "CVABCD", "PRO9999", "RANDOM19", "FAKEPASS"];
+  
+  for (const fake of fakeCodes) {
+    const isAccepted = await validateActivationCode(fake, "Candidat Test");
+    console.log(`  - Code "${fake}" : ${!isAccepted ? "✅ REJETÉ AVEC SUCCÈS" : "❌ ACCEPTÉ PAR ERREUR"}`);
+    if (isAccepted) {
+      console.error(`❌ La sécurité a échoué : le faux code "${fake}" a été accepté !`);
+      process.exit(1);
+    }
   }
 
   console.log("\n==================================================");

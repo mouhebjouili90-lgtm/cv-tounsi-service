@@ -51,60 +51,25 @@ export async function validateActivationCode(inputCode: string, fullName: string
     console.warn("[Activation Server] DB check skipped, falling back to algorithmic validation:", err);
   }
 
-  // 2. Priority 2: Standard permanent codes
+  // 2. Priority 2: Standard official promo/admin codes
   const standardCodes = [
-    "TN19", "CV19", "TOUNSI19", "TOUNSI2026",
-    "CVTOUNSI", "CVTOUNSI19", "PASS19", "PRO19",
-    "VIP19", "PAID19", "19TND", "95669209",
-    "9566920919", "ADMINPRO",
+    "TN19",
+    "CV19",
+    "TOUNSI19",
+    "TOUNSI2026",
+    "CVTOUNSI",
+    "CVTOUNSI19",
+    "PASS19",
+    "PRO19",
+    "VIP19",
+    "PAID19",
+    "19TND",
+    "95669209",
+    "ADMINPRO",
   ];
   if (standardCodes.includes(cleanInput)) return true;
 
-  // 3. Priority 3: Date-based dynamic codes
-  const now = new Date();
-  const dayStr = String(now.getDate()).padStart(2, "0");
-  const monthStr = String(now.getMonth() + 1).padStart(2, "0");
-  const yearStr = String(now.getFullYear());
-
-  const dateCodes = [
-    `TN${dayStr}`, `TN${dayStr}19`, `TN${monthStr}19`,
-    `TN${yearStr}`, `CV${yearStr}`, `CV${monthStr}19`,
-  ];
-  if (dateCodes.includes(cleanInput)) return true;
-
-  // 4. Priority 4: Name-based personalized codes
-  if (fullName && fullName.trim().length > 0) {
-    const rawWords = fullName.trim().split(/\s+/)
-      .map((w) => normalizeCodeString(w))
-      .filter((w) => w.length >= 2);
-
-    for (const word of rawWords) {
-      const candidateValidVariants = [
-        `${word}19`, `${word}26`, `${word}${yearStr}`,
-        `TN${word}`, `TN${word}19`, `CV${word}`,
-        `CV${word}19`, `${word}`,
-      ];
-      if (candidateValidVariants.includes(cleanInput)) return true;
-    }
-
-    const fullCombined = rawWords.join("");
-    if (
-      cleanInput === `${fullCombined}19` ||
-      cleanInput === `TN${fullCombined}` ||
-      cleanInput === `TN${fullCombined}19` ||
-      cleanInput === `${fullCombined}${yearStr}`
-    ) return true;
-  }
-
-  // 5. Priority 5: Structured code with official prefix/suffix
-  if (
-    cleanInput.startsWith("TN") || cleanInput.startsWith("CV") ||
-    cleanInput.startsWith("PRO") || cleanInput.startsWith("VIP") ||
-    cleanInput.endsWith("19")
-  ) {
-    if (cleanInput.length >= 4) return true;
-  }
-
+  // All other codes without a valid DB entry are strictly rejected
   return false;
 }
 
