@@ -11,7 +11,6 @@ import {
 } from "@/lib/gemini";
 import {
   generateSuggestedCode,
-  validateDynamicActivationCode,
 } from "@/lib/activation";
 import {
   trackEvent,
@@ -1900,17 +1899,8 @@ function Builder({
         return;
       }
     } catch {
-      // Fallback: Local validation if network error
-      const isValidLocal = validateDynamicActivationCode(clientCodeInput, data.fullName);
-      if (isValidLocal) {
-        setIsUnlocked(true);
-        localStorage.setItem("cv_tounsi_client_unlocked", "true");
-        setShowPaywallModal(false);
-        trackCodeActivated("LocalFallback");
-        toast.success("✅ Code d'activation validé avec succès ! Votre CV est débloqué.");
-        executeDownloadPdf(false);
-        return;
-      }
+      toast.error("Erreur de connexion au serveur de validation. Veuillez vérifier votre connexion internet et réessayer.");
+      return;
     }
 
     toast.error("Code d'activation incorrect. Veuillez vérifier le code reçu sur WhatsApp (+216 95 669 209).");
