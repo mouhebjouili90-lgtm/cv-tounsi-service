@@ -1752,7 +1752,22 @@ function Builder({
 }) {
   const { user, openAuthModal, saveCvToCloud, savedCvs } = useAuth();
   const [isSavingCloud, setIsSavingCloud] = useState(false);
-  const [step, setStep] = useState<BuilderStep>(0);
+  const [step, setStep] = useState<BuilderStep>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("cv_tounsi_builder_step");
+      if (saved !== null) {
+        const num = Number(saved);
+        if (num >= 0 && num <= 3) return num as BuilderStep;
+      }
+    }
+    return 0;
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("cv_tounsi_builder_step", step.toString());
+    }
+  }, [step]);
   const [deviceMode, setDeviceMode] = useState<DeviceMode>(() =>
     typeof window !== "undefined" && window.innerWidth < 850 ? "mobile" : "desktop"
   );
@@ -3152,14 +3167,54 @@ function Builder({
   );
 }
 
+const DRAFT_STORAGE_KEY = "cv_tounsi_live_draft_v1";
+
 /* ─── Main Page ─── */
 export default function Home() {
   const { user, openAuthModal, logout, savedCvs } = useAuth();
-  const [isBuilder, setIsBuilder] = useState(false);
+  const [isBuilder, setIsBuilder] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("cv_tounsi_in_builder") === "true";
+    }
+    return false;
+  });
   const [mobileNav, setMobileNav] = useState(false);
-  const [data, setData] = useState<CvData>(initialData);
+  const [data, setData] = useState<CvData>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem(DRAFT_STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && typeof parsed === "object" && parsed.fullName !== undefined) {
+            return parsed;
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+    return initialData;
+  });
   const [activeCvId, setActiveCvId] = useState<number | null>(null);
   const [isSavedCvsOpen, setIsSavedCvsOpen] = useState(false);
+
+  // Auto-persist live draft on every change
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(data));
+      } catch {
+        // ignore
+      }
+    }
+  }, [data]);
+
+  // Auto-persist builder view mode
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("cv_tounsi_in_builder", isBuilder ? "true" : "false");
+    }
+  }, [isBuilder]);
 
   const startBuilder = () => {
     trackBuilderStarted(data.template, data.language);
@@ -3185,6 +3240,11 @@ export default function Home() {
     setData(initialData);
     setActiveCvId(null);
     setIsBuilder(true);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
+      localStorage.setItem("cv_tounsi_builder_step", "0");
+    }
+    toast.info("Nouveau CV vierge initialisé.");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
