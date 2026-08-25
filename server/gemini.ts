@@ -1,4 +1,4 @@
-/* CV Tounsi — Module haute performance Google Gemini 3.6 Flash (Le modèle le plus rapide et fiable) */
+/* CV Tounsi — Module haute performance Google Gemini 3.6 Flash */
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -33,9 +33,8 @@ export async function callGemini({
       },
     ],
     generationConfig: {
-      temperature: 0.2, // Faible température pour un résultat ultra-fiable et cohérent
-      topP: 0.85,
-      maxOutputTokens: 1024, // Limité pour une génération instantanée
+      temperature: 0.25,
+      maxOutputTokens: 2048,
     },
   };
 

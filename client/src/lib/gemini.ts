@@ -1,21 +1,24 @@
-/* CV Tounsi — Moteur IA Ultra-Rapide (< 1s garanti) avec Google Gemini 3.6 Flash
-   Support différencié : Profil Expérimenté vs Profil Étudiant / Jeune Diplômé */
+/* CV Tounsi — Moteur IA Ultra-Performant avec Google Gemini 3.6 Flash
+   Génération sur-mesure & dynamique selon le profil de chaque candidat */
 
 export type ProfileType = "experienced" | "student";
 
-// Helper pour nettoyer les textes générés
+// Helper pour nettoyer et formater les textes générés
 function cleanAiText(raw: string): string {
+  if (!raw) return "";
   return raw
-    .replace(/^["'«»]|["'«»]$/g, "")
-    .replace(/```(?:json)?/gi, "")
+    .replace(/^["'«»“]|["'«»”]$/g, "")
+    .replace(/^>+\s*/gm, "") // Retire les blockquotes markdown
+    .replace(/\*\*(.*?)\*\*/g, "$1") // Nettoie le gras superflu
+    .replace(/```(?:json|markdown)?/gi, "")
     .replace(/```/g, "")
     .trim();
 }
 
-// Appel rapide à Gemini avec limite stricte de 1800ms
+// Appel rapide à Gemini avec limite réaliste de 12000ms
 async function fetchGeminiWithTimeout(prompt: string, systemInstruction?: string): Promise<string> {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 1800);
+  const timeoutId = setTimeout(() => controller.abort(), 12000);
 
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   try {
@@ -52,7 +55,7 @@ async function fetchGeminiWithTimeout(prompt: string, systemInstruction?: string
   }
 }
 
-/* ── 1. Amélioration de l'Accroche / Profil (Différencié Expérimenté vs Étudiant) ── */
+/* ── 1. Amélioration de l'Accroche / Profil (Sur-mesure selon le mot-clé ou poste réel) ── */
 export async function improveProfileWithGemini({
   language,
   targetRole,
@@ -71,31 +74,39 @@ export async function improveProfileWithGemini({
     de: "allemand",
     it: "italien",
   };
-  const role = targetRole || (profileType === "student" ? "Étudiant / Futur Diplômé" : "Professionnel");
+
+  const rawSummary = (currentSummary || "").trim();
+  const rawRole = (targetRole || "").trim();
   const isStudent = profileType === "student";
 
+  // Déterminer le domaine réel saisi par le candidat
+  let domain = rawSummary.length > 0 && rawSummary.length < 80 
+    ? rawSummary 
+    : (rawRole || (isStudent ? "Étudiant / Futur Diplômé" : "Professionnel"));
+
   const systemInstruction = isStudent
-    ? `Tu es un coach carrière spécialisé pour étudiants et jeunes diplômés. Rédige une accroche percutante de 3 phrases en ${langNames[language] || "français"} pour un étudiant / jeune diplômé visant "${role}". Mets l'accent sur la solidité de la formation académique, la passion pour le domaine, la rapidité d'apprentissage et la motivation pour un stage / premier emploi. Réponds UNIQUEMENT avec le paragraphe.`
-    : `Tu es un expert RH de direction. Rédige une accroche percutante de 3 phrases en ${langNames[language] || "français"} pour un professionnel expérimenté au poste de "${role}". Mets en avant l'expertise métier, les résultats concrets et le leadership opérationnel. Réponds UNIQUEMENT avec le paragraphe.`;
+    ? `Tu es un coach carrière expert pour étudiants et débutants. Rédige UNIQUEMENT un paragraphe d'accroche de 2 à 3 phrases percutantes en ${langNames[language] || "français"} pour un étudiant / jeune diplômé dans le domaine "${domain}". Valorise la formation, la curiosité, l'adaptabilité et la motivation. Interdiction de mettre des titres, des puces, des guillemets ou des alternatives. Réponds UNIQUEMENT avec le texte final du CV.`
+    : `Tu es un expert RH de direction. Rédige UNIQUEMENT un paragraphe d'accroche professionnelle de 2 à 3 phrases percutantes en ${langNames[language] || "français"} pour un profil dans le domaine/poste "${domain}". Valorise l'expertise, les résultats, la rigueur et la valeur ajoutée métier. Interdiction de mettre des titres, des puces, des guillemets ou des alternatives. Réponds UNIQUEMENT avec le texte final du CV.`;
+
+  const userPrompt = rawSummary.length > 0
+    ? `Rédige l'accroche de CV pour ce profil : "${rawSummary}". Intitulé ou domaine : "${domain}".`
+    : `Rédige l'accroche de CV pour un professionnel ciblant le domaine : "${domain}".`;
 
   try {
-    const res = await fetchGeminiWithTimeout(
-      currentSummary
-        ? `Reformule cette accroche pour un profil ${isStudent ? "étudiant / débutant" : "expérimenté"} ciblant ${role} : "${currentSummary}"`
-        : `Rédige une accroche percutante pour un profil ${isStudent ? "étudiant / débutant" : "expérimenté"} ciblant ${role}.`,
-      systemInstruction
-    );
-    if (res) return res;
-  } catch {
-    // Instant fallback
+    const res = await fetchGeminiWithTimeout(userPrompt, systemInstruction);
+    if (res && res.length > 25) return res;
+  } catch (err) {
+    console.warn("[Gemini Client] Utilisation du moteur sémantique local de secours:", err);
   }
 
-  // Fallbacks sémantiques riches différenciés
+  // Fallback sémantique dynamique personnalisé selon le mot-clé exact saisi
+  const role = domain || "votre spécialité";
+
   if (isStudent) {
     const studentTemplates: Record<string, string[]> = {
       fr: [
-        `Étudiant(e) motivé(e) et rigoureux(se) dans le domaine de ${role}, doté(e) d'une solide formation académique et d'un vif esprit d'analyse. Passionné(e) par les nouvelles technologies et les projets innovants, je fais preuve d'une grande adaptabilité et d'un sens aigu du travail en équipe. En recherche active d'une opportunité (stage / premier emploi) pour mettre mon dynamisme au service de vos objectifs.`,
-        `Futur(e) diplômé(e) passionné(e) par ${role}, combinant curiosité intellectuelle, rigueur méthodologique et capacité d'apprentissage rapide. Fort(e) de projets académiques concrets et d'expériences associatives enrichissantes, je souhaite intégrer une équipe ambitieuse pour relever de nouveaux défis professionnels.`,
+        `Étudiant(e) motivé(e) et rigoureux(se) dans le domaine de ${role}, doté(e) d'une solide formation académique et d'un vif esprit d'analyse. Passionné(e) par les projets innovants et les nouvelles technologies, je fais preuve d'une grande adaptabilité et d'un sens aigu du travail en équipe. En recherche active d'une opportunité (stage / premier emploi) pour mettre mon dynamisme et mes compétences au service de vos objectifs.`,
+        `Futur(e) diplômé(e) passionné(e) par ${role}, combinant curiosité intellectuelle, rigueur méthodologique et capacité d'apprentissage rapide. Fort(e) de projets académiques concrets et d'un engagement fort, je souhaite intégrer une équipe ambitieuse pour relever de nouveaux défis professionnels.`,
       ],
       en: [
         `Enthusiastic and results-oriented student in ${role} with a solid academic foundation and strong analytical mindset. Passionate about solving real-world challenges with agility and rapid learning curve. Eager to contribute energy and technical skills to an innovative team through an internship or entry-level position.`,
@@ -116,17 +127,17 @@ export async function improveProfileWithGemini({
 
   const expTemplates: Record<string, string[]> = {
     fr: [
-      `Professionnel(le) passionné(e) et rigoureux(se) au poste de ${role}, combinant une solide maîtrise technique et une vision orientée résultats. Fort(e) d'une capacité démontrée à piloter des projets complexes avec agilité et à fédérer les équipes autour d'objectifs ambitieux. Reconnu(e) pour mon autonomie, ma réactivité et mon engagement continu vers l'excellence opérationnelle.`,
-      `Spécialiste confirmé(e) en ${role}, doté(e) d'une approche analytique et d'un excellent sens relationnel. Capable de transformer les enjeux stratégiques en solutions concrètes, performantes et mesurables. Motivé(e) à mettre mon savoir-faire au service de projets d'envergure et innovants.`,
+      `Professionnel(le) passionné(e) et rigoureux(se) spécialisé(e) en ${role}, combinant une solide maîtrise technique et une vision stratégique orientée résultats. Fort(e) d'une capacité démontrée à piloter des projets complexes avec agilité et à fédérer les équipes autour d'objectifs ambitieux. Reconnu(e) pour mon autonomie, ma réactivité et mon engagement continu vers l'excellence opérationnelle.`,
+      `Spécialiste confirmé(e) en ${role}, doté(e) d'une approche analytique et d'un excellent sens relationnel. Capable d'anticiper les défis majeurs et de concevoir des solutions performantes, sécurisées et mesurables. Motivé(e) à mettre mon savoir-faire au service de projets d'envergure.`,
     ],
     en: [
-      `Results-driven and strategic ${role} with a proven track record of operational excellence and project delivery. Skilled in fostering cross-functional collaboration and implementing innovative solutions that drive measurable business impact. Committed to continuous improvement and high performance.`,
+      `Results-driven and strategic ${role} specialist with a proven track record of operational excellence and project delivery. Skilled in fostering cross-functional collaboration and implementing innovative solutions that drive measurable business impact. Committed to continuous improvement and high performance.`,
     ],
     ar: [
       `مهني متمرس ومتميز في مجال ${role}، يمتلك كفاءة عالية في إدارة المشاريع وتحقيق الأهداف الاستراتيجية بأعلى معايير الجودة والاحترافية.`,
     ],
     de: [
-      `Engagierte(r) und zielorientierte(r) ${role} mit fundierter Erfahrung in operativer Exzellenz, agilem Projektmanagement und Teamführung.`,
+      `Engagierte(r) und zielorientierte(r) ${role} Spezialist mit fundierter Erfahrung in operativer Exzellenz, agilem Projektmanagement und Teamführung.`,
     ],
     it: [
       `Professionista dinamico e orientato ai risultati nel ruolo di ${role}, con comprovata esperienza nella gestione di progetti e lavoro di squadra.`,
@@ -136,7 +147,7 @@ export async function improveProfileWithGemini({
   return list[Math.floor(Math.random() * list.length)];
 }
 
-/* ── 2. Amélioration des Expériences / Projets (Différencié) ── */
+/* ── 2. Amélioration des Expériences / Projets ── */
 export async function improveExperienceWithGemini({
   language,
   targetRole,
@@ -157,8 +168,8 @@ export async function improveExperienceWithGemini({
   const isStudent = profileType === "student";
 
   const systemInstruction = isStudent
-    ? `Tu es un spécialiste de l'insertion professionnelle des étudiants. Transforme cette expérience, stage ou projet académique en 3 à 4 puces concises d'impact en ${language}. Mets en valeur les technologies utilisées, la méthodologie de travail et les résultats du projet. Commence chaque puce par •.`
-    : `Tu es un spécialiste ATS. Transforme ces missions professionnelles en 3 à 4 puces d'impact chiffrées en ${language}. Commence chaque puce par •.`;
+    ? `Tu es un spécialiste de l'insertion professionnelle des étudiants. Transforme cette expérience, stage ou projet académique en 3 à 4 puces concises d'impact en ${language}. Mets en valeur les technologies utilisées, la méthodologie de travail et les résultats du projet. Commence chaque puce par •. Ne mets rien d'autre.`
+    : `Tu es un spécialiste ATS et recrutement. Transforme ces missions professionnelles en 3 à 4 puces d'impact chiffrées en ${language}. Commence chaque puce par •. Ne mets rien d'autre.`;
 
   try {
     const res = await fetchGeminiWithTimeout(
@@ -169,8 +180,8 @@ export async function improveExperienceWithGemini({
       const lines = res.split("\n").filter((l) => l.trim().length > 0);
       return lines.map((l) => (l.startsWith("•") ? l : `• ${l.replace(/^[-*–—]\s*/, "")}`)).join("\n");
     }
-  } catch {
-    // Instant fallback
+  } catch (err) {
+    console.warn("[Gemini Client] Fallback expérience:", err);
   }
 
   const rawLines = description
@@ -200,7 +211,7 @@ export async function improveExperienceWithGemini({
   ].join("\n");
 }
 
-/* ── 3. Suggestion de Compétences Clés (Différencié) ── */
+/* ── 3. Suggestion de Compétences Clés ── */
 export async function improveSkillsWithGemini({
   language,
   targetRole,
@@ -217,12 +228,12 @@ export async function improveSkillsWithGemini({
 
   try {
     const res = await fetchGeminiWithTimeout(
-      `Profil : ${isStudent ? "Étudiant / Junior" : "Professionnel expérimenté"}. Poste cible : ${role}. Compétences actuelles : ${currentSkills || "aucune"}.`,
-      `Recruteur. Donne 8 à 10 compétences clés (hard skills, logiciels, soft skills adaptés aux ${isStudent ? "juniors / étudiants" : "seniors"}) séparées par · en ${language}.`
+      `Profil : ${isStudent ? "Étudiant / Junior" : "Professionnel expérimenté"}. Poste ou domaine cible : ${role}. Compétences actuelles : ${currentSkills || "aucune"}.`,
+      `Recruteur. Donne 8 à 10 compétences clés (hard skills, logiciels, soft skills adaptés aux ${isStudent ? "juniors / étudiants" : "seniors"}) séparées par · en ${language}. Réponds UNIQUEMENT avec la liste des compétences.`
     );
     if (res) return res;
-  } catch {
-    // Instant fallback
+  } catch (err) {
+    console.warn("[Gemini Client] Fallback compétences:", err);
   }
 
   if (isStudent) {
