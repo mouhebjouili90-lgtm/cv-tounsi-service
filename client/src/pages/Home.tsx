@@ -33,6 +33,7 @@ import {
   Download,
   FileText,
   Languages,
+  LayoutGrid,
   Mail,
   MapPin,
   Menu,
@@ -70,7 +71,22 @@ import {
 
 const heroImage = "/manus-storage/cv-tounsi-hero-reference_82281e8d.jpg";
 
-export type TemplateId = "professional" | "canadian" | "europass";
+export type TemplateCategory = "all" | "professional" | "canadian" | "europass";
+
+export type TemplateId =
+  | "professional_executive"
+  | "professional_modern"
+  | "professional_compact"
+  | "canadian_classic"
+  | "canadian_modern"
+  | "canadian_executive"
+  | "europass_classic"
+  | "europass_modern"
+  | "europass_academic"
+  | "professional"
+  | "canadian"
+  | "europass";
+
 export type Language = "fr" | "en" | "de" | "it" | "ar";
 export type BuilderStep = 0 | 1 | 2 | 3;
 
@@ -92,40 +108,123 @@ export type EducationItem = {
 };
 
 export type TemplateMeta = {
+  id: TemplateId;
+  category: "professional" | "canadian" | "europass";
   label: string;
   eyebrow: string;
   description: string;
   short: string;
   badge: string;
+  complianceNote: string;
   languages: Language[];
 };
 
-export const templateCatalog: Record<TemplateId, TemplateMeta> = {
-  professional: {
-    label: "CV Professionnel",
-    eyebrow: "MODÈLE PROFESSIONNEL",
+export const templateCatalog: Record<string, TemplateMeta> = {
+  professional_executive: {
+    id: "professional_executive",
+    category: "professional",
+    label: "Professionnel Exécutif",
+    eyebrow: "MODÈLE EXÉCUTIF OLIVE",
     description: "Design 2 colonnes raffiné avec bannière olive, barre latérale structurée et timeline détaillée.",
     short: "2 Colonnes · Cadre & International",
     badge: "Exécutif & Moderne",
+    complianceNote: "Structure 2 colonnes équilibrée",
     languages: ["fr", "en", "de", "it", "ar"],
   },
-  canadian: {
-    label: "CV Canadien (ATS)",
-    eyebrow: "MODÈLE CANADIEN / ATS",
-    description: "Format nord-américain 1 colonne épuré, centré, sans photo, optimisé pour les logiciels ATS des recruteurs.",
-    short: "1 Colonne · Optimisé ATS",
+  professional_modern: {
+    id: "professional_modern",
+    category: "professional",
+    label: "Professionnel Moderne Slate",
+    eyebrow: "MODÈLE ARDOISE & BLEU NUIT",
+    description: "Header contemporain épuré, ligne d'accent bleu nuit, typographie moderne et hiérarchie claire.",
+    short: "2 Colonnes · Contemporain",
+    badge: "Corporate & Tech",
+    complianceNote: "Hiérarchie visuelle premium",
+    languages: ["fr", "en", "de", "it", "ar"],
+  },
+  professional_compact: {
+    id: "professional_compact",
+    category: "professional",
+    label: "Professionnel Tech & Startup",
+    eyebrow: "SIDEBAR SOMBRE & DIGITAL",
+    description: "Sidebar gauche sombre pleine hauteur mettant en avant les compétences avec timeline moderne.",
+    short: "Sidebar Sombre · Tech & Digital",
+    badge: "Startup & Digital",
+    complianceNote: "Mise en avant des compétences clés",
+    languages: ["fr", "en", "de", "it", "ar"],
+  },
+  canadian_classic: {
+    id: "canadian_classic",
+    category: "canadian",
+    label: "Canadien Classique ATS",
+    eyebrow: "MODÈLE CANADIEN ATS CERTIFIÉ",
+    description: "Format nord-américain 1 colonne épuré, centré, sans photo, optimisé pour les filtres ATS des recruteurs.",
+    short: "1 Colonne · 100% Conforme ATS",
     badge: "Standard Canada & USA",
+    complianceNote: "100% Conforme ATS Taleo & Workday / Anti-discrimination",
     languages: ["fr", "en"],
   },
-  europass: {
-    label: "CV Europass",
-    eyebrow: "MODÈLE EUROPASS EU",
-    description: "Structure européenne officielle en grille asymétrique avec bandeau bleu EU et timeline normalisée.",
+  canadian_modern: {
+    id: "canadian_modern",
+    category: "canadian",
+    label: "Canadien Structuré ATS",
+    eyebrow: "NORD-AMÉRICAIN STRUCTURÉ",
+    description: "Format 1 colonne avec bandeaux de rubriques discrets gris clair et alignement rigoureux.",
+    short: "1 Colonne · Structuré ATS",
+    badge: "Ingénierie & Finance",
+    complianceNote: "Parsing ATS et hiérarchie chronologique",
+    languages: ["fr", "en"],
+  },
+  canadian_executive: {
+    id: "canadian_executive",
+    category: "canadian",
+    label: "Canadien Senior Exécutif",
+    eyebrow: "EXÉCUTIF NORD-AMÉRICAIN",
+    description: "Format cadre supérieur nord-américain avec bloc de compétences clés en grille textuelle 3 colonnes.",
+    short: "1 Colonne · Senior & Direction",
+    badge: "Senior & Management",
+    complianceNote: "Normes nord-américaines de direction",
+    languages: ["fr", "en"],
+  },
+  europass_classic: {
+    id: "europass_classic",
+    category: "europass",
+    label: "Europass Officiel Bleu UE",
+    eyebrow: "MODÈLE OFFICIEL EUROPASS UE",
+    description: "Structure européenne officielle en grille asymétrique avec bandeau bleu UE et logo Europass.",
     short: "Grille Asymétrique · Standard UE",
     badge: "Union Européenne",
+    complianceNote: "Format officiel de la Commission Européenne",
+    languages: ["fr", "en", "de", "it"],
+  },
+  europass_modern: {
+    id: "europass_modern",
+    category: "europass",
+    label: "Europass Épuré Moderne",
+    eyebrow: "EUROPÉEN MINIMALISTE",
+    description: "Version allégée et modernisée du format européen sans bordures rigides avec timeline soignée.",
+    short: "Asymétrique · Épuré EU",
+    badge: "Mobilité Européenne",
+    complianceNote: "Respecte l'ordre normalisé européen",
+    languages: ["fr", "en", "de", "it"],
+  },
+  europass_academic: {
+    id: "europass_academic",
+    category: "europass",
+    label: "Europass Académique & Recherche",
+    eyebrow: "UNIVERSITAIRE & BOURSES UE",
+    description: "Conçu pour universitaires, thèses, bourses Erasmus et recherche internationale.",
+    short: "Académique & Mobilité UE",
+    badge: "Recherche & Erasmus",
+    complianceNote: "Valorisation diplômes, certifications et recherche",
     languages: ["fr", "en", "de", "it"],
   },
 };
+
+// Aliases pour rétrocompatibilité
+(templateCatalog as any).professional = templateCatalog.professional_executive;
+(templateCatalog as any).canadian = templateCatalog.canadian_classic;
+(templateCatalog as any).europass = templateCatalog.europass_classic;
 
 export const languageLabels: Record<Language, { name: string; native: string }> = {
   fr: { name: "Français", native: "FR" },
@@ -316,10 +415,10 @@ export const studentSampleData: CvData = {
 };
 
 const steps = [
-  { label: "Vos informations", caption: "Identité, statut & profil", icon: PenLine },
-  { label: "Parcours & projets", caption: "Expériences ou projets d'études", icon: Briefcase },
-  { label: "Formation & savoir-faire", caption: "Diplômes & compétences clés", icon: GraduationCap },
-  { label: "Modèle & langue", caption: "Design & export PDF", icon: FileText },
+  { label: "Modèle & design", caption: "9 modèles conformes", icon: LayoutGrid },
+  { label: "Vos informations", caption: "Identité & profil IA", icon: PenLine },
+  { label: "Parcours & projets", caption: "Expériences & missions", icon: Briefcase },
+  { label: "Savoir-faire & export", caption: "Compétences & PDF HD", icon: GraduationCap },
 ];
 
 function scrollToId(id: string) {
@@ -448,8 +547,15 @@ function ProfessionalTemplate({
     });
   };
 
+  const variantClass =
+    data.template === "professional_modern"
+      ? "prof-variant-modern"
+      : data.template === "professional_compact"
+      ? "prof-variant-compact"
+      : "prof-variant-executive";
+
   return (
-    <div className="a4-sheet resume-professional-layout" dir={data.language === "ar" ? "rtl" : "ltr"}>
+    <div className={`a4-sheet resume-professional-layout ${variantClass}`} dir={data.language === "ar" ? "rtl" : "ltr"}>
       {/* ── Top Executive Banner ── */}
       <header className="prof-header">
         <div className="prof-header-left">
@@ -891,8 +997,15 @@ function CanadianTemplate({
     </section>
   );
 
+  const variantClass =
+    data.template === "canadian_modern"
+      ? "can-variant-modern"
+      : data.template === "canadian_executive"
+      ? "can-variant-executive"
+      : "can-variant-classic";
+
   return (
-    <div className="a4-sheet resume-canadian-layout" dir={data.language === "ar" ? "rtl" : "ltr"}>
+    <div className={`a4-sheet resume-canadian-layout ${variantClass}`} dir={data.language === "ar" ? "rtl" : "ltr"}>
       <header className="can-header">
         {editable ? (
           <EditableZone
@@ -1167,8 +1280,15 @@ function EuropassTemplate({
     </div>
   );
 
+  const variantClass =
+    data.template === "europass_modern"
+      ? "euro-variant-modern"
+      : data.template === "europass_academic"
+      ? "euro-variant-academic"
+      : "euro-variant-classic";
+
   return (
-    <div className="a4-sheet resume-europass-layout" dir={data.language === "ar" ? "rtl" : "ltr"}>
+    <div className={`a4-sheet resume-europass-layout ${variantClass}`} dir={data.language === "ar" ? "rtl" : "ltr"}>
       <header className="euro-header">
         <div className="euro-logo-box">
           <div className="euro-flag-icon">★ europass</div>
@@ -1334,33 +1454,35 @@ export function ResumePreview({
   onFieldChange?: (updater: (prev: CvData) => CvData) => void;
   editable?: boolean;
 }) {
-  switch (data.template) {
-    case "canadian":
-      return (
-        <CanadianTemplate
-          data={data}
-          onFieldChange={onFieldChange}
-          editable={editable}
-        />
-      );
-    case "europass":
-      return (
-        <EuropassTemplate
-          data={data}
-          onFieldChange={onFieldChange}
-          editable={editable}
-        />
-      );
-    case "professional":
-    default:
-      return (
-        <ProfessionalTemplate
-          data={data}
-          onFieldChange={onFieldChange}
-          editable={editable}
-        />
-      );
+  const tId = data.template || "professional_executive";
+
+  if (tId.startsWith("canadian")) {
+    return (
+      <CanadianTemplate
+        data={data}
+        onFieldChange={onFieldChange}
+        editable={editable}
+      />
+    );
   }
+
+  if (tId.startsWith("europass")) {
+    return (
+      <EuropassTemplate
+        data={data}
+        onFieldChange={onFieldChange}
+        editable={editable}
+      />
+    );
+  }
+
+  return (
+    <ProfessionalTemplate
+      data={data}
+      onFieldChange={onFieldChange}
+      editable={editable}
+    />
+  );
 }
 
 /* ─── Responsive Scaled Preview Container with Zoom & Direct Editing Tools ─── */
@@ -1562,7 +1684,33 @@ function ScaledResumePreview({
 
 /* ─── Template Mini Thumbnails for Catalog ─── */
 function TemplateMini({ template }: { template: TemplateId }) {
-  if (template === "canadian") {
+  if (template === "canadian_modern") {
+    return (
+      <div className="mini-paper canadian-mini">
+        <div className="mini-title-center" />
+        <div className="mini-rule-boxed" />
+        <div className="mini-lines" />
+        <div className="mini-rule-boxed" />
+        <div className="mini-lines" />
+      </div>
+    );
+  }
+  if (template === "canadian_executive") {
+    return (
+      <div className="mini-paper canadian-mini" style={{ textAlign: "left" }}>
+        <div className="mini-title-center" style={{ margin: "0 0 6px 0", width: "75%" }} />
+        <div className="mini-rule-full" />
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "2px", margin: "4px 0" }}>
+          <i style={{ height: "2px", background: "#94a3b8", display: "block" }} />
+          <i style={{ height: "2px", background: "#94a3b8", display: "block" }} />
+          <i style={{ height: "2px", background: "#94a3b8", display: "block" }} />
+        </div>
+        <div className="mini-rule-full" />
+        <div className="mini-lines" />
+      </div>
+    );
+  }
+  if (template.startsWith("canadian")) {
     return (
       <div className="mini-paper canadian-mini">
         <div className="mini-title-center" />
@@ -1573,13 +1721,57 @@ function TemplateMini({ template }: { template: TemplateId }) {
       </div>
     );
   }
-  if (template === "europass") {
+  if (template === "europass_modern") {
+    return (
+      <div className="mini-paper europass-mini">
+        <div className="europass-top-bar euro-bar-modern" />
+        <div className="europass-split-grid">
+          <div className="europass-left-col"><i style={{ background: "#2563eb" }} /><i style={{ background: "#2563eb" }} /></div>
+          <div className="europass-right-col"><i /><i /><i /></div>
+        </div>
+      </div>
+    );
+  }
+  if (template === "europass_academic") {
+    return (
+      <div className="mini-paper europass-mini">
+        <div className="europass-top-bar" style={{ background: "#0c4a6e", height: "8px" }} />
+        <div className="europass-split-grid">
+          <div className="europass-left-col"><i style={{ background: "#0c4a6e" }} /><i style={{ background: "#0c4a6e" }} /><i style={{ background: "#0c4a6e" }} /></div>
+          <div className="europass-right-col"><i /><i /><i /></div>
+        </div>
+      </div>
+    );
+  }
+  if (template.startsWith("europass")) {
     return (
       <div className="mini-paper europass-mini">
         <div className="europass-top-bar" />
         <div className="europass-split-grid">
           <div className="europass-left-col"><i /><i /></div>
           <div className="europass-right-col"><i /><i /><i /></div>
+        </div>
+      </div>
+    );
+  }
+  if (template === "professional_modern") {
+    return (
+      <div className="mini-paper professional-mini">
+        <div className="prof-mini-banner prof-banner-modern" />
+        <div className="prof-mini-body">
+          <div className="prof-mini-side" style={{ background: "#f8fafc" }} />
+          <div className="prof-mini-main"><i style={{ background: "#1e293b" }} /><i /><i /></div>
+        </div>
+      </div>
+    );
+  }
+  if (template === "professional_compact") {
+    return (
+      <div className="mini-paper professional-mini">
+        <div className="prof-mini-banner" style={{ background: "#0f172a", height: "12px" }} />
+        <div className="prof-mini-body">
+          <div className="prof-mini-side prof-side-dark" />
+          <div className="prof-mini-main"><i style={{ background: "#0f172a" }} /><i /><i /></div>
         </div>
       </div>
     );
@@ -1691,42 +1883,43 @@ function Landing({ onStart }: { onStart: () => void }) {
             <div>
               <div className="eyebrow">La bibliothèque de modèles</div>
               <h2>
-                Trois formats.<br />
-                <em>Trois styles bien distincts.</em>
+                Trois familles de modèles.<br />
+                <em>9 variantes certifiées conformes.</em>
               </h2>
             </div>
             <p>
-              Choisissez la structure qui correspond à votre projet professionnel, puis générez une version
-              dans la langue demandée.
+              Choisissez parmi nos modèles Exécutifs (2 colonnes), Canadiens ATS (1 colonne sans photo) ou Europass Officiels (UE), disponibles en 5 langues.
             </p>
           </div>
           <div className="template-gallery template-gallery-three">
-            {(Object.entries(templateCatalog) as [TemplateId, TemplateMeta][]).map(
-              ([id, template], index) => (
-                <article className={`template-card template-card-${id}`} key={id}>
-                  <div className="template-label">
-                    <span>{template.eyebrow}</span>
-                    <span>0{index + 1}</span>
+            {[
+              templateCatalog.professional_executive,
+              templateCatalog.canadian_classic,
+              templateCatalog.europass_classic,
+            ].map((template, index) => (
+              <article className={`template-card template-card-${template.id}`} key={template.id}>
+                <div className="template-label">
+                  <span>{template.eyebrow}</span>
+                  <span>0{index + 1}</span>
+                </div>
+                <TemplateMini template={template.id} />
+                <div className="template-card-bottom">
+                  <div>
+                    <span className="template-badge-pill">{template.badge}</span>
+                    <h3>{template.label}</h3>
+                    <p>{template.description}</p>
+                    <LanguagePills languages={template.languages} />
                   </div>
-                  <TemplateMini template={id} />
-                  <div className="template-card-bottom">
-                    <div>
-                      <span className="template-badge-pill">{template.badge}</span>
-                      <h3>{template.label}</h3>
-                      <p>{template.description}</p>
-                      <LanguagePills languages={template.languages} />
-                    </div>
-                    <button
-                      className="circle-arrow"
-                      onClick={onStart}
-                      aria-label={`Choisir le ${template.label}`}
-                    >
-                      <ArrowLeft size={17} />
-                    </button>
-                  </div>
-                </article>
-              ),
-            )}
+                  <button
+                    className="circle-arrow"
+                    onClick={onStart}
+                    aria-label={`Choisir le ${template.label}`}
+                  >
+                    <ArrowLeft size={17} />
+                  </button>
+                </div>
+              </article>
+            ))}
           </div>
         </div>
       </section>
@@ -1825,6 +2018,23 @@ function Builder({
   const [isSkillsLoading, setIsSkillsLoading] = useState(false);
   const [isLanguagesLoading, setIsLanguagesLoading] = useState(false);
   const [isGlobalLoading, setIsGlobalLoading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<TemplateCategory>("all");
+
+  const filteredTemplates = useMemo(() => {
+    const list = [
+      templateCatalog.professional_executive,
+      templateCatalog.professional_modern,
+      templateCatalog.professional_compact,
+      templateCatalog.canadian_classic,
+      templateCatalog.canadian_modern,
+      templateCatalog.canadian_executive,
+      templateCatalog.europass_classic,
+      templateCatalog.europass_modern,
+      templateCatalog.europass_academic,
+    ];
+    if (selectedCategory === "all") return list;
+    return list.filter((t) => t.category === selectedCategory);
+  }, [selectedCategory]);
 
   const printTargetRef = useRef<HTMLDivElement | null>(null);
 
@@ -2296,17 +2506,20 @@ function Builder({
   /* ── Form Steps Content Sub-Component (Shared by PC and Mobile) ── */
   const renderFormContent = () => (
     <>
-      {/* Étape 0: Statut / Profil & Coordonnées */}
+      {/* ═══════════════════════════════════════════════════════════════════════
+         ÉTAPE 01: CHOIX DU MODÈLE & STYLE VISUEL (Modèle en premier)
+         ═══════════════════════════════════════════════════════════════════════ */}
       {step === 0 && (
         <div className="form-panel reveal-up">
-          <div className="panel-kicker">PROFIL & SITUATION ACTUELLE</div>
-          <h2>Quelle est votre situation ?</h2>
+          <div className="panel-kicker">SÉLECTION DU MODÈLE & STYLE</div>
+          <h2>Choisissez votre modèle de CV & langue.</h2>
           <p className="panel-lead">
-            Le modèle de CV et les conseils de l'IA s'adaptent selon que vous ayez déjà de l'expérience ou que vous soyez étudiant.
+            Sélectionnez parmi 9 modèles certifiés et conformes aux normes internationales (Exécutif 2 colonnes, Canadien ATS 1 colonne ou Europass UE), votre profil et la langue du CV.
           </p>
 
           {/* ── Profile Type Selector (Experienced vs Student) ── */}
-          <div className="profile-type-grid">
+          <div className="panel-kicker" style={{ marginTop: "1rem" }}>VOTRE SITUATION / PROFIL</div>
+          <div className="profile-type-grid" style={{ marginBottom: "0.8rem" }}>
             <button
               type="button"
               className={`profile-type-card ${data.profileType === "experienced" ? "selected" : ""}`}
@@ -2317,7 +2530,7 @@ function Builder({
               </div>
               <div className="profile-type-text">
                 <strong>💼 Profil Expérimenté</strong>
-                <p>Vous avez déjà de l'expérience professionnelle (CDI, CDD, Freelance...). Vos postes sont mis en avant.</p>
+                <p>Expérience professionnelle (CDI, CDD, Freelance...). Postes valorisés.</p>
               </div>
             </button>
 
@@ -2331,20 +2544,115 @@ function Builder({
               </div>
               <div className="profile-type-text">
                 <strong>🎓 Étudiant / Jeune Diplômé</strong>
-                <p>En recherche de stage PFE ou 1er emploi. Vos formations, diplômes et projets d'études sont valorisés en priorité.</p>
+                <p>Recherche de stage PFE ou 1er emploi. Formations et projets valorisés.</p>
               </div>
             </button>
           </div>
 
-          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "1rem" }}>
+          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "1.2rem" }}>
             <button
               type="button"
-              style={{ fontSize: "0.72rem", color: "var(--olive-dark)", background: "transparent", textDecoration: "underline", cursor: "pointer" }}
+              style={{ fontSize: "0.72rem", color: "var(--olive-dark)", background: "transparent", textDecoration: "underline", cursor: "pointer", fontWeight: 600 }}
               onClick={() => loadSample(data.profileType)}
             >
               ✦ Charger un exemple type {isStudent ? "Étudiant (PFE / Projets)" : "Professionnel Expérimenté"}
             </button>
           </div>
+
+          {/* ── Category Filter Tabs ── */}
+          <div className="panel-kicker">BIBLIOTHÈQUE DE MODÈLES CONFORMES (9)</div>
+          <div className="template-category-tabs">
+            {[
+              { id: "all", label: "Tous les modèles (9)" },
+              { id: "professional", label: "💼 Professionnels (3)" },
+              { id: "canadian", label: "🍁 Canadiens ATS (3)" },
+              { id: "europass", label: "🇪🇺 Europass UE (3)" },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                className={`template-category-tab ${selectedCategory === tab.id ? "active" : ""}`}
+                onClick={() => setSelectedCategory(tab.id as TemplateCategory)}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* ── 9 Templates Responsive Grid ── */}
+          <div className="template-options-grid">
+            {filteredTemplates.map((template) => {
+              const isSelected = data.template === template.id || (data.template === "professional" && template.id === "professional_executive") || (data.template === "canadian" && template.id === "canadian_classic") || (data.template === "europass" && template.id === "europass_classic");
+              const tagClass =
+                template.category === "canadian"
+                  ? "tag-can"
+                  : template.category === "europass"
+                  ? "tag-euro"
+                  : "tag-prof";
+
+              return (
+                <div
+                  key={template.id}
+                  className={`template-grid-card ${isSelected ? "selected" : ""}`}
+                  onClick={() => selectTemplate(template.id)}
+                >
+                  <div className="template-grid-card-top">
+                    <span className={`template-compliance-tag ${tagClass}`}>
+                      {template.badge}
+                    </span>
+                    <span style={{ fontSize: "0.68rem", fontWeight: 700, color: isSelected ? "var(--olive)" : "#94a3b8" }}>
+                      {isSelected ? "✓ ACTIF" : "Choisir"}
+                    </span>
+                  </div>
+                  <div className="template-grid-card-preview">
+                    <TemplateMini template={template.id} />
+                  </div>
+                  <h4>{template.label}</h4>
+                  <p>{template.description}</p>
+                  <div className="template-grid-card-footer">
+                    <span>🛡️ {template.complianceNote}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* ── Language Selection ── */}
+          <div className="option-section" style={{ marginTop: "1rem" }}>
+            <div className="option-heading">
+              <span>Langue du CV</span>
+              <small>{(templateCatalog[data.template] || templateCatalog.professional_executive).languages.length} langue(s) disponible(s)</small>
+            </div>
+            <div className="language-options">
+              {(templateCatalog[data.template] || templateCatalog.professional_executive).languages.map((lang) => (
+                <button
+                  key={lang}
+                  type="button"
+                  className={data.language === lang ? "selected" : ""}
+                  onClick={() => {
+                    setData((prev) => ({ ...prev, language: lang }));
+                  }}
+                >
+                  <Languages size={16} />
+                  <b>{languageLabels[lang].name}</b>
+                  <small>{languageLabels[lang].native} · Traduction auto des rubriques</small>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════════
+         ÉTAPE 02: VOS INFORMATIONS DE CONTACT & ACCROCHE IA
+         ═══════════════════════════════════════════════════════════════════════ */}
+      {step === 1 && (
+        <div className="form-panel reveal-up">
+          <div className="panel-kicker">COORDONNÉES & ACCROCHE PROFESSIONNELLE</div>
+          <h2>Vos informations de contact.</h2>
+          <p className="panel-lead">
+            Renseignez votre identité et personnalisez votre accroche professionnelle avec l'aide de l'IA.
+          </p>
 
           <div className="panel-kicker" style={{ marginTop: "1rem" }}>COORDONNÉES PRINCIPALES</div>
           <div className="form-grid">
@@ -2384,7 +2692,7 @@ function Builder({
             />
           </div>
 
-          <div className="field field-full">
+          <div className="field field-full" style={{ marginTop: "1rem" }}>
             <div className="field-header-row">
               <span>{isStudent ? "Accroche / Objectif de stage ou carrière" : "Profil professionnel / Accroche"}</span>
               <button
@@ -2415,8 +2723,10 @@ function Builder({
         </div>
       )}
 
-      {/* Étape 1: Expériences ou Projets d'études */}
-      {step === 1 && (
+      {/* ═══════════════════════════════════════════════════════════════════════
+         ÉTAPE 03: EXPÉRIENCES & PROJETS D'ÉTUDES (Optimisés IA)
+         ═══════════════════════════════════════════════════════════════════════ */}
+      {step === 2 && (
         <div className="form-panel reveal-up">
           <div className="panel-kicker">
             {isStudent ? "PROJETS ACADÉMIQUES, STAGES & ENGAGEMENTS" : "PARCOURS PROFESSIONNEL"}
@@ -2520,17 +2830,39 @@ function Builder({
         </div>
       )}
 
-      {/* Étape 2: Formation & Compétences */}
-      {step === 2 && (
+      {/* ═══════════════════════════════════════════════════════════════════════
+         ÉTAPE 04: FORMATION, COMPÉTENCES, LANGUES & EXPORT FINAL
+         ═══════════════════════════════════════════════════════════════════════ */}
+      {step === 3 && (
         <div className="form-panel reveal-up">
-          <div className="panel-kicker">FORMATION & SAVOIR-FAIRE</div>
-          <h2>Diplômes, compétences et langues.</h2>
+          <div className="panel-kicker">FORMATION, SAVOIR-FAIRE & EXPORT PDF</div>
+          <h2>Diplômes, compétences et export final.</h2>
           <p className="panel-lead">
             {isStudent
-              ? "Votre formation académique est au cœur de votre CV. Détaillez vos études supérieures et votre baccalauréat."
-              : "Détaillez vos formations universitaires et générez vos compétences clés avec l'Intelligence Artificielle."}
+              ? "Votre formation académique est au cœur de votre CV. Détaillez vos études, générez vos compétences clés et exportez votre CV."
+              : "Détaillez vos formations universitaires, enrichissez vos compétences avec l'IA et téléchargez votre CV certifié."}
           </p>
 
+          {/* ── AI Harmonization Banner ── */}
+          <div className="ai-step-banner" style={{ marginBottom: "1.6rem" }}>
+            <div className="ai-step-banner-icon">
+              <WandSparkles size={20} />
+            </div>
+            <div className="ai-step-banner-text">
+              <strong>Harmonisation Globale par l'IA</strong>
+              <p>Harmonisez automatiquement tous les textes, mots-clés et tournures de phrases pour votre profil {isStudent ? "étudiant" : "professionnel"}.</p>
+            </div>
+            <button
+              type="button"
+              className="button ai-button"
+              onClick={improveCopy}
+              disabled={isGlobalLoading}
+            >
+              {isGlobalLoading ? "Harmonisation..." : "Harmoniser (IA)"}
+            </button>
+          </div>
+
+          {/* ── Formations & Diplômes ── */}
           <div className="section-subheading">
             <GraduationCap size={16} /> Formations & Diplômes
           </div>
@@ -2581,6 +2913,7 @@ function Builder({
             </button>
           </div>
 
+          {/* ── Compétences Clés ── */}
           <div className="section-subheading" style={{ marginTop: "1.8rem" }}>
             <Sparkles size={16} /> Compétences Clés & Outils
           </div>
@@ -2613,6 +2946,7 @@ function Builder({
             />
           </div>
 
+          {/* ── Langues Pratiquées ── */}
           <div className="section-subheading" style={{ marginTop: "1.8rem" }}>
             <Globe size={16} /> Langues Pratiquées
           </div>
@@ -2683,95 +3017,35 @@ function Builder({
               ))}
             </div>
           </div>
-        </div>
-      )}
 
-      {/* Étape 3: Modèle & Langue */}
-      {step === 3 && (
-        <div className="form-panel reveal-up">
-          <div className="panel-kicker">MODÈLE & LANGUE D'EXPORT</div>
-          <h2>Choisissez votre présentation visuelle.</h2>
-          <p className="panel-lead">
-            {isStudent
-              ? "Les modèles sont automatiquement structurés pour valoriser votre formation et vos projets d'études."
-              : "3 formats professionnels conçus pour maximiser l'impact de votre parcours."}
-          </p>
-
-          <div className="ai-step-banner">
-            <div className="ai-step-banner-icon">
-              <WandSparkles size={20} />
-            </div>
-            <div className="ai-step-banner-text">
-              <strong>Harmonisation Globale par l'IA</strong>
-              <p>Harmonisez automatiquement les textes, mots-clés et tournures de phrases pour votre profil {isStudent ? "étudiant" : "professionnel"}.</p>
-            </div>
-            <button
-              type="button"
-              className="button ai-button"
-              onClick={improveCopy}
-              disabled={isGlobalLoading}
-            >
-              {isGlobalLoading ? "Harmonisation..." : "Harmoniser (IA)"}
-            </button>
-          </div>
-
-          <div className="option-section">
-            <div className="option-heading">
-              <span>Sélectionnez le Modèle de CV</span>
-              <small>{templateCatalog[data.template].badge}</small>
-            </div>
-            <div className="template-options-vertical">
-              {(Object.entries(templateCatalog) as [TemplateId, TemplateMeta][]).map(
-                ([id, template]) => (
-                  <button
-                    key={id}
-                    type="button"
-                    className={`template-option-card ${data.template === id ? "selected" : ""}`}
-                    onClick={() => selectTemplate(id)}
-                  >
-                    <div className="template-card-preview-mini">
-                      <TemplateMini template={id} />
-                    </div>
-                    <div className="template-card-info">
-                      <div className="template-card-title-row">
-                        <strong>{template.label}</strong>
-                        <span className="template-badge-tag">{template.badge}</span>
-                      </div>
-                      <p>{template.description}</p>
-                      <div className="template-card-langs">
-                        Langues supportées :{" "}
-                        {template.languages
-                          .map((l) => languageLabels[l].native)
-                          .join(" · ")}
-                      </div>
-                    </div>
-                    <div className="template-radio-circle" />
-                  </button>
-                ),
-              )}
-            </div>
-          </div>
-
-          <div className="option-section" style={{ marginTop: "2rem" }}>
-            <div className="option-heading">
-              <span>Langue du CV</span>
-              <small>{templateCatalog[data.template].languages.length} langue(s) disponible(s)</small>
-            </div>
-            <div className="language-options">
-              {templateCatalog[data.template].languages.map((lang) => (
+          {/* ── Export Action Box ── */}
+          <div className="export-action-box" style={{ marginTop: "2.2rem", padding: "20px", background: "#f5efe3", border: "1.5px solid #dcd1ba", borderRadius: "12px", textAlign: "center" }}>
+            <h3 style={{ fontSize: "1.05rem", fontWeight: 800, color: "var(--olive-dark)", marginBottom: "6px" }}>
+              Votre CV est prêt à être exporté !
+            </h3>
+            <p style={{ fontSize: "0.8rem", color: "var(--ink-soft)", maxWidth: "460px", margin: "0 auto 16px", lineHeight: 1.45 }}>
+              Document au format officiel A4 haute résolution (300 DPI), optimisé pour les logiciels recruteurs ATS et l'impression directe.
+            </p>
+            <div style={{ display: "flex", justifyContent: "center", gap: "10px", flexWrap: "wrap" }}>
+              <button
+                type="button"
+                className="button button-primary"
+                onClick={handleDownloadClick}
+                disabled={isExporting}
+                style={{ fontSize: "0.88rem", padding: "0.75rem 1.6rem" }}
+              >
+                <Download size={16} /> {isExporting ? "Génération du PDF..." : "Télécharger mon CV (PDF A4)"}
+              </button>
+              {!isUnlocked && (
                 <button
-                  key={lang}
                   type="button"
-                  className={data.language === lang ? "selected" : ""}
-                  onClick={() => {
-                    setData((prev) => ({ ...prev, language: lang }));
-                  }}
+                  className="button button-secondary"
+                  onClick={() => setShowPaywallModal(true)}
+                  style={{ fontSize: "0.88rem", padding: "0.75rem 1.4rem" }}
                 >
-                  <Languages size={16} />
-                  <b>{languageLabels[lang].name}</b>
-                  <small>{languageLabels[lang].native} · Traduction auto des rubriques</small>
+                  <KeyRound size={15} /> Activer / Débloquer HD (19 TND)
                 </button>
-              ))}
+              )}
             </div>
           </div>
         </div>

@@ -1446,21 +1446,254 @@ h1, h2, h3, p { margin: 0; }
 .euro-lang-block { font-size: 11px; }
 .euro-sub-label { display: block; color: #004494; font-size: 11px; margin-bottom: 3px; }
 
-/* ── Mini Catalog Thumbnails ── */
-.professional-mini { display: flex; flex-direction: column; padding: 0; overflow: hidden; background: #fff; }
+/* ── 9 Templates Variants Specializations ── */
+/* 1. Professional Variants */
+.resume-professional-layout.prof-variant-modern .prof-header {
+  background: #1e293b;
+  border-bottom: 3px solid #3b82f6;
+}
+.resume-professional-layout.prof-variant-modern .prof-name {
+  color: #ffffff;
+  font-family: Georgia, "Times New Roman", serif;
+}
+.resume-professional-layout.prof-variant-modern .prof-role {
+  color: #93c5fd;
+}
+.resume-professional-layout.prof-variant-modern .prof-sidebar {
+  background: #f8fafc;
+  border-right: 1.5px solid #e2e8f0;
+}
+.resume-professional-layout.prof-variant-modern .prof-side-title,
+.resume-professional-layout.prof-variant-modern .prof-section-heading {
+  color: #1e293b;
+}
+
+.resume-professional-layout.prof-variant-compact .prof-header {
+  background: #0f172a;
+}
+.resume-professional-layout.prof-variant-compact .prof-sidebar {
+  background: #1e293b;
+  color: #f1f5f9;
+  border-right: none;
+}
+.resume-professional-layout.prof-variant-compact .prof-sidebar .prof-side-title {
+  color: #38bdf8;
+  border-bottom-color: rgba(255, 255, 255, 0.15);
+}
+.resume-professional-layout.prof-variant-compact .prof-sidebar .prof-skill-tag {
+  background: rgba(56, 189, 248, 0.15);
+  color: #bae6fd;
+  border-color: rgba(56, 189, 248, 0.3);
+}
+.resume-professional-layout.prof-variant-compact .prof-sidebar .prof-edu-degree {
+  color: #ffffff;
+}
+.resume-professional-layout.prof-variant-compact .prof-sidebar .prof-edu-school {
+  color: #94a3b8;
+}
+
+/* 2. Canadian ATS Variants */
+.resume-canadian-layout.can-variant-modern .can-section-title {
+  background: #f1f5f9;
+  border-bottom: none;
+  border-left: 4px solid #0f172a;
+  padding: 4px 8px;
+  border-radius: 0 4px 4px 0;
+}
+.resume-canadian-layout.can-variant-modern .can-header {
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 12px;
+}
+
+.resume-canadian-layout.can-variant-executive .can-header {
+  text-align: left;
+  border-bottom: 2px solid #0f172a;
+  padding-bottom: 10px;
+}
+.resume-canadian-layout.can-variant-executive .can-name {
+  font-size: 22px;
+  letter-spacing: 0.5px;
+}
+.resume-canadian-layout.can-variant-executive .can-title {
+  font-size: 13px;
+  color: #475569;
+}
+.resume-canadian-layout.can-variant-executive .can-contact-line {
+  justify-content: flex-start;
+}
+.resume-canadian-layout.can-variant-executive .can-skills-grid {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+/* 3. Europass EU Variants */
+.resume-europass-layout.euro-variant-modern .euro-header {
+  border-bottom: 2px solid #3b82f6;
+}
+.resume-europass-layout.euro-variant-modern .euro-flag-icon,
+.resume-europass-layout.euro-variant-modern .euro-section-title,
+.resume-europass-layout.euro-variant-modern .euro-name-text {
+  color: #1d4ed8;
+}
+.resume-europass-layout.euro-variant-modern .euro-skill-badge {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+}
+
+.resume-europass-layout.euro-variant-academic .euro-header {
+  border-bottom: 3px double #004494;
+}
+.resume-europass-layout.euro-variant-academic .euro-section-title {
+  color: #0c4a6e;
+  letter-spacing: 1px;
+}
+.resume-europass-layout.euro-variant-academic .euro-name-text {
+  color: #0c4a6e;
+  font-family: Georgia, serif;
+}
+
+/* ── Category Filter Tabs in Step 0 ── */
+.template-category-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1.2rem;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.template-category-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: #f4eee2;
+  color: var(--ink-soft);
+  border: 1px solid #ded5be;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 160ms ease;
+}
+.template-category-tab:hover {
+  background: #eae2d1;
+  color: var(--ink);
+}
+.template-category-tab.active {
+  background: var(--olive);
+  color: #ffffff;
+  border-color: var(--olive-dark);
+  box-shadow: 0 2px 6px rgba(36, 53, 38, 0.25);
+}
+
+/* ── 9 Templates Responsive Grid in Step 0 ── */
+.template-options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+  margin-bottom: 1.5rem;
+}
+.template-grid-card {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border: 2px solid #e7dfcd;
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+.template-grid-card:hover {
+  border-color: #bad3b4;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+}
+.template-grid-card.selected {
+  border-color: var(--olive);
+  background: #fcfbf7;
+  box-shadow: 0 0 0 3px rgba(58, 86, 61, 0.18), 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+.template-grid-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.template-compliance-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.64rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: 999px;
+  letter-spacing: 0.4px;
+}
+.tag-prof { background: #e8eedf; color: var(--olive-dark); }
+.tag-can { background: #fef2f2; color: #991b1b; }
+.tag-euro { background: #eff6ff; color: #1d4ed8; }
+
+.template-grid-card-preview {
+  height: 110px;
+  background: #f8f6f0;
+  border-radius: 8px;
+  border: 1px solid #e9e2d2;
+  overflow: hidden;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+}
+.template-grid-card h4 {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--ink);
+  margin: 0 0 4px 0;
+}
+.template-grid-card p {
+  font-size: 0.73rem;
+  color: var(--ink-soft);
+  line-height: 1.45;
+  margin: 0 0 10px 0;
+  flex: 1;
+}
+.template-grid-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: #64748b;
+  border-top: 1px solid #f0eae0;
+  padding-top: 8px;
+}
+
+/* ── Mini Catalog Thumbnails for all 9 variants ── */
+.professional-mini { display: flex; flex-direction: column; padding: 0; overflow: hidden; background: #fff; width: 100%; height: 100%; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
 .prof-mini-banner { width: 100%; height: 16px; background: #243526; }
-.prof-mini-body { display: grid; grid-template-columns: 28% 72%; height: 100%; }
+.prof-mini-banner.prof-banner-modern { background: #1e293b; border-bottom: 2px solid #3b82f6; }
+.prof-mini-banner.prof-banner-compact { background: #0f172a; height: 100%; }
+.prof-mini-body { display: grid; grid-template-columns: 30% 70%; height: 100%; }
 .prof-mini-side { background: #f3f6f1; border-right: 1px solid #e0e8dd; }
+.prof-mini-side.prof-side-dark { background: #1e293b; }
 .prof-mini-main { padding: 4px 6px; }
 .prof-mini-main i { display: block; height: 3px; background: #c5d4c1; margin-bottom: 4px; border-radius: 1px; }
 .prof-mini-main i:first-child { width: 70%; background: #4a634c; }
 
-.canadian-mini { padding: 8px 6px; text-align: center; }
-.mini-title-center { width: 60%; height: 6px; background: #0f172a; margin: 0 auto 6px; }
-.mini-rule-full { width: 100%; height: 1.5px; background: #0f172a; margin: 5px 0; }
+.canadian-mini { padding: 8px 6px; text-align: center; width: 100%; height: 100%; background: #fff; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); display: flex; flex-direction: column; justify-content: center; }
+.mini-title-center { width: 60%; height: 6px; background: #0f172a; margin: 0 auto 6px; border-radius: 1px; }
+.mini-rule-full { width: 100%; height: 1.5px; background: #0f172a; margin: 4px 0; }
+.mini-rule-boxed { width: 100%; height: 6px; background: #f1f5f9; border-left: 2px solid #0f172a; margin: 4px 0; border-radius: 0 2px 2px 0; }
 
-.europass-mini { padding: 0; overflow: hidden; }
+.europass-mini { padding: 0; overflow: hidden; width: 100%; height: 100%; background: #fff; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
 .europass-top-bar { width: 100%; height: 12px; background: #004494; }
+.europass-top-bar.euro-bar-modern { background: #2563eb; }
 .europass-split-grid { display: grid; grid-template-columns: 32% 68%; padding: 4px; gap: 4px; }
 .europass-left-col i { display: block; height: 3px; background: #004494; margin-bottom: 4px; }
 .europass-right-col i { display: block; height: 3px; background: #94a3b8; margin-bottom: 4px; }
