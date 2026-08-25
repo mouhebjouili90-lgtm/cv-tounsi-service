@@ -1467,98 +1467,21 @@ h1, h2, h3, p { margin: 0; }
 
 .template-badge-pill { display: inline-block; font-size: .62rem; font-weight: 700; background: #e8eedf; color: var(--olive-dark); padding: 2px 8px; border-radius: 999px; margin-bottom: .4rem; text-transform: uppercase; }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   DEVICE MODE TOGGLE & SMARTPHONE / PC PARALLEL EXPERIENCE
-   ═══════════════════════════════════════════════════════════════════════════ */
-.device-toggle-bar {
-  display: inline-flex;
-  align-items: center;
-  background: #ede6d6;
-  border: 1px solid #d4cbb8;
-  border-radius: 6px;
-  padding: 2px;
-  gap: 2px;
-}
-.device-toggle-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--ink-soft);
-  background: transparent;
-  border-radius: 4px;
-  transition: all 150ms ease;
-}
-.device-toggle-btn:hover {
-  color: var(--ink);
-}
-.device-toggle-btn.active {
-  background: #ffffff;
-  color: var(--olive-dark);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-}
-
-/* ── Mobile View Container (Phone Simulator on PC or Native on Mobile) ── */
-.phone-mode-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: calc(100vh - 58px);
-  background: #e4decfa0;
-  padding: 1.5rem 1rem 4rem;
-}
-
-.phone-mockup-device {
+/* ── Native Responsive Mobile Builder ── */
+.native-mobile-builder {
   width: 100%;
-  max-width: 440px;
+  max-width: 800px;
+  margin: 0 auto;
+  min-height: calc(100vh - 58px);
   background: #ffffff;
-  border-radius: 36px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 12px #262924;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
-  min-height: 820px;
-  position: relative;
-  border: 4px solid #1a1c18;
 }
 
-/* On real mobile devices or small screens, unwrap mockup */
-@media (max-width: 600px) {
-  .phone-mode-wrapper {
-    padding: 0;
-    background: #ffffff;
-  }
-  .phone-mockup-device {
+@media (max-width: 768px) {
+  .native-mobile-builder {
     max-width: 100%;
-    border-radius: 0;
-    box-shadow: none;
-    border: none;
-    min-height: 100vh;
   }
-  .phone-notch-island {
-    display: none;
-  }
-}
-
-.phone-notch-island {
-  width: 110px;
-  height: 24px;
-  background: #1a1c18;
-  margin: 8px auto 4px;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-.phone-camera-lens {
-  width: 9px;
-  height: 9px;
-  background: #0f172a;
-  border-radius: 50%;
-  border: 1px solid #334155;
 }
 
 /* ── Mobile Top Tab Switcher (Formulaire vs Aperçu CV) ── */

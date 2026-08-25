@@ -72,7 +72,6 @@ const heroImage = "/manus-storage/cv-tounsi-hero-reference_82281e8d.jpg";
 export type TemplateId = "professional" | "canadian" | "europass";
 export type Language = "fr" | "en" | "de" | "it" | "ar";
 export type BuilderStep = 0 | 1 | 2 | 3;
-export type DeviceMode = "desktop" | "mobile";
 
 export type ExperienceItem = {
   id: string;
@@ -1768,9 +1767,19 @@ function Builder({
       localStorage.setItem("cv_tounsi_builder_step", step.toString());
     }
   }, [step]);
-  const [deviceMode, setDeviceMode] = useState<DeviceMode>(() =>
-    typeof window !== "undefined" && window.innerWidth < 850 ? "mobile" : "desktop"
+
+  const [isMobileScreen, setIsMobileScreen] = useState(() =>
+    typeof window !== "undefined" ? window.innerWidth <= 1024 : false
   );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobileScreen(window.innerWidth <= 1024);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const [mobileTab, setMobileTab] = useState<"form" | "preview">("form");
 
   const handleSaveToCloud = async () => {
@@ -2824,24 +2833,6 @@ function Builder({
             </span>
           </div>
 
-          {/* ── Parallel Device Mode Switcher ── */}
-          <div className="device-toggle-bar" title="Basculer entre la vue Ordinateur (PC) et la vue Téléphone (Mobile)">
-            <button
-              type="button"
-              className={`device-toggle-btn ${deviceMode === "desktop" ? "active" : ""}`}
-              onClick={() => setDeviceMode("desktop")}
-            >
-              <Monitor size={14} /> Mode PC
-            </button>
-            <button
-              type="button"
-              className={`device-toggle-btn ${deviceMode === "mobile" ? "active" : ""}`}
-              onClick={() => setDeviceMode("mobile")}
-            >
-              <Smartphone size={14} /> Mode Téléphone
-            </button>
-          </div>
-
           <div className="builder-topbar-actions">
             {/* User Account / Save Button */}
             <button
@@ -2948,9 +2939,9 @@ function Builder({
       </div>
 
       {/* ════════════════════════════════════════════════════════════════════════
-         MODE 1: PC / DESKTOP (3-Column Layout with Sticky Live Large Preview)
+         LAYOUT 1: DESKTOP / PC (3-Column Layout with Sticky Live Preview)
          ════════════════════════════════════════════════════════════════════════ */}
-      {deviceMode === "desktop" ? (
+      {!isMobileScreen ? (
         <div className="builder-layout-fluid">
           {/* Column 1: Left Stepper */}
           <aside className="builder-sidebar">
@@ -3049,118 +3040,121 @@ function Builder({
         </div>
       ) : (
         /* ════════════════════════════════════════════════════════════════════════
-           MODE 2: SMARTPHONE / MOBILE (Dedicated Mobile UI & Phone Mockup)
+           LAYOUT 2: NATIVE MOBILE (Responsive Tabs: Formulaire / Aperçu Live)
            ════════════════════════════════════════════════════════════════════════ */
-        <div className="phone-mode-wrapper">
-          <div className="phone-mockup-device">
-            {/* Smartphone Notch / Island */}
-            <div className="phone-notch-island">
-              <div className="phone-camera-lens" />
-            </div>
+        <div className="native-mobile-builder">
+          {/* Mobile Top Segmented Tabs: Formulaire vs Aperçu */}
+          <div className="mobile-view-tabs">
+            <button
+              type="button"
+              className={`mobile-tab-btn ${mobileTab === "form" ? "active" : ""}`}
+              onClick={() => setMobileTab("form")}
+            >
+              <Edit3 size={14} /> Formulaire (Étape 0{step + 1})
+            </button>
+            <button
+              type="button"
+              className={`mobile-tab-btn ${mobileTab === "preview" ? "active" : ""}`}
+              onClick={() => setMobileTab("preview")}
+            >
+              <Eye size={14} /> Aperçu Live du CV
+            </button>
+          </div>
 
-            {/* Mobile Top Segmented Tabs: Formulaire vs Aperçu */}
-            <div className="mobile-view-tabs">
+          {/* Mobile 4-Step Pills */}
+          <div className="mobile-step-pills">
+            {steps.map((item, idx) => (
               <button
+                key={idx}
                 type="button"
-                className={`mobile-tab-btn ${mobileTab === "form" ? "active" : ""}`}
-                onClick={() => setMobileTab("form")}
+                className={`mobile-step-pill ${step === idx ? "active" : ""} ${idx < step ? "done" : ""}`}
+                onClick={() => {
+                  setStep(idx as BuilderStep);
+                  setMobileTab("form");
+                }}
               >
-                <Edit3 size={14} /> Formulaire (Étape 0{step + 1})
+                <span className="mobile-step-pill-num">0{idx + 1}</span>
+                <span className="mobile-step-pill-title">{item.label.split(" ")[0]}</span>
               </button>
-              <button
-                type="button"
-                className={`mobile-tab-btn ${mobileTab === "preview" ? "active" : ""}`}
-                onClick={() => setMobileTab("preview")}
-              >
-                <Eye size={14} /> Aperçu Live du CV
-              </button>
-            </div>
+            ))}
+          </div>
 
-            {/* Mobile 4-Step Pills */}
-            <div className="mobile-step-pills">
-              {steps.map((item, idx) => (
+          {/* Mobile Tab 1: Formulaire */}
+          {mobileTab === "form" && (
+            <div className="mobile-form-container">
+              {renderFormContent()}
+
+              {/* Mobile Floating Bottom Bar */}
+              <div className="mobile-floating-bar">
                 <button
-                  key={idx}
                   type="button"
-                  className={`mobile-step-pill ${step === idx ? "active" : ""} ${idx < step ? "done" : ""}`}
-                  onClick={() => {
-                    setStep(idx as BuilderStep);
-                    setMobileTab("form");
-                  }}
+                  className="button button-quiet"
+                  onClick={() => setMobileTab("preview")}
                 >
-                  <span className="mobile-step-pill-num">0{idx + 1}</span>
-                  <span className="mobile-step-pill-title">{item.label.split(" ")[0]}</span>
+                  <Eye size={15} /> Voir CV
                 </button>
-              ))}
-            </div>
 
-            {/* Mobile Tab 1: Formulaire */}
-            {mobileTab === "form" && (
-              <div className="mobile-form-container">
-                {renderFormContent()}
+                <button
+                  type="button"
+                  className="button ai-button"
+                  onClick={improveCopy}
+                  disabled={isGlobalLoading}
+                  style={{ minWidth: "90px" }}
+                >
+                  <WandSparkles size={14} /> IA
+                </button>
 
-                {/* Mobile Floating Bottom Bar */}
-                <div className="mobile-floating-bar">
-                  <button
-                    type="button"
-                    className="button button-quiet"
-                    onClick={() => setMobileTab("preview")}
-                  >
-                    <Eye size={15} /> Voir CV
+                {step < 3 ? (
+                  <button type="button" className="button button-primary" onClick={goNext}>
+                    Suivant <ArrowLeft size={16} />
                   </button>
-
-                  {step < 3 ? (
-                    <button type="button" className="button button-primary" onClick={goNext}>
-                      Suivant <ArrowLeft size={16} />
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className="button button-primary"
-                      onClick={handleDownloadClick}
-                      disabled={isExporting}
-                    >
-                      <Download size={15} /> PDF A4
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Mobile Tab 2: Aperçu Live du CV */}
-            {mobileTab === "preview" && (
-              <div className="mobile-preview-container">
-                <ScaledResumePreview
-                  data={data}
-                  onFieldChange={(updater) => setData(updater)}
-                  editable={true}
-                  isMobileMode={true}
-                  isUnlocked={isUnlocked}
-                  isScreenProtected={isScreenProtected}
-                  onOpenPaywall={() => setShowPaywallModal(true)}
-                />
-
-                {/* Mobile Floating Bottom Bar */}
-                <div className="mobile-floating-bar">
-                  <button
-                    type="button"
-                    className="button button-quiet"
-                    onClick={() => setMobileTab("form")}
-                  >
-                    <Edit3 size={15} /> Éditer infos
-                  </button>
+                ) : (
                   <button
                     type="button"
                     className="button button-primary"
                     onClick={handleDownloadClick}
                     disabled={isExporting}
                   >
-                    <Download size={15} /> Télécharger PDF
+                    <Download size={15} /> PDF A4
                   </button>
-                </div>
+                )}
               </div>
-            )}
-          </div>
+            </div>
+          )}
+
+          {/* Mobile Tab 2: Aperçu Live du CV */}
+          {mobileTab === "preview" && (
+            <div className="mobile-preview-container">
+              <ScaledResumePreview
+                data={data}
+                onFieldChange={(updater) => setData(updater)}
+                editable={true}
+                isMobileMode={true}
+                isUnlocked={isUnlocked}
+                isScreenProtected={isScreenProtected}
+                onOpenPaywall={() => setShowPaywallModal(true)}
+              />
+
+              {/* Mobile Floating Bottom Bar */}
+              <div className="mobile-floating-bar">
+                <button
+                  type="button"
+                  className="button button-quiet"
+                  onClick={() => setMobileTab("form")}
+                >
+                  <Edit3 size={15} /> Éditer infos
+                </button>
+                <button
+                  type="button"
+                  className="button button-primary"
+                  onClick={handleDownloadClick}
+                  disabled={isExporting}
+                >
+                  <Download size={15} /> Télécharger PDF
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </main>
