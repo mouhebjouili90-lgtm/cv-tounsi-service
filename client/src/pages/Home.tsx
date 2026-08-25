@@ -2073,10 +2073,12 @@ function Builder({
     setExpLoadingIdx(idx);
     trackAIUsed(`Experience_${idx}`);
 
+    const globalContext = data.targetRole || (data.profileSummary && data.profileSummary.length < 80 ? data.profileSummary : "");
+
     try {
       const formatted = await improveExperienceWithGemini({
         language: data.language,
-        targetRole: data.targetRole || exp.role,
+        targetRole: globalContext || exp.role,
         role: exp.role || (isStudent ? "Projet d'études" : "Poste"),
         company: exp.company || (isStudent ? "Université" : "Entreprise"),
         description: exp.description || "Détails et activités",
@@ -2084,7 +2086,7 @@ function Builder({
       });
 
       updateExperience(idx, "description", formatted);
-      toast.success(isStudent ? `Le projet #${idx + 1} (${exp.role}) a été valorisé en réalisations concrètes !` : `L'expérience #${idx + 1} a été optimisée en puces d'impact !`);
+      toast.success(isStudent ? `Le projet #${idx + 1} a été valorisé par l'IA !` : `L'expérience #${idx + 1} a été optimisée en puces d'impact !`);
     } catch (error) {
       toast.error("Impossible d'améliorer cette rubrique pour le moment.");
     } finally {
@@ -2096,10 +2098,11 @@ function Builder({
   const handleImproveSkills = async () => {
     setIsSkillsLoading(true);
     trackAIUsed("SkillsSuggestion");
+    const domainContext = data.targetRole || (data.profileSummary && data.profileSummary.length < 80 ? data.profileSummary : (isStudent ? "Étudiant / Junior" : "Professionnel"));
     try {
       const skills = await improveSkillsWithGemini({
         language: data.language,
-        targetRole: data.targetRole || (isStudent ? "Étudiant / Junior" : "Professionnel"),
+        targetRole: domainContext,
         currentSkills: data.skills,
         profileType: data.profileType,
       });
@@ -2116,6 +2119,7 @@ function Builder({
   const improveCopy = async () => {
     setIsGlobalLoading(true);
     trackAIUsed("FullCVHarmonization");
+    const domainContext = data.targetRole || (data.profileSummary && data.profileSummary.length < 80 ? data.profileSummary : "Professionnel");
     try {
       const firstExp = data.experiences[0] || {
         role: isStudent ? "Projet d'études" : "Spécialiste",
@@ -2124,8 +2128,8 @@ function Builder({
       };
       const result = await improveFullCvWithGemini({
         language: data.language,
-        targetRole: data.targetRole,
-        experienceRole: firstExp.role,
+        targetRole: domainContext,
+        experienceRole: firstExp.role || domainContext,
         company: firstExp.company,
         experienceText: firstExp.description,
         profileType: data.profileType,
