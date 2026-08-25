@@ -1512,10 +1512,14 @@ function ScaledResumePreview({
   useEffect(() => {
     const handleResize = () => {
       if (wrapperRef.current) {
-        const availableWidth = wrapperRef.current.clientWidth - (isMobileMode ? 16 : 40);
-        const minScale = isMobileMode ? 0.35 : 0.65;
+        const availableWidth = wrapperRef.current.clientWidth - (isMobileMode ? 16 : 30);
+        const availableHeight = (wrapperRef.current.clientHeight || (window.innerHeight - 130)) - 30;
+        const scaleW = availableWidth > 0 ? availableWidth / 794 : 0.85;
+        const scaleH = availableHeight > 0 ? availableHeight / 1123 : 0.85;
+        const targetScale = isMobileMode ? scaleW : Math.min(scaleW, Math.max(scaleH, 0.65));
+        const minScale = isMobileMode ? 0.35 : 0.60;
         const maxScale = isMobileMode ? 0.85 : 1.15;
-        const newScale = Math.min(Math.max(availableWidth / 794, minScale), maxScale);
+        const newScale = Math.min(Math.max(targetScale, minScale), maxScale);
         setAutoScale(Math.round(newScale * 100) / 100);
       }
     };
@@ -2595,23 +2599,22 @@ function Builder({
                   key={template.id}
                   className={`template-grid-card ${isSelected ? "selected" : ""}`}
                   onClick={() => selectTemplate(template.id)}
+                  title={`Sélectionner le modèle ${template.label}`}
                 >
-                  <div className="template-grid-card-top">
-                    <span className={`template-compliance-tag ${tagClass}`}>
-                      {template.badge}
-                    </span>
-                    <span style={{ fontSize: "0.68rem", fontWeight: 700, color: isSelected ? "var(--olive)" : "#94a3b8" }}>
-                      {isSelected ? "✓ ACTIF" : "Choisir"}
-                    </span>
-                  </div>
                   <div className="template-grid-card-preview">
                     <TemplateMini template={template.id} />
                   </div>
-                  <h4>{template.label}</h4>
-                  <p>{template.description}</p>
-                  <div className="template-grid-card-footer">
-                    <span>🛡️ {template.complianceNote}</span>
+                  <div className="template-grid-card-info">
+                    <div className="template-grid-card-top-row">
+                      <span className={`template-compliance-tag ${tagClass}`}>
+                        {template.badge}
+                      </span>
+                    </div>
+                    <h4>{template.label}</h4>
+                    <p>{template.description}</p>
+                    <span className="template-grid-card-note">🛡️ {template.complianceNote}</span>
                   </div>
+                  <div className="template-grid-radio-indicator" />
                 </div>
               );
             })}
