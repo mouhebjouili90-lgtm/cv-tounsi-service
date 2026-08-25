@@ -1849,14 +1849,15 @@ function LanguagePills({ languages }: { languages: Language[] }) {
 
 function HeroPreviewScaled({ data }: { data: CvData }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(0.55);
+  const [scale, setScale] = useState(0.44);
 
   useEffect(() => {
     const update = () => {
       if (containerRef.current) {
         const w = containerRef.current.clientWidth;
-        const calcScale = Math.min(Math.max(w / 794, 0.32), 0.60);
-        setScale(Math.round(calcScale * 100) / 100);
+        const availableW = w > 0 ? w : (typeof window !== "undefined" ? window.innerWidth - 32 : 360);
+        const calcScale = Math.min(Math.max((availableW - 12) / 794, 0.28), 0.58);
+        setScale(Math.round(calcScale * 1000) / 1000);
       }
     };
     update();
@@ -1864,30 +1865,44 @@ function HeroPreviewScaled({ data }: { data: CvData }) {
     return () => window.removeEventListener("resize", update);
   }, []);
 
+  const scaledWidth = Math.round(794 * scale);
+  const scaledHeight = Math.round(1123 * scale);
+
   return (
     <div
       ref={containerRef}
       style={{
         width: "100%",
-        maxWidth: "460px",
-        height: `${Math.round(1123 * scale)}px`,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
         overflow: "hidden",
-        position: "relative",
-        borderRadius: "6px",
-        boxShadow: "0 18px 45px rgba(0,0,0,0.12)",
-        background: "#ffffff",
       }}
     >
       <div
         style={{
-          transform: `scale(${scale})`,
-          transformOrigin: "top left",
-          width: "794px",
-          height: "1123px",
-          pointerEvents: "none",
+          width: `${scaledWidth}px`,
+          height: `${scaledHeight}px`,
+          minHeight: `${scaledHeight}px`,
+          overflow: "hidden",
+          position: "relative",
+          borderRadius: "6px",
+          boxShadow: "0 14px 35px rgba(0, 0, 0, 0.14)",
+          background: "#ffffff",
+          flexShrink: 0,
         }}
       >
-        <ResumePreview data={data} editable={false} />
+        <div
+          style={{
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
+            width: "794px",
+            minHeight: "1123px",
+            pointerEvents: "none",
+          }}
+        >
+          <ResumePreview data={data} editable={false} />
+        </div>
       </div>
     </div>
   );
@@ -1998,7 +2013,9 @@ function Landing({ onStart }: { onStart: () => void }) {
                   <span>{template.eyebrow}</span>
                   <span>0{index + 1}</span>
                 </div>
-                <TemplateMini template={template.id} />
+                <div className="landing-template-preview-box">
+                  <TemplateMini template={template.id} />
+                </div>
                 <div className="template-card-bottom">
                   <div>
                     <span className="template-badge-pill">{template.badge}</span>
