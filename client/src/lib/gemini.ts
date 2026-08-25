@@ -198,7 +198,6 @@ export async function improveSkillsWithGemini({
   try {
     const res = await fetchGeminiWithTimeout(userPrompt, systemInstruction);
     if (res && res.length > 15) {
-      // Nettoyer les puces ou retours à la ligne pour avoir un format propre "Compétence 1 · Compétence 2"
       return res
         .replace(/\n+/g, " · ")
         .replace(/^[-*•]\s*/gm, "")
@@ -216,7 +215,44 @@ export async function improveSkillsWithGemini({
   return `Gestion de projet · Analyse stratégique & Résolution de problèmes · Outils métiers spécialisés · Travail en équipe & Leadership · Communication professionnelle · Rigueur & Autonomie · Optimisation des processus`;
 }
 
-/* ── 4. Harmonisation Globale du CV ── */
+/* ── 4. Étape 3 : Suggestion et Formatage des Langues ── */
+export async function improveLanguagesWithGemini({
+  language,
+  targetRole,
+  currentLanguages,
+  profileType = "experienced",
+}: {
+  language: string;
+  targetRole: string;
+  currentLanguages?: string;
+  profileType?: ProfileType;
+}): Promise<string> {
+  const userLangs = (currentLanguages || "").trim();
+  const langTarget = langNames[language] || "français";
+
+  const systemInstruction = `Tu es un spécialiste RH. Rédige UNIQUEMENT une liste de 3 à 4 langues professionnelles avec niveaux de maîtrise normalisés (ex: Maternelle, Bilingue / C2, Courant / C1, Intermédiaire / B2) rédigées en ${langTarget}, séparées par des points médians · . Aucun titre, aucune puce, aucun autre texte.`;
+
+  const userPrompt = userLangs && userLangs.length > 2
+    ? `Formate et optimise ces langues pour un CV professionnel : "${userLangs}". Langue du CV : ${langTarget}.`
+    : `Donne les 3 ou 4 langues professionnelles courantes pour un profil ${profileType === "student" ? "étudiant / jeune diplômé" : "professionnel"} (Arabe, Français, Anglais, etc.) avec leurs niveaux respectifs en ${langTarget}.`;
+
+  try {
+    const res = await fetchGeminiWithTimeout(userPrompt, systemInstruction);
+    if (res && res.length > 10) {
+      return res
+        .replace(/\n+/g, " · ")
+        .replace(/^[-*•]\s*/gm, "")
+        .replace(/\s*·\s*/g, " · ")
+        .trim();
+    }
+  } catch (err) {
+    console.warn("[Gemini Client] Fallback langues:", err);
+  }
+
+  return "Arabe (Langue maternelle) · Français (Bilingue / C2) · Anglais (Courant / C1) · Allemand (Notions / B1)";
+}
+
+/* ── 5. Harmonisation Globale du CV ── */
 export async function improveFullCvWithGemini({
   language,
   targetRole,

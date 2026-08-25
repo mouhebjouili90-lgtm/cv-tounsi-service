@@ -6,6 +6,7 @@ import {
   improveProfileWithGemini,
   improveExperienceWithGemini,
   improveSkillsWithGemini,
+  improveLanguagesWithGemini,
   improveFullCvWithGemini,
   type ProfileType,
 } from "@/lib/gemini";
@@ -617,7 +618,7 @@ function ProfessionalTemplate({
               />
             ) : (
               <div className="prof-lang-list">
-                {data.languagesList.split(/[·,،\n]/).map((s) => s.trim()).filter(Boolean).map((lang, idx) => (
+                {(data.languagesList || "").split(/[·,،\n]/).map((s) => s.trim()).filter(Boolean).map((lang, idx) => (
                   <div key={idx} className="prof-lang-item">
                     <span className="prof-lang-dot" />
                     <span>{lang}</span>
@@ -1822,6 +1823,7 @@ function Builder({
   const [isProfileLoading, setIsProfileLoading] = useState(false);
   const [expLoadingIdx, setExpLoadingIdx] = useState<number | null>(null);
   const [isSkillsLoading, setIsSkillsLoading] = useState(false);
+  const [isLanguagesLoading, setIsLanguagesLoading] = useState(false);
   const [isGlobalLoading, setIsGlobalLoading] = useState(false);
 
   const printTargetRef = useRef<HTMLDivElement | null>(null);
@@ -2113,6 +2115,40 @@ function Builder({
     } finally {
       setIsSkillsLoading(false);
     }
+  };
+
+  /* ── Step 2: Suggest & Format Languages with AI ── */
+  const handleImproveLanguages = async () => {
+    setIsLanguagesLoading(true);
+    trackAIUsed("LanguagesSuggestion");
+    try {
+      const langs = await improveLanguagesWithGemini({
+        language: data.language,
+        targetRole: data.targetRole || (data.profileSummary && data.profileSummary.length < 80 ? data.profileSummary : "Professionnel"),
+        currentLanguages: data.languagesList,
+        profileType: data.profileType,
+      });
+      setData((prev) => ({ ...prev, languagesList: langs }));
+      toast.success("Langues optimisées avec les niveaux officiels !");
+    } catch (error) {
+      toast.error("Impossible d'optimiser les langues pour le moment.");
+    } finally {
+      setIsLanguagesLoading(false);
+    }
+  };
+
+  const addQuickLanguage = (langToAdd: string) => {
+    setData((prev) => {
+      const current = (prev.languagesList || "").trim();
+      if (!current) return { ...prev, languagesList: langToAdd };
+      const langPrefix = langToAdd.split(" ")[0];
+      if (current.toLowerCase().includes(langPrefix.toLowerCase())) {
+        toast.info(`${langPrefix} est déjà dans votre liste.`);
+        return prev;
+      }
+      return { ...prev, languagesList: `${current} · ${langToAdd}` };
+    });
+    toast.success(`+ ${langToAdd} ajouté !`);
   };
 
   /* ── Global Copy Optimization with AI ── */
@@ -2577,18 +2613,76 @@ function Builder({
             />
           </div>
 
-          <div className="section-subheading" style={{ marginTop: "1.5rem" }}>
+          <div className="section-subheading" style={{ marginTop: "1.8rem" }}>
             <Globe size={16} /> Langues Pratiquées
           </div>
-          <label className="field field-full">
-            <span>Langues & niveaux (séparées par « · »)</span>
-            <input
-              type="text"
-              value={data.languagesList}
+          <div className="field field-full">
+            <div className="field-header-row">
+              <span>Langues & niveaux de maîtrise (séparées par « · »)</span>
+              <button
+                type="button"
+                className="button-ai-micro"
+                onClick={handleImproveLanguages}
+                disabled={isLanguagesLoading}
+                title="Suggérer les langues avec leurs niveaux officiels"
+              >
+                {isLanguagesLoading ? (
+                  <>
+                    <span className="button-spinner-sm" /> Formatage IA...
+                  </>
+                ) : (
+                  <>
+                    <WandSparkles size={12} /> Suggérer les langues (IA)
+                  </>
+                )}
+              </button>
+            </div>
+            <textarea
+              value={data.languagesList || ""}
               onChange={(e) => update("languagesList", e.target.value)}
-              placeholder="Ex. Arabe (Maternelle) · Français (Bilingue) · Anglais (Courant)"
+              placeholder="Ex. Arabe (Langue maternelle) · Français (Bilingue / C2) · Anglais (Courant / C1) · Allemand (Notions / B1)"
+              rows={2}
             />
-          </label>
+            {/* Chips d'ajout rapide en 1 clic */}
+            <div style={{ marginTop: "8px", display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px" }}>
+              <span style={{ fontSize: "0.72rem", color: "var(--ink-soft)", fontWeight: 600, marginRight: "2px" }}>
+                Ajout rapide :
+              </span>
+              {[
+                "Arabe (Langue maternelle)",
+                "Français (Bilingue / C2)",
+                "Anglais (Courant / C1)",
+                "Allemand (B2 / Intermédiaire)",
+                "Italien (B1 / Conversationnel)",
+                "Espagnol (A2 / Notions)",
+              ].map((quickLang) => (
+                <button
+                  key={quickLang}
+                  type="button"
+                  onClick={() => addQuickLanguage(quickLang)}
+                  style={{
+                    fontSize: "0.7rem",
+                    padding: "3px 8px",
+                    background: "#f3eedf",
+                    border: "1px solid #dcd1ba",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    fontWeight: 600,
+                    color: "var(--olive-dark)",
+                    transition: "all 140ms ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "#e4dcbe";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "#f3eedf";
+                  }}
+                >
+                  + {quickLang}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 
