@@ -1912,18 +1912,20 @@ h1, h2, h3, p { margin: 0; }
   .builder-sidebar { display: none; }
   .hero-content {
     grid-template-columns: 1fr;
-    gap: 3rem;
-    padding-top: 5rem;
+    gap: 2.5rem;
+    padding-top: 3.5rem;
   }
   .hero-copy { max-width: 100%; padding-right: 0; }
-  .hero-preview { max-width: 600px; margin: 0 auto; width: 100%; }
+  .hero-preview { max-width: 480px; margin: 0 auto; width: 100%; transform: none; }
+  .manifesto-grid { grid-template-columns: 1fr; gap: 3rem; }
+  .process-visual { justify-self: center; }
 }
 
 @media (max-width: 780px) {
-  .header-inner { min-height: 70px; }
+  .header-inner { min-height: 64px; }
   .site-header nav {
     position: fixed;
-    top: 70px;
+    top: 64px;
     left: 0;
     right: 0;
     background: #f8f3e8;
@@ -1946,25 +1948,57 @@ h1, h2, h3, p { margin: 0; }
   }
   .signal-grid {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 1.2rem;
+  }
+  .signal-item {
+    border-right: none;
+    border-bottom: 1px solid rgba(244, 239, 224, 0.15);
+    padding-right: 0;
+    padding-bottom: 0.9rem;
+  }
+  .signal-item:last-child {
+    border-bottom: none;
   }
   .template-gallery-three {
     grid-template-columns: 1fr;
   }
   .section-heading-row {
     flex-direction: column;
+    align-items: flex-start;
     gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .manifesto-section { padding: 4.5rem 0; }
+  .templates-section { padding: 4.5rem 0; }
+  .closing-cta { padding: 4.5rem 0; }
+  .closing-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+  .footer-inner {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.8rem;
   }
 }
 
 @media (max-width: 540px) {
-  .container { padding-left: 1.2rem; padding-right: 1.2rem; }
+  .container { padding-left: 1.1rem; padding-right: 1.1rem; }
+  .hero-copy h1 { font-size: clamp(2.2rem, 9vw, 3.2rem); margin: 1rem 0; }
+  .hero-actions { flex-direction: column; width: 100%; gap: 0.75rem; }
+  .hero-actions .button { width: 100%; justify-content: center; }
+  .hero-preview { transform: none; width: 100%; }
   .form-grid { grid-template-columns: 1fr; }
   .language-options { grid-template-columns: 1fr; }
   .builder-topbar-inner { flex-wrap: wrap; gap: .5rem; padding: .4rem .8rem; }
   .builder-brand-bar { display: none; }
   .template-option-card { grid-template-columns: 1fr 24px; }
   .template-card-preview-mini { display: none; }
+  .mobile-view-tabs { margin: 6px 8px 8px; }
+  .mobile-step-pills { padding: 4px 8px 8px; gap: 4px; }
+  .mobile-step-pill-title { font-size: 0.58rem; max-width: 50px; }
+  .template-options-grid { grid-template-columns: 1fr; }
 }
 
 

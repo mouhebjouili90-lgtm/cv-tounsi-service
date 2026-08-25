@@ -61,6 +61,7 @@ import {
   ShieldAlert,
   Crown,
   Key,
+  KeyRound,
   MessageCircle,
   User as UserIcon,
   Cloud,
@@ -1528,17 +1529,21 @@ function ScaledResumePreview({
     return () => window.removeEventListener("resize", handleResize);
   }, [isMobileMode]);
 
+  const touchStartDistRef = useRef<number | null>(null);
+  const touchStartZoomRef = useRef<number>(1);
+  const lastTapTimeRef = useRef<number>(0);
+
   const zoomIn = () => {
     setManualZoom((prev) => {
       const base = prev ?? autoScale;
-      return Math.min(Math.round((base + 0.1) * 10) / 10, 1.35);
+      return Math.min(Math.round((base + 0.15) * 100) / 100, 1.6);
     });
   };
 
   const zoomOut = () => {
     setManualZoom((prev) => {
       const base = prev ?? autoScale;
-      return Math.max(Math.round((base - 0.1) * 10) / 10, 0.35);
+      return Math.max(Math.round((base - 0.15) * 100) / 100, 0.35);
     });
   };
 
@@ -1548,6 +1553,40 @@ function ScaledResumePreview({
 
   const setFixedZoom = (val: number) => {
     setManualZoom(val);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      const dist = Math.hypot(
+        e.touches[0].pageX - e.touches[1].pageX,
+        e.touches[0].pageY - e.touches[1].pageY
+      );
+      touchStartDistRef.current = dist;
+      touchStartZoomRef.current = currentScale;
+    } else if (e.touches.length === 1) {
+      const now = Date.now();
+      if (now - lastTapTimeRef.current < 320) {
+        // Double-tap zooms in to 100% or resets to auto
+        setManualZoom((prev) => (prev && prev > 0.9 ? null : 1.0));
+      }
+      lastTapTimeRef.current = now;
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 2 && touchStartDistRef.current !== null) {
+      const dist = Math.hypot(
+        e.touches[0].pageX - e.touches[1].pageX,
+        e.touches[0].pageY - e.touches[1].pageY
+      );
+      const factor = dist / touchStartDistRef.current;
+      const targetZoom = Math.min(Math.max(touchStartZoomRef.current * factor, 0.35), 1.6);
+      setManualZoom(Math.round(targetZoom * 100) / 100);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    touchStartDistRef.current = null;
   };
 
   return (
@@ -1589,11 +1628,11 @@ function ScaledResumePreview({
         </div>
 
         <div className="zoom-buttons-group">
-          <button type="button" onClick={zoomOut} className="zoom-btn" title="Dézoomer (-10%)">
+          <button type="button" onClick={zoomOut} className="zoom-btn" title="Dézoomer (-15%)">
             <ZoomOut size={13} />
           </button>
           <span className="zoom-percentage-badge">{Math.round(currentScale * 100)}%</span>
-          <button type="button" onClick={zoomIn} className="zoom-btn" title="Zoomer (+10%)">
+          <button type="button" onClick={zoomIn} className="zoom-btn" title="Zoomer (+15%)">
             <ZoomIn size={13} />
           </button>
 
@@ -1605,29 +1644,36 @@ function ScaledResumePreview({
           >
             Ajuster
           </button>
+          
+          <button
+            type="button"
+            onClick={() => setFixedZoom(manualZoom === 1.0 ? 0.85 : 1.0)}
+            className={`zoom-preset-btn ${manualZoom === 1.0 ? "active" : ""}`}
+            title="Agrandir en taille réelle pour éditer directement les textes"
+          >
+            {isMobileMode ? (manualZoom === 1.0 ? "100% (Actif)" : "100% Édition") : "100%"}
+          </button>
           {!isMobileMode && (
-            <>
-              <button
-                type="button"
-                onClick={() => setFixedZoom(0.85)}
-                className={`zoom-preset-btn ${manualZoom === 0.85 ? "active" : ""}`}
-              >
-                85%
-              </button>
-              <button
-                type="button"
-                onClick={() => setFixedZoom(1.0)}
-                className={`zoom-preset-btn ${manualZoom === 1.0 ? "active" : ""}`}
-              >
-                100%
-              </button>
-            </>
+            <button
+              type="button"
+              onClick={() => setFixedZoom(0.85)}
+              className={`zoom-preset-btn ${manualZoom === 0.85 ? "active" : ""}`}
+            >
+              85%
+            </button>
           )}
         </div>
       </div>
 
       {/* ── Scrollable Stage Viewport ── */}
-      <div ref={wrapperRef} className="preview-scrollable-viewport" style={{ position: "relative" }}>
+      <div
+        ref={wrapperRef}
+        className="preview-scrollable-viewport"
+        style={{ position: "relative", touchAction: "pan-x pan-y pinch-zoom" }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         {/* Anti-Screenshot Shield Overlay */}
         {!isUnlocked && isScreenProtected && (
           <div className="screen-blur-guard-overlay">
@@ -1801,6 +1847,52 @@ function LanguagePills({ languages }: { languages: Language[] }) {
   );
 }
 
+function HeroPreviewScaled({ data }: { data: CvData }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(0.55);
+
+  useEffect(() => {
+    const update = () => {
+      if (containerRef.current) {
+        const w = containerRef.current.clientWidth;
+        const calcScale = Math.min(Math.max(w / 794, 0.32), 0.60);
+        setScale(Math.round(calcScale * 100) / 100);
+      }
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  return (
+    <div
+      ref={containerRef}
+      style={{
+        width: "100%",
+        maxWidth: "460px",
+        height: `${Math.round(1123 * scale)}px`,
+        overflow: "hidden",
+        position: "relative",
+        borderRadius: "6px",
+        boxShadow: "0 18px 45px rgba(0,0,0,0.12)",
+        background: "#ffffff",
+      }}
+    >
+      <div
+        style={{
+          transform: `scale(${scale})`,
+          transformOrigin: "top left",
+          width: "794px",
+          height: "1123px",
+          pointerEvents: "none",
+        }}
+      >
+        <ResumePreview data={data} editable={false} />
+      </div>
+    </div>
+  );
+}
+
 /* ─── Landing Page ─── */
 function Landing({ onStart }: { onStart: () => void }) {
   return (
@@ -1845,7 +1937,7 @@ function Landing({ onStart }: { onStart: () => void }) {
               <span>01 / 03</span>
             </div>
             <div className="hero-preview-box">
-              <ResumePreview data={initialData} />
+              <HeroPreviewScaled data={initialData} />
             </div>
           </div>
         </div>
@@ -3046,7 +3138,7 @@ function Builder({
                   onClick={() => setShowPaywallModal(true)}
                   style={{ fontSize: "0.88rem", padding: "0.75rem 1.4rem" }}
                 >
-                  <KeyRound size={15} /> Activer / Débloquer HD (19 TND)
+                  <Key size={15} /> Activer / Débloquer HD (19 TND)
                 </button>
               )}
             </div>
