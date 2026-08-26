@@ -320,28 +320,63 @@ export type CvData = {
   template: TemplateId;
 };
 
-export const initialData: CvData = {
+export const blankCvData: CvData = {
   profileType: "experienced",
-  fullName: "Sarra Ben Salem",
-  targetRole: "Marketing & Communication Specialist",
-  city: "Tunis, Tunisie",
-  email: "sarra.bensalem@email.com",
-  phone: "+216 22 345 678",
-  profileSummary:
-    "Spécialiste opérationnelle en marketing digital combinant vision créative et rigueur analytique. Forte de 4 ans d'expérience dans le pilotage de campagnes multicanales, l'optimisation des conversions et le rayonnement de marques innovantes.",
+  fullName: "",
+  targetRole: "",
+  city: "",
+  email: "",
+  phone: "",
+  profileSummary: "",
   experiences: [
     {
       id: "exp-1",
-      role: "Chargée de communication & Marketing",
-      company: "Studio 216",
-      dates: "2022 — Aujourd'hui",
+      role: "",
+      company: "",
+      dates: "",
+      location: "",
+      description: "",
+    },
+  ],
+  educations: [
+    {
+      id: "edu-1",
+      degree: "",
+      school: "",
+      year: "",
+      location: "",
+    },
+  ],
+  skills: "",
+  languagesList: "",
+  language: "fr",
+  template: "professional_executive",
+};
+
+export const initialData: CvData = blankCvData;
+
+export const showcaseSampleData: CvData = {
+  profileType: "experienced",
+  fullName: "Mohamed Trabelsi",
+  targetRole: "Marketing & Communication Specialist",
+  city: "Tunis, Tunisie",
+  email: "m.trabelsi@email.com",
+  phone: "+216 22 345 678",
+  profileSummary:
+    "Spécialiste opérationnel en marketing digital et communication stratégique combinant vision créative et rigueur analytique. Fort de plusieurs années d'expérience dans le pilotage de campagnes multicanales, l'optimisation des conversions et le rayonnement de marques innovantes.",
+  experiences: [
+    {
+      id: "exp-1",
+      role: "Responsable Communication & Marketing",
+      company: "Studio Digital 216",
+      dates: "2022 — Présent",
       location: "Tunis, Tunisie",
       description:
-        "• Gestion globale de la stratégie de contenu digital sur les réseaux sociaux.\n• Coordination et déploiement de 15+ campagnes publicitaires annuelles avec ROI mesurable.\n• Suivi des indicateurs clés (KPIs) et amélioration de 35% de l'engagement d'audience.\n• Rédaction de communiqués de presse et relation média pour les événements clés.",
+        "• Gestion globale de la stratégie de contenu digital sur les réseaux sociaux.\n• Coordination et déploiement de 15+ campagnes publicitaires annuelles avec ROI mesurable.\n• Suivi des indicateurs clés (KPIs) et amélioration de 35% de l'engagement d'audience.\n• Rédaction de communiqués de presse et relations médias.",
     },
     {
       id: "exp-2",
-      role: "Assistante Marketing Digital",
+      role: "Assistant Marketing Digital",
       company: "MediaCom Tunisie",
       dates: "2021 — 2022",
       location: "Tunis, Tunisie",
@@ -363,7 +398,7 @@ export const initialData: CvData = {
   languagesList:
     "Arabe (Langue maternelle) · Français (Bilingue) · Anglais (Courant / C1) · Italien (Notions)",
   language: "fr",
-  template: "professional",
+  template: "professional_executive",
 };
 
 export const studentSampleData: CvData = {
@@ -1956,7 +1991,7 @@ function Landing({ onStart }: { onStart: () => void }) {
               <span>01 / 03</span>
             </div>
             <div className="hero-preview-box">
-              <HeroPreviewScaled data={initialData} />
+              <HeroPreviewScaled data={showcaseSampleData} />
             </div>
           </div>
         </div>
@@ -2346,7 +2381,7 @@ function Builder({
       setData(studentSampleData);
       toast.success("Exemple de CV Étudiant (Stage PFE / Projets d'études) chargé avec succès !");
     } else {
-      setData(initialData);
+      setData(showcaseSampleData);
       toast.success("Exemple de CV Professionnel Expérimenté chargé avec succès !");
     }
   };
@@ -2828,13 +2863,13 @@ function Builder({
               label="Nom complet"
               value={data.fullName}
               onChange={(v) => update("fullName", v)}
-              placeholder="Ex. Sarra Ben Salem"
+              placeholder="Ex. Mohamed Ben Ali"
             />
             <Field
               label={isStudent ? "Intitulé du profil / Stage visé" : "Poste recherché / Titre"}
               value={data.targetRole}
               onChange={(v) => update("targetRole", v)}
-              placeholder={isStudent ? "Ex. Étudiant Ingénieur (Recherche Stage PFE)" : "Ex. Marketing & Communication Specialist"}
+              placeholder={isStudent ? "Ex. Étudiant Ingénieur (Recherche Stage PFE)" : "Ex. Responsable Marketing & Ventes"}
             />
             <Field
               label="Ville & Pays"
@@ -3934,7 +3969,7 @@ function Builder({
   );
 }
 
-const DRAFT_STORAGE_KEY = "cv_tounsi_live_draft_v1";
+const DRAFT_STORAGE_KEY = "cv_tounsi_live_draft_v3";
 
 /* ─── Main Page ─── */
 export default function Home() {
@@ -3953,6 +3988,9 @@ export default function Home() {
         if (saved) {
           const parsed = JSON.parse(saved);
           if (parsed && typeof parsed === "object" && parsed.fullName !== undefined) {
+            if (parsed.fullName === "Sarra Ben Salem" || parsed.email === "sarra.bensalem@email.com") {
+              return blankCvData;
+            }
             return parsed;
           }
         }
@@ -3960,7 +3998,7 @@ export default function Home() {
         // ignore
       }
     }
-    return initialData;
+    return blankCvData;
   });
   const [activeCvId, setActiveCvId] = useState<number | null>(null);
   const [isSavedCvsOpen, setIsSavedCvsOpen] = useState(false);
@@ -4004,7 +4042,7 @@ export default function Home() {
   };
 
   const handleNewCv = () => {
-    setData(initialData);
+    setData(blankCvData);
     setActiveCvId(null);
     setIsBuilder(true);
     if (typeof window !== "undefined") {

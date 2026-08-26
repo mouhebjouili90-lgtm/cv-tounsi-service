@@ -559,7 +559,7 @@ export default function AdminDashboard() {
                   type="text"
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
-                  placeholder="Ex: Sarra Ben Salem"
+                  placeholder="Ex: Mohamed Ben Ali"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#CBD5E1] text-sm focus:ring-2 focus:ring-[#60735A] focus:outline-none"
                 />
               </div>
