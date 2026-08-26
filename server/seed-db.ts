@@ -10,6 +10,12 @@ async function seed() {
   }
 
   const initialCodes = [
+    { code: "TN13", customerName: "Pass Étudiant / Urgence (12.9 TND)", channel: "promo", amount: 13, maxUsage: 9999 },
+    { code: "ETUDIANT13", customerName: "Promo Étudiant INSAT/FST/ENIT", channel: "promo", amount: 13, maxUsage: 9999 },
+    { code: "PASS13", customerName: "Pass Étudiant 13 TND", channel: "promo", amount: 13, maxUsage: 9999 },
+    { code: "PRO25", customerName: "Pass Pro / Exécutif (24.9 TND)", channel: "promo", amount: 25, maxUsage: 9999 },
+    { code: "VIP25", customerName: "Pass VIP 25 TND", channel: "promo", amount: 25, maxUsage: 9999 },
+    { code: "PASS25", customerName: "Pass Recherche Active 25 TND", channel: "promo", amount: 25, maxUsage: 9999 },
     { code: "TN19", customerName: "Promo Tunisie 19 TND", channel: "promo", amount: 19, maxUsage: 9999 },
     { code: "CV19", customerName: "Promo Standard CV19", channel: "promo", amount: 19, maxUsage: 9999 },
     { code: "TOUNSI19", customerName: "Pass CV Tounsi 19", channel: "promo", amount: 19, maxUsage: 9999 },

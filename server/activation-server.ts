@@ -51,8 +51,19 @@ export async function validateActivationCode(inputCode: string, fullName: string
     console.warn("[Activation Server] DB check skipped, falling back to algorithmic validation:", err);
   }
 
-  // 2. Priority 2: Standard official promo/admin codes
+  // 2. Priority 2: Standard official promo/admin codes (Student 13 TND, Pro 25 TND, Universal 19 TND)
   const standardCodes = [
+    "TN13",
+    "CV13",
+    "PASS13",
+    "ETUDIANT13",
+    "STUDENT13",
+    "13TND",
+    "PRO25",
+    "VIP25",
+    "PASS25",
+    "TOUNSI25",
+    "25TND",
     "TN19",
     "CV19",
     "TOUNSI19",

@@ -587,7 +587,27 @@ export default function AdminDashboard() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-[#475569] mb-1">Montant (TND)</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-semibold text-[#475569]">Montant (TND)</label>
+                    <div className="flex gap-1">
+                      <button
+                        type="button"
+                        onClick={() => setAmount(13)}
+                        className="text-[10px] px-1.5 py-0.5 bg-[#e0f2fe] text-[#0369a1] rounded font-bold hover:bg-[#bae6fd]"
+                        title="Pass Étudiant (12.9 DT)"
+                      >
+                        13 DT
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setAmount(25)}
+                        className="text-[10px] px-1.5 py-0.5 bg-[#fef3c7] text-[#92400e] rounded font-bold hover:bg-[#fde68a]"
+                        title="Pass Pro (24.9 DT)"
+                      >
+                        25 DT
+                      </button>
+                    </div>
+                  </div>
                   <input
                     type="number"
                     value={amount}

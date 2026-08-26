@@ -59,6 +59,10 @@ import {
   Lock,
   Unlock,
   ShieldAlert,
+  ShieldCheck,
+  Star,
+  Zap,
+  CreditCard,
   Crown,
   Key,
   KeyRound,
@@ -2122,6 +2126,9 @@ function Builder({
     return false;
   });
   const [showPaywallModal, setShowPaywallModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<"student" | "pro">(() =>
+    data.profileType === "student" ? "student" : "pro"
+  );
   const [isScreenProtected, setIsScreenProtected] = useState(false);
   const [clientCodeInput, setClientCodeInput] = useState("");
 
@@ -2152,6 +2159,11 @@ function Builder({
   const printTargetRef = useRef<HTMLDivElement | null>(null);
 
   const isStudent = data.profileType === "student";
+
+  // Keep selected plan aligned with profile type when user toggles profile
+  useEffect(() => {
+    setSelectedPlan(data.profileType === "student" ? "student" : "pro");
+  }, [data.profileType]);
 
   /* ── Anti-Screenshot & Screen Guard Detector ── */
   useEffect(() => {
@@ -3155,7 +3167,7 @@ function Builder({
                   onClick={() => setShowPaywallModal(true)}
                   style={{ fontSize: "0.88rem", padding: "0.75rem 1.4rem" }}
                 >
-                  <Key size={15} /> Activer / Débloquer HD (19 TND)
+                  <Key size={15} /> Activer / Débloquer HD (Dès 12.9 TND)
                 </button>
               )}
             </div>
@@ -3201,8 +3213,8 @@ function Builder({
                 Ce document est un extrait protégé de démonstration. Pour recevoir votre <b>CV complet en Haute Définition</b> (sans flou et sans filigrane) :
               </p>
               <div className="pdf-paywall-box-highlight">
-                <div className="price-row">Tarif Déblocage : 19 TND</div>
-                <div className="whatsapp-num">WhatsApp : +216 95 669 209</div>
+                <div className="price-row">Tarif Déblocage : 12.900 TND (Étudiant) · 24.900 TND (Pro)</div>
+                <div className="whatsapp-num">WhatsApp : +216 95 669 209 · D17 Disponible</div>
               </div>
               <div className="pdf-paywall-instructions">
                 Envoyez un message sur WhatsApp avec votre nom pour obtenir instantanément votre fichier PDF certifié sans restriction.
@@ -3212,14 +3224,14 @@ function Builder({
         </div>
       </div>
 
-      {/* ── Paywall & Monetization Modal ── */}
+      {/* ── Paywall & Monetization Modal with Dual Pricing ── */}
       {showPaywallModal && (
         <div className="paywall-modal-backdrop" onClick={() => setShowPaywallModal(false)}>
           <div className="paywall-modal-box" onClick={(e) => e.stopPropagation()}>
             <div className="paywall-modal-header">
               <div>
                 <h3>Débloquez votre CV en Haute Définition</h3>
-                <p>Recevez votre code d'activation pour exporter le PDF A4 net sans flou</p>
+                <p>Format A4 300 DPI certifié conforme aux normes internationales ATS</p>
               </div>
               <button
                 type="button"
@@ -3232,28 +3244,95 @@ function Builder({
             </div>
 
             <div className="paywall-modal-body">
-              <div className="paywall-pricing-card">
-                <div className="paywall-pricing-left">
-                  <strong>Formule Complète (PDF A4 Haute Définition)</strong>
-                  <span>Accès définitif · Sans flou · Sans filigrane</span>
+              {/* ── Dual Pricing Plan Selector ── */}
+              <div style={{ marginBottom: "0.5rem" }}>
+                <span style={{ display: "block", fontSize: "0.74rem", fontWeight: 700, color: "var(--ink)", marginBottom: "0.4rem" }}>
+                  1. Choisissez votre formule adaptée :
+                </span>
+                <div className="paywall-plans-grid">
+                  {/* Option 1: Pass Étudiant */}
+                  <div
+                    className={`paywall-plan-card ${selectedPlan === "student" ? "selected" : ""}`}
+                    onClick={() => setSelectedPlan("student")}
+                  >
+                    <div>
+                      <span className="paywall-plan-tag tag-student">🎓 Étudiant & PFE</span>
+                      <div className="paywall-plan-title">Pass Étudiant / Urgence</div>
+                      <div className="paywall-plan-sub">Idéal stage PFE & 1er emploi</div>
+                      <div className="paywall-price-wrap">
+                        <span className="paywall-price-main">12.900</span>
+                        <span className="paywall-price-unit">TND</span>
+                      </div>
+                    </div>
+                    <ul className="paywall-features-list">
+                      <li><Check size={12} /> 1 CV Haute Résolution (A4 300 DPI)</li>
+                      <li><Check size={12} /> Export PDF net sans aucun flou</li>
+                      <li><Check size={12} /> 5 améliorations de texte par IA</li>
+                      <li><Check size={12} /> Déblocage D17 / WhatsApp immédiat</li>
+                    </ul>
+                  </div>
+
+                  {/* Option 2: Pass Pro */}
+                  <div
+                    className={`paywall-plan-card ${selectedPlan === "pro" ? "selected" : ""}`}
+                    onClick={() => setSelectedPlan("pro")}
+                  >
+                    <div>
+                      <span className="paywall-plan-tag tag-pro">⭐ Recommandé · -50%</span>
+                      <div className="paywall-plan-title">Pass Pro / Exécutif</div>
+                      <div className="paywall-plan-sub">Pour cadres & recherche active</div>
+                      <div className="paywall-price-wrap">
+                        <span className="paywall-price-main">24.900</span>
+                        <span className="paywall-price-unit">TND</span>
+                        <span className="paywall-price-struck">49 TND</span>
+                      </div>
+                    </div>
+                    <ul className="paywall-features-list">
+                      <li><Check size={12} /> <strong>CVs illimités</strong> à volonté</li>
+                      <li><Check size={12} /> Accès aux <strong>9 modèles</strong> ATS & EU</li>
+                      <li><Check size={12} /> <strong>Sauvegarde Cloud à vie</strong> (PC/Mobile)</li>
+                      <li><Check size={12} /> <strong>IA Illimitée</strong> pour chaque poste</li>
+                    </ul>
+                  </div>
                 </div>
-                <div className="paywall-price-badge">19 TND</div>
               </div>
 
-              {/* Step 1: WhatsApp CTA */}
+              {/* ── Payment Methods Bar ── */}
+              <div className="paywall-payment-methods">
+                <div className="paywall-methods-title">
+                  <ShieldCheck size={13} /> Moyens de paiement acceptés en Tunisie :
+                </div>
+                <div className="paywall-methods-chips">
+                  <span className="paywall-method-chip">📲 D17 La Poste</span>
+                  <span className="paywall-method-chip">💳 Flouci / Carte</span>
+                  <span className="paywall-method-chip">💬 WhatsApp Direct</span>
+                  <span className="paywall-method-chip">🏦 Virement Bancaire</span>
+                </div>
+              </div>
+
+              {/* Step 2: WhatsApp CTA */}
               <div style={{ marginBottom: "0.9rem" }}>
                 <span style={{ display: "block", fontSize: "0.74rem", fontWeight: 700, color: "var(--ink)", marginBottom: "0.4rem" }}>
-                  1. Commandez votre code d'activation sur WhatsApp :
+                  2. Commandez votre code d'activation :
                 </span>
                 <a
-                  href={`https://wa.me/21695669209?text=Bonjour,%20je%20souhaite%20recevoir%20le%20code%20de%20d%C3%A9blocage%20pour%20mon%20CV%20Tounsi%20(19%20TND).%20Nom:%20${encodeURIComponent(data.fullName)}%20-%20Code%20sugg%C3%A9r%C3%A9:%20${encodeURIComponent(generateSuggestedCode(data.fullName))}`}
+                  href={`https://wa.me/21695669209?text=${encodeURIComponent(
+                    `Bonjour, je souhaite commander le *${
+                      selectedPlan === "student" ? "Pass Étudiant / Urgence (12.900 TND)" : "Pass Pro / Recherche Active (24.900 TND)"
+                    }* pour mon CV Tounsi.\n\n` +
+                    `👤 Nom : ${data.fullName || "Client"}\n` +
+                    `📄 Modèle : ${templateCatalog[data.template]?.label || data.template}\n` +
+                    `🔑 Code suggéré : ${generateSuggestedCode(data.fullName)}`
+                  )}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="whatsapp-action-btn"
                   onClick={() => trackWhatsAppClicked(generateSuggestedCode(data.fullName))}
                 >
                   <MessageCircle size={18} />
-                  <span>Obtenir mon code sur WhatsApp (+216 95 669 209)</span>
+                  <span>
+                    Commander le {selectedPlan === "student" ? "Pass Étudiant (12.9 DT)" : "Pass Pro (24.9 DT)"} sur WhatsApp
+                  </span>
                 </a>
                 <div style={{ fontSize: "0.71rem", color: "var(--olive-dark)", marginTop: "0.35rem", display: "flex", alignItems: "center", gap: "5px" }}>
                   <span>💡 Code mémorisable généré pour vous :</span>
@@ -3263,10 +3342,10 @@ function Builder({
                 </div>
               </div>
 
-              {/* Step 2: Enter Client Activation Code */}
+              {/* Step 3: Enter Client Activation Code */}
               <div className="client-unlock-box">
                 <div className="client-unlock-title">
-                  <Key size={14} /> 2. Vous avez reçu votre code ? Entrez-le ici :
+                  <Key size={14} /> 3. Vous avez reçu votre code ? Entrez-le ici :
                 </div>
                 <p className="client-unlock-desc">
                   Saisissez votre code pour débloquer immédiatement votre CV en qualité maximale.
@@ -3276,7 +3355,7 @@ function Builder({
                   <input
                     type="text"
                     className="client-unlock-input"
-                    placeholder={`Ex: ${generateSuggestedCode(data.fullName)} ou TN-19...`}
+                    placeholder={`Ex: ${generateSuggestedCode(data.fullName)}, TN-13, PRO-25...`}
                     value={clientCodeInput}
                     onChange={(e) => setClientCodeInput(e.target.value)}
                     autoFocus
@@ -3288,7 +3367,7 @@ function Builder({
               </div>
 
               {/* Download Free Blurred Demo Button */}
-              <div style={{ marginTop: "1rem" }}>
+              <div style={{ marginTop: "0.85rem" }}>
                 <button
                   type="button"
                   className="download-demo-btn"
