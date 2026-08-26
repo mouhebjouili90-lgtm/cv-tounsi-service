@@ -3200,20 +3200,10 @@ function Builder({
                 className="button button-primary"
                 onClick={handleDownloadClick}
                 disabled={isExporting}
-                style={{ fontSize: "0.88rem", padding: "0.75rem 1.6rem" }}
+                style={{ fontSize: "0.88rem", padding: "0.75rem 1.8rem" }}
               >
                 <Download size={16} /> {isExporting ? "Génération du PDF..." : "Télécharger mon CV (PDF A4)"}
               </button>
-              {!isUnlocked && (
-                <button
-                  type="button"
-                  className="button button-secondary"
-                  onClick={() => setShowPaywallModal(true)}
-                  style={{ fontSize: "0.88rem", padding: "0.75rem 1.4rem" }}
-                >
-                  <Key size={15} /> Activer / Débloquer HD (Dès 12.9 TND)
-                </button>
-              )}
             </div>
           </div>
         </div>
@@ -3288,6 +3278,34 @@ function Builder({
             </div>
 
             <div className="paywall-modal-body">
+              {/* ── Free Demo Download Bar (En haut, au-dessus du paiement) ── */}
+              <div style={{ marginBottom: "0.85rem" }}>
+                <button
+                  type="button"
+                  className="download-demo-btn"
+                  onClick={() => executeDownloadPdf(true)}
+                  style={{
+                    background: "#fbf9f4",
+                    border: "1.5px dashed #c8beab",
+                    padding: "0.65rem 1rem",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                    fontSize: "0.78rem",
+                    color: "var(--ink)",
+                    fontWeight: 700,
+                    borderRadius: "8px",
+                    width: "100%",
+                    cursor: "pointer",
+                    transition: "all 150ms ease",
+                  }}
+                >
+                  <Download size={15} style={{ color: "var(--olive-dark)" }} />
+                  <span>📥 Télécharger un extrait d'essai gratuit (version démo protégée)</span>
+                </button>
+              </div>
+
               {/* ── Cloud Account Synchronization Banner (Point 4) ── */}
               {!user ? (
                 <div className="paywall-account-banner guest">
@@ -3479,18 +3497,6 @@ function Builder({
                     </div>
                   </div>
                 </div>
-              </div>
-
-              {/* Download Free Blurred Demo Button */}
-              <div style={{ marginTop: "0.85rem" }}>
-                <button
-                  type="button"
-                  className="download-demo-btn"
-                  onClick={() => executeDownloadPdf(true)}
-                >
-                  <Download size={14} />
-                  <span>Télécharger un extrait d'essai (flouté)</span>
-                </button>
               </div>
             </div>
           </div>
