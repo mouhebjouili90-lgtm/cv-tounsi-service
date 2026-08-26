@@ -380,7 +380,7 @@ export default function AdminDashboard() {
 
   const copyWhatsAppResponse = (code: string, name?: string | null, amount?: number | null) => {
     const amountStr = amount ? `${amount} TND` : code.includes("13") ? "12.900 TND" : "24.900 TND";
-    const text = `Bonjour ${name ? name : ""} ! Merci pour votre paiement de ${amountStr}. Votre code d'activation officiel pour CV Tounsi est : *${code}*. Entrez-le sur https://cvtounsi.tn pour débloquer immédiatement votre CV en Haute Définition !`;
+    const text = `Bonjour ${name ? name : ""} ! Merci pour votre paiement de ${amountStr}. Votre code d'activation officiel pour CV Tounsi est : *${code}*. Entrez-le sur https://cvtounsi.com pour débloquer immédiatement votre CV en Haute Définition !`;
     copyToClipboard(text, "Message WhatsApp client copié !");
   };
 
