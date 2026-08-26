@@ -55,7 +55,7 @@ export default function AdsLanding() {
         <span className="bg-[#D97706] text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
           Offre Spéciale 2026
         </span>
-        <span>Créez votre CV conforme aux normes Tunisie, Canada & Europe pour <strong>19 TND seulement</strong></span>
+        <span>Créez votre CV conforme aux normes Tunisie, Canada & Europe <strong>dès 12.900 TND</strong></span>
       </div>
 
       {/* ── Navigation Header (Minimaliste sans fuite de trafic) ── */}
@@ -127,7 +127,7 @@ export default function AdsLanding() {
           </div>
           <div className="flex items-center gap-1.5">
             <CheckCircle2 className="w-4 h-4 text-[#60735A]" />
-            <span>Tarif unique : 19 TND sans abonnement</span>
+            <span>Dès 12.900 TND sans abonnement</span>
           </div>
         </div>
 
@@ -313,7 +313,7 @@ export default function AdsLanding() {
                 ))}
               </div>
               <p className="text-sm text-[#334155] italic mb-4 leading-relaxed">
-                « Le modèle Canadien sans photo m'a fait gagner un temps précieux pour mon dossier d'immigration. Débloqué en 2 minutes sur WhatsApp pour 19 TND. »
+                « Le modèle Canadien sans photo m'a fait gagner un temps précieux pour mon dossier d'immigration. Débloqué en 2 minutes sur WhatsApp. »
               </p>
               <div className="text-xs">
                 <strong className="text-[#0F172A] block">Youssef B.</strong>
@@ -332,10 +332,10 @@ export default function AdsLanding() {
           </span>
 
           <h2 className="text-3xl sm:text-4xl font-bold font-serif text-[#0F172A] mt-4 mb-2">
-            19 TND <span className="text-sm font-sans font-normal text-[#64748B]">seulement</span>
+            Dès 12.900 TND <span className="text-sm font-sans font-normal text-[#64748B]">(Pass Étudiant)</span>
           </h2>
           <p className="text-xs sm:text-sm text-[#16A34A] font-semibold mb-6">
-            Paiement unique · Aucun abonnement mensuel · Téléchargements illimités
+            Paiement unique · Aucun abonnement caché · Assistance 7j/7
           </p>
 
           <ul className="space-y-3 text-sm text-[#334155] text-left max-w-sm mx-auto mb-8">
@@ -381,7 +381,7 @@ export default function AdsLanding() {
             },
             {
               q: "Comment fonctionne le déblocage du PDF net ?",
-              a: "Pour exporter votre PDF A4 Haute Définition sans flou, vous recevez un code d'activation pour 19 TND. Vous pouvez le commander en 1 clic via WhatsApp (+216 95 669 209) ou par D17 / Flouci.",
+              a: "Pour exporter votre PDF A4 Haute Définition sans flou, vous choisissez votre formule (Pass Étudiant 12.9 DT ou Pass Pro 24.9 DT). Vous recevez votre code en 1 clic via WhatsApp (+216 95 669 209) ou par D17 / Flouci.",
             },
             {
               q: "Mon CV est-il adapté pour postuler au Canada ou en France ?",
@@ -433,8 +433,8 @@ export default function AdsLanding() {
       {/* ── Sticky Mobile Bottom CTA Bar (Indispensable pour le trafic mobile Meta Ads) ── */}
       <div className="fixed bottom-0 left-0 right-0 p-3 bg-white/95 backdrop-blur-md border-t border-[#E2E8F0] sm:hidden z-50 shadow-lg flex items-center justify-between gap-3">
         <div>
-          <span className="text-[11px] text-[#64748B] block">Tarif unique</span>
-          <strong className="text-base text-[#0F172A] font-bold">19 TND</strong>
+          <span className="text-[11px] text-[#64748B] block">Tarif</span>
+          <strong className="text-base text-[#0F172A] font-bold">Dès 12.9 DT</strong>
         </div>
         <button
           onClick={() => handleStartNow("sticky_mobile_cta")}

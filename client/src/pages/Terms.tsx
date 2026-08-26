@@ -34,7 +34,7 @@ export default function Terms() {
               <Scale className="w-5 h-5 text-[#60735A]" /> 2. Modalités d'Accès et Tarifs
             </h2>
             <p>
-              L'édition, la prévisualisation et l'essai sont accessibles à tous les utilisateurs. Le déblocage de la version Haute Définition (sans filigrane / flou) avec téléchargement illimité du PDF A4 est soumis à un tarif unique de <strong>19 TND</strong> payable par les moyens indiqués (WhatsApp / Virement / D17 / Flouci).
+              L'édition, la prévisualisation et l'essai sont accessibles à tous les utilisateurs. Le déblocage de la version Haute Définition (sans filigrane / flou) avec téléchargement illimité du PDF A4 est proposé dès <strong>12.900 TND (Pass Étudiant) et 24.900 TND (Pass Pro)</strong> payable par les moyens indiqués (D17 / Flouci / Virement / WhatsApp).
             </p>
           </section>
 

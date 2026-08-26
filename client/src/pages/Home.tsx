@@ -1646,24 +1646,6 @@ function ScaledResumePreview({
             <MousePointerClick size={14} />
             <span><b>Aperçu Dynamique & Édition Directe</b></span>
           </span>
-          {!isUnlocked && (
-            <span
-              style={{
-                marginLeft: "8px",
-                fontSize: "0.64rem",
-                background: "#fde8e8",
-                color: "#c83b3b",
-                fontWeight: 700,
-                padding: "2px 6px",
-                borderRadius: "999px",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "3px",
-              }}
-            >
-              <Lock size={10} /> Mode Démo (19 TND)
-            </span>
-          )}
         </div>
 
         <div className="zoom-buttons-group">
@@ -1720,7 +1702,7 @@ function ScaledResumePreview({
             <h4>🛡️ Aperçu Protégé — CV Tounsi</h4>
             <p>
               Les captures d'écran sont désactivées sur cette version d'aperçu.<br />
-              Obtenez votre CV complet en PDF haute résolution A4 pour seulement <b>19 TND</b>.
+              Obtenez votre CV officiel en PDF haute résolution A4.
             </p>
             <button
               type="button"
@@ -1728,7 +1710,7 @@ function ScaledResumePreview({
               onClick={onOpenPaywall}
               style={{ fontSize: "0.78rem", padding: "0.5rem 1.1rem" }}
             >
-              Débloquer la version complète (19 TND)
+              Débloquer la version officielle HD
             </button>
           </div>
         )}
@@ -3682,8 +3664,8 @@ function Builder({
               </button>
             )}
 
-            {/* Client Status Badge or Unlock Trigger */}
-            {isUnlocked ? (
+            {/* Client Status Badge (Only shown when unlocked) */}
+            {isUnlocked && (
               <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                 <span className="unlocked-success-badge" title="Votre CV est débloqué en Haute Définition">
                   <Check size={12} /> Version HD Débloquée
@@ -3693,10 +3675,9 @@ function Builder({
                   onClick={handleRelockForTest}
                   style={{
                     background: "none",
-                    border: "0",
-                    color: "#c7d2c0",
-                    fontSize: "0.64rem",
-                    textDecoration: "underline",
+                    border: "none",
+                    color: "var(--ink-soft)",
+                    fontSize: "0.68rem",
                     cursor: "pointer",
                   }}
                   title="Réinitialiser pour tester le mode verrouillé"
@@ -3704,16 +3685,6 @@ function Builder({
                   (Test)
                 </button>
               </div>
-            ) : (
-              <button
-                type="button"
-                className="button ai-button"
-                onClick={() => setShowPaywallModal(true)}
-                title="Débloquer la version complète sans flou"
-              >
-                <Key size={13} />
-                <span>Débloquer HD (19 TND)</span>
-              </button>
             )}
 
             <button
@@ -3789,7 +3760,7 @@ function Builder({
               <p>
                 <strong>Profil :</strong> {isStudent ? "Étudiant / Jeune Diplômé" : "Professionnel Expérimenté"}
                 <br />
-                <strong>Statut :</strong> {isUnlocked ? "✅ Haute Définition Activée" : "🔒 Version Démo (19 TND)"}
+                <strong>Statut :</strong> {isUnlocked ? "✅ Haute Définition Activée" : "🔒 Version Démo"}
               </p>
             </div>
           </aside>
