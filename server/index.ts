@@ -133,11 +133,17 @@ async function startServer() {
   app.post("/api/validate-code", async (req: Request, res: Response) => {
     try {
       const { code, fullName } = req.body;
-      const isValid = await validateActivationCode(code || "", fullName || "");
+      const validation = await validateActivationCode(code || "", fullName || "");
 
-      if (isValid) {
-        const token = generateActivationToken(fullName || "Client");
-        res.json({ valid: true, token });
+      if (validation.valid) {
+        const plan = validation.plan || "pro";
+        const token = generateActivationToken(fullName || "Client", plan);
+        res.json({
+          valid: true,
+          plan,
+          amount: validation.amount,
+          token,
+        });
       } else {
         res.json({ valid: false });
       }

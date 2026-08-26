@@ -144,10 +144,11 @@ app.post("/api/ai/generate", checkRateLimit, async (req: Request, res: Response)
 app.post("/api/validate-code", async (req: Request, res: Response) => {
   try {
     const { code, fullName } = req.body;
-    const isValid = await validateActivationCode(code || "", fullName || "");
+    const validation = await validateActivationCode(code || "", fullName || "");
 
-    if (isValid) {
-      const token = generateActivationToken(fullName || "Client");
+    if (validation.valid) {
+      const plan = validation.plan || "pro";
+      const token = generateActivationToken(fullName || "Client", plan);
 
       // Check if request is from an authenticated user
       const authHeader = req.headers["authorization"] || req.headers["x-auth-token"];
@@ -155,6 +156,8 @@ app.post("/api/validate-code", async (req: Request, res: Response) => {
 
       res.json({
         valid: true,
+        plan,
+        amount: validation.amount,
         token,
         userId: userSession?.userId || null,
         userEmail: userSession?.email || null,

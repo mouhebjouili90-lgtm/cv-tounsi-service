@@ -1320,12 +1320,39 @@ h1, h2, h3, p { margin: 0; }
   border-radius: 999px;
 }
 
+.unlocked-student-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #7dd3fc;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+}
+
+.unlocked-pro-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  color: #92400e;
+  border: 1px solid #f59e0b;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
+}
+
 /* ── Post-Unlock Account Linking Modal (Approche A) ── */
 .post-unlock-modal-box {
   background: #ffffff;
   border-radius: 16px;
   width: 100%;
-  max-width: 480px;
+  max-width: 500px;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.38);
   border: 1.5px solid #d1d5db;
   overflow: hidden;
@@ -1335,17 +1362,21 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .post-unlock-header {
-  background: linear-gradient(135deg, #14532d, #166534, #15803d);
   color: #ffffff;
-  padding: 1.6rem 1.4rem 1.4rem;
+  padding: 1.5rem 1.4rem 1.3rem;
   position: relative;
+}
+.post-unlock-header.student {
+  background: linear-gradient(135deg, #0369a1, #0284c7, #0ea5e9);
+}
+.post-unlock-header.pro {
+  background: linear-gradient(135deg, #1e293b, #0f172a, #854d0e);
 }
 
 .post-unlock-badge-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(8px);
   padding: 4px 12px;
   border-radius: 999px;
@@ -1354,11 +1385,21 @@ h1, h2, h3, p { margin: 0; }
   letter-spacing: 0.5px;
   text-transform: uppercase;
   margin-bottom: 0.6rem;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+.post-unlock-badge-pill.student-badge {
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+.post-unlock-badge-pill.pro-badge {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #ffffff;
+  border: 1px solid #fcd34d;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .post-unlock-header h3 {
-  font-size: 1.25rem;
+  font-size: 1.22rem;
   font-weight: 800;
   color: #ffffff;
   margin: 0 0 0.35rem;
@@ -1366,26 +1407,69 @@ h1, h2, h3, p { margin: 0; }
 
 .post-unlock-header p {
   font-size: 0.78rem;
-  color: #dcfce7;
+  color: #e0f2fe;
   margin: 0;
   line-height: 1.4;
 }
+.post-unlock-header.pro p {
+  color: #fef08a;
+}
 
 .post-unlock-body {
-  padding: 1.4rem 1.5rem;
+  padding: 1.3rem 1.4rem;
   text-align: left;
+}
+
+.post-unlock-plan-summary {
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 1rem;
+}
+.post-unlock-plan-summary.student-summary {
+  background: #f0f9ff;
+  border: 1.5px solid #bae6fd;
+}
+.post-unlock-plan-summary.pro-summary {
+  background: #fffbeb;
+  border: 1.5px solid #fde68a;
+}
+.plan-summary-title {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+.plan-summary-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.plan-summary-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.72rem;
+  color: #334155;
+  line-height: 1.35;
+}
+.plan-summary-list li svg {
+  margin-top: 1px;
+  flex-shrink: 0;
 }
 
 .post-unlock-callout {
   background: #f0fdf4;
   border: 1.5px solid #86efac;
   border-radius: 10px;
-  padding: 12px 14px;
+  padding: 11px 13px;
   margin-bottom: 1.1rem;
 }
 .post-unlock-callout strong {
   display: block;
-  font-size: 0.84rem;
+  font-size: 0.82rem;
   color: #166534;
   margin-bottom: 3px;
 }
@@ -1394,6 +1478,13 @@ h1, h2, h3, p { margin: 0; }
   color: #374151;
   margin: 0;
   line-height: 1.4;
+}
+.post-unlock-callout.pro-callout {
+  background: #f8fafc;
+  border: 1.5px solid #cbd5e1;
+}
+.post-unlock-callout.pro-callout strong {
+  color: #0f172a;
 }
 
 .post-unlock-features-list {

@@ -2143,6 +2143,13 @@ function Builder({
     }
     return false;
   });
+  const [unlockedPlan, setUnlockedPlan] = useState<"student" | "pro">(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("cv_tounsi_client_plan");
+      if (saved === "student" || saved === "pro") return saved;
+    }
+    return "pro";
+  });
 
   // ── Approche A : Auto-save unlocked CV when guest user signs in after activation ──
   const prevUserRef = useRef(user);
@@ -2256,11 +2263,15 @@ function Builder({
         .then((data) => {
           if (data.valid) {
             setIsUnlocked(true);
+            const plan: "student" | "pro" = data.plan || "pro";
+            setUnlockedPlan(plan);
             localStorage.setItem("cv_tounsi_client_unlocked", "true");
+            localStorage.setItem("cv_tounsi_client_plan", plan);
           } else {
             setIsUnlocked(false);
             localStorage.removeItem("cv_tounsi_client_unlocked");
             localStorage.removeItem("cv_tounsi_client_token");
+            localStorage.removeItem("cv_tounsi_client_plan");
           }
         })
         .catch(() => {
@@ -2275,7 +2286,7 @@ function Builder({
     if (!clientCodeInput.trim()) return;
 
     try {
-      // Priority 1: Server-side validation with HMAC signed token
+      const cleanCode = clientCodeInput.trim();
       const userToken = typeof window !== "undefined" ? localStorage.getItem("cvtounsi_user_token") : null;
       const res = await fetch("/api/validate-code", {
         method: "POST",
@@ -2284,7 +2295,7 @@ function Builder({
           ...(userToken ? { Authorization: `Bearer ${userToken}` } : {}),
         },
         body: JSON.stringify({
-          code: clientCodeInput.trim(),
+          code: cleanCode,
           fullName: data.fullName,
         }),
       });
@@ -2293,12 +2304,15 @@ function Builder({
 
       if (result.valid) {
         setIsUnlocked(true);
+        const plan: "student" | "pro" = result.plan || (cleanCode.toUpperCase().includes("13") ? "student" : "pro");
+        setUnlockedPlan(plan);
         if (result.token) {
           localStorage.setItem("cv_tounsi_client_token", result.token);
         }
         localStorage.setItem("cv_tounsi_client_unlocked", "true");
+        localStorage.setItem("cv_tounsi_client_plan", plan);
         setShowPaywallModal(false);
-        trackCodeActivated("WhatsAppCode");
+        trackCodeActivated(plan === "student" ? "StudentPassCode" : "ProPassCode");
 
         // ── Auto-save unlocked state into Cloud database if user is authenticated ──
         if (user) {
@@ -2310,11 +2324,19 @@ function Builder({
             language: data.language,
             isUnlocked: true,
           }).catch((err) => console.warn("[Cloud] Auto-save on unlock error:", err));
-          toast.success("✅ Code d'activation validé avec succès ! Votre CV est débloqué.");
+          toast.success(
+            plan === "student"
+              ? "🎓 Pass Étudiant (12.900 DT) validé ! Votre CV HD A4 est débloqué."
+              : "👑 Pass Pro (24.900 DT) validé avec succès ! Accès VIP Illimité débloqué."
+          );
         } else {
           // ── Approche A : Open Post-Unlock Account Linking Modal for Guest Users ──
           setShowPostUnlockModal(true);
-          toast.success("✅ Code validé ! Votre CV est débloqué.");
+          toast.success(
+            plan === "student"
+              ? "🎓 Pass Étudiant validé ! Votre CV HD A4 est débloqué."
+              : "👑 Pass Pro validé ! Accès VIP Illimité débloqué."
+          );
         }
 
         executeDownloadPdf(false);
@@ -2333,6 +2355,7 @@ function Builder({
     if (typeof window !== "undefined") {
       localStorage.removeItem("cv_tounsi_client_unlocked");
       localStorage.removeItem("cv_tounsi_client_token");
+      localStorage.removeItem("cv_tounsi_client_plan");
     }
     toast.info("Mode Démo réactivé (Flou & Filigrane réactivés pour tester).");
   };
@@ -3435,12 +3458,12 @@ function Builder({
                     }* pour mon CV Tounsi.\n\n` +
                     `👤 Nom : ${data.fullName || "Client"}\n` +
                     `📄 Modèle : ${templateCatalog[data.template]?.label || data.template}\n` +
-                    `🔑 Code suggéré : ${generateSuggestedCode(data.fullName)}`
+                    `🔑 Code suggéré : ${generateSuggestedCode(data.fullName, selectedPlan)}`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="whatsapp-action-btn"
-                  onClick={() => trackWhatsAppClicked(generateSuggestedCode(data.fullName))}
+                  onClick={() => trackWhatsAppClicked(generateSuggestedCode(data.fullName, selectedPlan))}
                 >
                   <MessageCircle size={18} />
                   <span>
@@ -3450,7 +3473,7 @@ function Builder({
                 <div style={{ fontSize: "0.71rem", color: "var(--olive-dark)", marginTop: "0.35rem", display: "flex", alignItems: "center", gap: "5px" }}>
                   <span>💡 Code mémorisable généré pour vous :</span>
                   <strong style={{ background: "#e8f0e6", padding: "1px 6px", borderRadius: "4px", letterSpacing: "0.04em" }}>
-                    {generateSuggestedCode(data.fullName)}
+                    {generateSuggestedCode(data.fullName, selectedPlan)}
                   </strong>
                 </div>
               </div>
@@ -3468,7 +3491,7 @@ function Builder({
                   <input
                     type="text"
                     className="client-unlock-input"
-                    placeholder={`Ex: ${generateSuggestedCode(data.fullName)}, TN-13, PRO-25...`}
+                    placeholder={`Ex: ${generateSuggestedCode(data.fullName, selectedPlan)}, TN13, PRO25...`}
                     value={clientCodeInput}
                     onChange={(e) => setClientCodeInput(e.target.value)}
                     autoFocus
@@ -3524,33 +3547,81 @@ function Builder({
       {showPostUnlockModal && (
         <div className="paywall-modal-backdrop" onClick={() => setShowPostUnlockModal(false)}>
           <div className="post-unlock-modal-box" onClick={(e) => e.stopPropagation()}>
-            <div className="post-unlock-header">
-              <div className="post-unlock-badge-pill">
-                <Sparkles size={13} /> DÉBLOCAGE RÉUSSI · VERSION HD ACTIVE
+            <div className={`post-unlock-header ${unlockedPlan === "student" ? "student" : "pro"}`}>
+              <div className={`post-unlock-badge-pill ${unlockedPlan === "student" ? "student-badge" : "pro-badge"}`}>
+                {unlockedPlan === "student" ? (
+                  <>
+                    <GraduationCap size={13} /> 🎓 PASS ÉTUDIANT ACTIVÉ (12.900 TND)
+                  </>
+                ) : (
+                  <>
+                    <Crown size={13} /> 👑 PASS PRO & EXÉCUTIF ACTIVÉ (24.900 TND) — VIP
+                  </>
+                )}
               </div>
-              <h3>🌟 Votre CV est Débloqué avec Succès !</h3>
-              <p>Votre fichier officiel sans aucun flou est prêt. Souhaitez-vous activer votre sauvegarde Cloud à vie ?</p>
+              <h3>
+                {unlockedPlan === "student"
+                  ? "🌟 Votre CV Étudiant est Débloqué en HD !"
+                  : "🚀 Bienvenue dans votre Espace Pro Illimité !"}
+              </h3>
+              <p>
+                {unlockedPlan === "student"
+                  ? "Votre CV officiel au format A4 300 DPI sans flou a été généré et téléchargé avec succès."
+                  : "Vous bénéficiez de l'accès VIP complet : 9 modèles internationaux, multi-CVs et IA sans limite."}
+              </p>
             </div>
 
             <div className="post-unlock-body">
-              <div className="post-unlock-callout">
-                <strong>💡 Pourquoi lier votre compte maintenant ?</strong>
+              {unlockedPlan === "student" ? (
+                <div className="post-unlock-plan-summary student-summary">
+                  <div className="plan-summary-title">🎓 Inclus dans votre Pass Étudiant :</div>
+                  <ul className="plan-summary-list">
+                    <li>
+                      <Check size={14} style={{ color: "#0284c7" }} />
+                      <span><b>1 CV Haute Définition (300 DPI)</b> pour vos candidatures de stage PFE & 1er emploi</span>
+                    </li>
+                    <li>
+                      <Check size={14} style={{ color: "#0284c7" }} />
+                      <span><b>Téléchargement PDF A4 officiel sans flou</b> direct et prêt à l'emploi</span>
+                    </li>
+                    <li>
+                      <Check size={14} style={{ color: "#0284c7" }} />
+                      <span><b>IA d'optimisation de projet & compétences</b> pour valoriser votre parcours académique</span>
+                    </li>
+                  </ul>
+                </div>
+              ) : (
+                <div className="post-unlock-plan-summary pro-summary">
+                  <div className="plan-summary-title">👑 Vos Avantages VIP Pro Débloqués :</div>
+                  <ul className="plan-summary-list">
+                    <li>
+                      <Check size={14} style={{ color: "#d97706" }} />
+                      <span><b>Création de CVs illimités</b> : Déclinez autant de versions de CV que souhaité</span>
+                    </li>
+                    <li>
+                      <Check size={14} style={{ color: "#d97706" }} />
+                      <span><b>Bibliothèque intégrale (9 modèles)</b> : Exécutifs 2 col, Canadiens ATS & Europass UE</span>
+                    </li>
+                    <li>
+                      <Check size={14} style={{ color: "#d97706" }} />
+                      <span><b>Intelligence Artificielle Illimitée</b> pour tous vos postes, accroches et compétences</span>
+                    </li>
+                    <li>
+                      <Check size={14} style={{ color: "#d97706" }} />
+                      <span><b>Sauvegarde Cloud à vie</b> synchronisée en temps réel sur PC, Mac et Téléphone</span>
+                    </li>
+                  </ul>
+                </div>
+              )}
+
+              <div className={`post-unlock-callout ${unlockedPlan === "pro" ? "pro-callout" : ""}`}>
+                <strong>{unlockedPlan === "student" ? "💡 Ne perdez pas votre travail !" : "⚡ Activez votre Espace Cloud Pro :"}</strong>
                 <p>
-                  En liant votre compte en 10 secondes, ce CV sera <b>automatiquement sauvegardé sur le Cloud</b>. Vous pourrez le rouvrir sur votre ordinateur, votre téléphone ou créer d'autres versions sans jamais perdre votre travail.
+                  {unlockedPlan === "student"
+                    ? "Liez votre compte en 10 secondes pour sauvegarder ce CV sur le Cloud et le retrouver sur votre téléphone à tout moment."
+                    : "Connectez votre compte dès maintenant pour rattacher définitivement votre statut Pro VIP et synchroniser tous vos CVs."}
                 </p>
               </div>
-
-              <ul className="post-unlock-features-list">
-                <li>
-                  <Check size={14} /> <span>Sauvegarde Cloud permanente et sécurisée</span>
-                </li>
-                <li>
-                  <Check size={14} /> <span>Accès synchronisé sur PC, Mac, iPhone et Android</span>
-                </li>
-                <li>
-                  <Check size={14} /> <span>Modifications et ré-exports illimités à vie</span>
-                </li>
-              </ul>
 
               <div className="post-unlock-actions">
                 <button
@@ -3667,9 +3738,15 @@ function Builder({
             {/* Client Status Badge (Only shown when unlocked) */}
             {isUnlocked && (
               <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <span className="unlocked-success-badge" title="Votre CV est débloqué en Haute Définition">
-                  <Check size={12} /> Version HD Débloquée
-                </span>
+                {unlockedPlan === "student" ? (
+                  <span className="unlocked-student-badge" title="Pass Étudiant & Urgence (1 CV HD 300 DPI officiel débloqué)">
+                    <GraduationCap size={13} /> 🎓 Pass Étudiant HD
+                  </span>
+                ) : (
+                  <span className="unlocked-pro-badge" title="Pass Pro & Recherche Active VIP (9 modèles & IA illimités)">
+                    <Crown size={13} /> 👑 Pass Pro VIP Illimité
+                  </span>
+                )}
                 <button
                   type="button"
                   onClick={handleRelockForTest}
@@ -3760,7 +3837,16 @@ function Builder({
               <p>
                 <strong>Profil :</strong> {isStudent ? "Étudiant / Jeune Diplômé" : "Professionnel Expérimenté"}
                 <br />
-                <strong>Statut :</strong> {isUnlocked ? "✅ Haute Définition Activée" : "🔒 Version Démo"}
+                <strong>Statut :</strong>{" "}
+                {isUnlocked ? (
+                  unlockedPlan === "student" ? (
+                    <span style={{ color: "#0284c7", fontWeight: 700 }}>🎓 Pass Étudiant HD Activé</span>
+                  ) : (
+                    <span style={{ color: "#b45309", fontWeight: 800 }}>👑 Pass Pro VIP Illimité</span>
+                  )
+                ) : (
+                  "🔒 Version Démo"
+                )}
               </p>
             </div>
           </aside>
