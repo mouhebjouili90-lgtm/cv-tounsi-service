@@ -148,7 +148,17 @@ app.post("/api/validate-code", async (req: Request, res: Response) => {
 
     if (isValid) {
       const token = generateActivationToken(fullName || "Client");
-      res.json({ valid: true, token });
+
+      // Check if request is from an authenticated user
+      const authHeader = req.headers["authorization"] || req.headers["x-auth-token"];
+      const userSession = authHeader ? verifyUserToken(authHeader.toString()) : null;
+
+      res.json({
+        valid: true,
+        token,
+        userId: userSession?.userId || null,
+        userEmail: userSession?.email || null,
+      });
     } else {
       res.json({ valid: false });
     }

@@ -2236,9 +2236,13 @@ function Builder({
 
     try {
       // Priority 1: Server-side validation with HMAC signed token
+      const userToken = typeof window !== "undefined" ? localStorage.getItem("cvtounsi_user_token") : null;
       const res = await fetch("/api/validate-code", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(userToken ? { Authorization: `Bearer ${userToken}` } : {}),
+        },
         body: JSON.stringify({
           code: clientCodeInput.trim(),
           fullName: data.fullName,
@@ -2255,6 +2259,19 @@ function Builder({
         localStorage.setItem("cv_tounsi_client_unlocked", "true");
         setShowPaywallModal(false);
         trackCodeActivated("WhatsAppCode");
+
+        // ── Auto-save unlocked state into Cloud database if user is authenticated ──
+        if (user) {
+          saveCvToCloud({
+            id: activeCvId || undefined,
+            title: `${data.fullName || "Mon CV"} — ${data.targetRole || "Candidat"}`,
+            dataJson: data,
+            template: data.template,
+            language: data.language,
+            isUnlocked: true,
+          }).catch((err) => console.warn("[Cloud] Auto-save on unlock error:", err));
+        }
+
         toast.success("✅ Code d'activation validé avec succès ! Votre CV est débloqué.");
         executeDownloadPdf(false);
         return;
@@ -3244,6 +3261,40 @@ function Builder({
             </div>
 
             <div className="paywall-modal-body">
+              {/* ── Cloud Account Synchronization Banner (Point 4) ── */}
+              {!user ? (
+                <div className="paywall-account-banner guest">
+                  <div className="paywall-account-banner-left">
+                    <div className="paywall-account-icon-wrap">
+                      <Cloud size={16} />
+                    </div>
+                    <div>
+                      <strong>Sauvegarder mon CV sur le Cloud à vie</strong>
+                      <p>Connectez-vous pour conserver et modifier votre CV sur PC et Téléphone à tout moment.</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="paywall-account-btn"
+                    onClick={() => openAuthModal("login")}
+                  >
+                    Se connecter
+                  </button>
+                </div>
+              ) : (
+                <div className="paywall-account-banner logged-in">
+                  <div className="paywall-account-banner-left">
+                    <div className="paywall-account-icon-wrap active">
+                      <UserCheck size={16} />
+                    </div>
+                    <div>
+                      <strong>Compte connecté : {user.name || user.email}</strong>
+                      <p>Votre achat et vos CVs seront automatiquement synchronisés et sécurisés sur votre espace Cloud.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* ── Dual Pricing Plan Selector ── */}
               <div style={{ marginBottom: "0.5rem" }}>
                 <span style={{ display: "block", fontSize: "0.74rem", fontWeight: 700, color: "var(--ink)", marginBottom: "0.4rem" }}>
@@ -3364,6 +3415,43 @@ function Builder({
                     Activer & Télécharger HD
                   </button>
                 </form>
+              </div>
+
+              {/* ── Trust & Psychological Reassurance Guarantee Box (Point 3) ── */}
+              <div className="paywall-guarantee-box">
+                <div className="paywall-guarantee-title">
+                  <ShieldCheck size={14} /> Garanties de Confiance & Sécurité 2026 :
+                </div>
+                <div className="paywall-guarantee-grid">
+                  <div className="paywall-guarantee-item">
+                    <ShieldCheck size={14} />
+                    <div>
+                      <strong>Garantie Satisfait ou Remboursé</strong>
+                      <span>Remboursement intégral sous 24h sur simple demande si non-conforme.</span>
+                    </div>
+                  </div>
+                  <div className="paywall-guarantee-item">
+                    <Check size={14} />
+                    <div>
+                      <strong>Conformité ATS Internationale</strong>
+                      <span>100% lisible par les logiciels recruteurs (Canada, France, UE, Golfe, Tunisie).</span>
+                    </div>
+                  </div>
+                  <div className="paywall-guarantee-item">
+                    <Lock size={14} />
+                    <div>
+                      <strong>Paiement Unique Sans Surprise</strong>
+                      <span>Aucun abonnement caché ni prélèvement automatique futur.</span>
+                    </div>
+                  </div>
+                  <div className="paywall-guarantee-item">
+                    <MessageCircle size={14} />
+                    <div>
+                      <strong>Assistance Dédiée 7j/7</strong>
+                      <span>Accompagnement et aide personnalisée sur WhatsApp par un conseiller.</span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Download Free Blurred Demo Button */}

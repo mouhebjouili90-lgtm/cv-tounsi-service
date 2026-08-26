@@ -1114,6 +1114,132 @@ h1, h2, h3, p { margin: 0; }
   color: var(--ink);
 }
 
+/* ── Cloud Account Link & Synchronization Banner ── */
+.paywall-account-banner {
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  transition: all 160ms ease;
+}
+.paywall-account-banner.guest {
+  background: #fdfbf5;
+  border: 1.5px dashed #d6cca8;
+}
+.paywall-account-banner.logged-in {
+  background: #f0fdf4;
+  border: 1.5px solid #bbf7d0;
+}
+
+.paywall-account-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+}
+.paywall-account-icon-wrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #eef2eb;
+  color: var(--olive-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.paywall-account-icon-wrap.active {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.paywall-account-banner-left strong {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+.paywall-account-banner-left p {
+  font-size: 0.67rem;
+  color: var(--ink-soft);
+  margin: 0;
+  line-height: 1.35;
+}
+
+.paywall-account-btn {
+  background: #243522;
+  color: #ffffff;
+  border: 0;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 140ms ease;
+}
+.paywall-account-btn:hover {
+  background: var(--olive);
+  transform: translateY(-1px);
+}
+
+/* ── Trust & Psychological Reassurance Guarantee Box ── */
+.paywall-guarantee-box {
+  background: #faf8f2;
+  border: 1px solid #e5dcce;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-top: 1rem;
+  text-align: left;
+}
+.paywall-guarantee-title {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--olive-dark);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.paywall-guarantee-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+@media (max-width: 480px) {
+  .paywall-guarantee-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.paywall-guarantee-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.paywall-guarantee-item svg {
+  color: #16a34a;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.paywall-guarantee-item div strong {
+  display: block;
+  font-size: 0.71rem;
+  color: #0f172a;
+  line-height: 1.2;
+}
+.paywall-guarantee-item div span {
+  display: block;
+  font-size: 0.63rem;
+  color: #64748b;
+  line-height: 1.3;
+  margin-top: 1px;
+}
+
 /* ── Client Activation Code Unlock Box ── */
 .client-unlock-box {
   margin-top: 1.2rem;
