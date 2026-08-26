@@ -154,6 +154,11 @@ app.post("/api/validate-code", async (req: Request, res: Response) => {
       const authHeader = req.headers["authorization"] || req.headers["x-auth-token"];
       const userSession = authHeader ? verifyUserToken(authHeader.toString()) : null;
 
+      if (userSession?.userId) {
+        const { updateUserPlanInDb } = await import("../server/db.js");
+        await updateUserPlanInDb(userSession.userId, plan);
+      }
+
       res.json({
         valid: true,
         plan,
@@ -321,11 +326,32 @@ app.get("/api/user/cvs", requireUserAuth, async (req: AuthenticatedRequest, res:
 app.post("/api/user/cvs/save", requireUserAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const userId = req.user!.userId;
+    const userRole = req.user!.role;
     const { id, title, dataJson, template, language, isUnlocked } = req.body;
 
     if (!dataJson) {
       res.status(400).json({ error: "Données du CV manquantes" });
       return;
+    }
+
+    // Determine unlock status based on tier rules:
+    // Pro & Admin: All CVs are automatically unlocked in HD
+    // Student: 1 single CV unlocked; subsequent new CVs are locked in demo mode
+    let effectiveUnlocked = !!isUnlocked;
+    if (userRole === "pro" || userRole === "admin") {
+      effectiveUnlocked = true;
+    } else if (userRole === "student") {
+      const existingCvs = await getUserCvsFromDb(userId);
+      if (existingCvs.length === 0) {
+        effectiveUnlocked = true;
+      } else {
+        const firstCvId = existingCvs[0].id;
+        if (id && Number(id) === firstCvId) {
+          effectiveUnlocked = true;
+        } else {
+          effectiveUnlocked = false;
+        }
+      }
     }
 
     const saved = await saveUserCvInDb({
@@ -335,10 +361,10 @@ app.post("/api/user/cvs/save", requireUserAuth, async (req: AuthenticatedRequest
       dataJson: typeof dataJson === "string" ? dataJson : JSON.stringify(dataJson),
       template: template || "professional",
       language: language || "fr",
-      isUnlocked: !!isUnlocked,
+      isUnlocked: effectiveUnlocked,
     });
 
-    res.json({ success: true, cv: saved });
+    res.json({ success: true, cv: saved, effectiveUnlocked });
   } catch (error: any) {
     res.status(500).json({ error: error?.message || "Erreur lors de la sauvegarde du CV" });
   }

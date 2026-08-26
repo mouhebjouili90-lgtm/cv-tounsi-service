@@ -508,6 +508,27 @@ export async function updateUserLastLoginInDb(id: number): Promise<void> {
   }
 }
 
+export async function updateUserPlanInDb(id: number, plan: "student" | "pro"): Promise<void> {
+  const roleName = plan === "pro" ? "pro" : "student";
+  const user = Array.from(inMemoryUsers.values()).find((u) => u.id === id);
+  if (user) {
+    user.role = roleName;
+  }
+
+  try {
+    const db = await getDb();
+    if (db) {
+      await db.update(users).set({ role: roleName }).where(eq(users.id, id));
+      if (plan === "pro") {
+        // Unlock all CVs for Pro user
+        await db.update(userCvs).set({ isUnlocked: true }).where(eq(userCvs.userId, id));
+      }
+    }
+  } catch (error) {
+    console.error("[Database] Error updating user plan:", error);
+  }
+}
+
 /**
  * ── 11. Sauvegarde et Gestion des CVs Utilisateurs ──
  */

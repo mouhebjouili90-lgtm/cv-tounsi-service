@@ -138,11 +138,23 @@ async function startServer() {
       if (validation.valid) {
         const plan = validation.plan || "pro";
         const token = generateActivationToken(fullName || "Client", plan);
+
+        const { verifyUserToken } = await import("./auth-service.js");
+        const { updateUserPlanInDb } = await import("./db.js");
+        const authHeader = req.headers["authorization"] || req.headers["x-auth-token"];
+        const userSession = authHeader ? verifyUserToken(authHeader.toString()) : null;
+
+        if (userSession?.userId) {
+          await updateUserPlanInDb(userSession.userId, plan);
+        }
+
         res.json({
           valid: true,
           plan,
           amount: validation.amount,
           token,
+          userId: userSession?.userId || null,
+          userEmail: userSession?.email || null,
         });
       } else {
         res.json({ valid: false });
@@ -322,7 +334,7 @@ async function startServer() {
   app.post("/api/user/cvs/save", async (req: Request, res: Response) => {
     try {
       const { verifyUserToken } = await import("./auth-service.js");
-      const { saveUserCvInDb } = await import("./db.js");
+      const { saveUserCvInDb, getUserCvsFromDb } = await import("./db.js");
       const authHeader = req.headers["authorization"] || req.headers["x-auth-token"];
       const payload = verifyUserToken(authHeader?.toString() || "");
 
@@ -337,6 +349,26 @@ async function startServer() {
         return;
       }
 
+      // Determine unlock status based on tier rules:
+      // Pro & Admin: All CVs are automatically unlocked in HD
+      // Student: 1 single CV unlocked; subsequent new CVs are locked in demo mode
+      let effectiveUnlocked = !!isUnlocked;
+      if (payload.role === "pro" || payload.role === "admin") {
+        effectiveUnlocked = true;
+      } else if (payload.role === "student") {
+        const existingCvs = await getUserCvsFromDb(payload.userId);
+        if (existingCvs.length === 0) {
+          effectiveUnlocked = true;
+        } else {
+          const firstCvId = existingCvs[0].id;
+          if (id && Number(id) === firstCvId) {
+            effectiveUnlocked = true;
+          } else {
+            effectiveUnlocked = false;
+          }
+        }
+      }
+
       const saved = await saveUserCvInDb({
         id: id ? Number(id) : undefined,
         userId: payload.userId,
@@ -344,10 +376,10 @@ async function startServer() {
         dataJson: typeof dataJson === "string" ? dataJson : JSON.stringify(dataJson),
         template: template || "professional",
         language: language || "fr",
-        isUnlocked: !!isUnlocked,
+        isUnlocked: effectiveUnlocked,
       });
 
-      res.json({ success: true, cv: saved });
+      res.json({ success: true, cv: saved, effectiveUnlocked });
     } catch (error: any) {
       res.status(500).json({ error: error?.message || "Erreur sauvegarde CV" });
     }

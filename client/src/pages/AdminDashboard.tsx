@@ -378,8 +378,9 @@ export default function AdminDashboard() {
     setTimeout(() => setCopiedCode(null), 2500);
   };
 
-  const copyWhatsAppResponse = (code: string, name?: string | null) => {
-    const text = `Bonjour ${name ? name : ""} ! Merci pour votre paiement de 19 TND. Votre code d'activation officiel pour CV Tounsi est : *${code}*. Entrez-le sur https://cvtounsi.tn pour débloquer immédiatement votre CV en Haute Définition !`;
+  const copyWhatsAppResponse = (code: string, name?: string | null, amount?: number | null) => {
+    const amountStr = amount ? `${amount} TND` : code.includes("13") ? "12.900 TND" : "24.900 TND";
+    const text = `Bonjour ${name ? name : ""} ! Merci pour votre paiement de ${amountStr}. Votre code d'activation officiel pour CV Tounsi est : *${code}*. Entrez-le sur https://cvtounsi.tn pour débloquer immédiatement votre CV en Haute Définition !`;
     copyToClipboard(text, "Message WhatsApp client copié !");
   };
 
@@ -747,7 +748,7 @@ export default function AdminDashboard() {
                         <td className="py-3.5 text-right space-x-1 whitespace-nowrap">
                           {/* Copy WhatsApp text */}
                           <button
-                            onClick={() => copyWhatsAppResponse(c.code, c.customerName)}
+                            onClick={() => copyWhatsAppResponse(c.code, c.customerName, c.amount)}
                             className="p-1.5 rounded-lg text-[#16A34A] hover:bg-[#DCFCE7] transition-colors"
                             title="Copier le message WhatsApp pour le client"
                           >

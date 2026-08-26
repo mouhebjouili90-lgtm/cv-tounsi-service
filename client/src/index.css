@@ -1347,6 +1347,78 @@ h1, h2, h3, p { margin: 0; }
   box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
 }
 
+.pro-vip-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #ffffff;
+  padding: 2px 7px;
+  border-radius: 999px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  box-shadow: 0 1px 4px rgba(217, 119, 6, 0.3);
+}
+
+.upgrade-to-pro-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #d97706, #b45309);
+  color: #ffffff;
+  border: none;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(180, 83, 9, 0.3);
+  transition: all 150ms ease;
+}
+.upgrade-to-pro-btn:hover {
+  transform: translateY(-1px);
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  box-shadow: 0 4px 10px rgba(180, 83, 9, 0.4);
+}
+
+.paywall-upgrade-alert {
+  background: linear-gradient(135deg, #fffbeb, #fef3c7);
+  border: 1.5px solid #fcd34d;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 0.9rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  text-align: left;
+}
+.paywall-upgrade-alert-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #f59e0b;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.paywall-upgrade-alert strong {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #92400e;
+  margin-bottom: 2px;
+}
+.paywall-upgrade-alert p {
+  font-size: 0.72rem;
+  color: #78350f;
+  margin: 0;
+  line-height: 1.35;
+}
+
 /* ── Post-Unlock Account Linking Modal (Approche A) ── */
 .post-unlock-modal-box {
   background: #ffffff;

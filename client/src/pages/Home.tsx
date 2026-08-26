@@ -92,6 +92,15 @@ export type TemplateId =
   | "canadian"
   | "europass";
 
+export const isProOnlyTemplate = (template: string): boolean => {
+  return (
+    template === "professional_executive" ||
+    template === "canadian_executive" ||
+    template === "europass_academic" ||
+    template === "professional"
+  );
+};
+
 export type Language = "fr" | "en" | "de" | "it" | "ar";
 export type BuilderStep = 0 | 1 | 2 | 3;
 
@@ -2151,6 +2160,35 @@ function Builder({
     return "pro";
   });
 
+  // ── Plan Quotas & Differentiated Unlocking Logic ──
+  const isCurrentCvUnlocked = useMemo(() => {
+    if (!isUnlocked) return false;
+    if (unlockedPlan === "pro") return true; // Pro: unlimited CVs and all 9 templates unlocked
+
+    // Student Plan Rules:
+    // Rule 1: Executive templates are PRO-ONLY (Require Pro Pass)
+    if (isProOnlyTemplate(data.template)) {
+      return false;
+    }
+
+    // Rule 2: Student Pass allows 1 single unlocked CV
+    const studentUnlockedCvId =
+      typeof window !== "undefined"
+        ? localStorage.getItem("cv_tounsi_student_unlocked_cv_id")
+        : null;
+
+    // If no CV is claimed yet, the current initial draft is the 1 free unlocked CV
+    if (!studentUnlockedCvId) return true;
+
+    // If on a cloud saved CV: only unlocked if id matches
+    if (activeCvId !== null && activeCvId !== undefined) {
+      return String(activeCvId) === studentUnlockedCvId;
+    }
+
+    // If on local draft: only unlocked if studentUnlockedCvId is "primary_draft"
+    return studentUnlockedCvId === "primary_draft";
+  }, [isUnlocked, unlockedPlan, data.template, activeCvId]);
+
   // ── Approche A : Auto-save unlocked CV when guest user signs in after activation ──
   const prevUserRef = useRef(user);
   useEffect(() => {
@@ -2164,14 +2202,19 @@ function Builder({
         isUnlocked: true,
       })
         .then((saved) => {
-          if (saved && setActiveCvId) setActiveCvId(saved.id);
+          if (saved && setActiveCvId) {
+            setActiveCvId(saved.id);
+            if (unlockedPlan === "student") {
+              localStorage.setItem("cv_tounsi_student_unlocked_cv_id", String(saved.id));
+            }
+          }
           setShowPostUnlockModal(false);
           toast.success("🎉 Compte lié avec succès ! Votre CV débloqué est sauvegardé sur votre espace Cloud.");
         })
         .catch((err) => console.warn("[Cloud] Auto-save on link error:", err));
     }
     prevUserRef.current = user;
-  }, [user, isUnlocked, data, activeCvId, saveCvToCloud, setActiveCvId]);
+  }, [user, isUnlocked, data, activeCvId, saveCvToCloud, setActiveCvId, unlockedPlan]);
   const [showPaywallModal, setShowPaywallModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<"student" | "pro">(() =>
     data.profileType === "student" ? "student" : "pro"
@@ -2272,6 +2315,7 @@ function Builder({
             localStorage.removeItem("cv_tounsi_client_unlocked");
             localStorage.removeItem("cv_tounsi_client_token");
             localStorage.removeItem("cv_tounsi_client_plan");
+            localStorage.removeItem("cv_tounsi_student_unlocked_cv_id");
           }
         })
         .catch(() => {
@@ -2311,6 +2355,14 @@ function Builder({
         }
         localStorage.setItem("cv_tounsi_client_unlocked", "true");
         localStorage.setItem("cv_tounsi_client_plan", plan);
+
+        if (plan === "student") {
+          const assignedId = activeCvId !== null && activeCvId !== undefined ? String(activeCvId) : "primary_draft";
+          localStorage.setItem("cv_tounsi_student_unlocked_cv_id", assignedId);
+        } else {
+          localStorage.removeItem("cv_tounsi_student_unlocked_cv_id");
+        }
+
         setShowPaywallModal(false);
         trackCodeActivated(plan === "student" ? "StudentPassCode" : "ProPassCode");
 
@@ -2356,6 +2408,7 @@ function Builder({
       localStorage.removeItem("cv_tounsi_client_unlocked");
       localStorage.removeItem("cv_tounsi_client_token");
       localStorage.removeItem("cv_tounsi_client_plan");
+      localStorage.removeItem("cv_tounsi_student_unlocked_cv_id");
     }
     toast.info("Mode Démo réactivé (Flou & Filigrane réactivés pour tester).");
   };
@@ -2392,6 +2445,12 @@ function Builder({
   };
 
   const selectTemplate = (template: TemplateId) => {
+    if (isProOnlyTemplate(template) && isUnlocked && unlockedPlan === "student") {
+      toast.warning(
+        "👑 Modèle Exécutif Réservé au Pass Pro VIP. Votre Pass Étudiant inclut les 6 modèles Classiques & Modernes. Passez au Pass Pro (+12 DT) pour débloquer les 9 modèles exécutifs.",
+        { duration: 5500 }
+      );
+    }
     const allowedLanguages = templateCatalog[template].languages;
     const language = allowedLanguages.includes(data.language) ? data.language : allowedLanguages[0];
     setData((prev) => ({ ...prev, template, language }));
@@ -2611,7 +2670,15 @@ function Builder({
 
   /* ── Trigger PDF Download (or Open Paywall if not unlocked) ── */
   const handleDownloadClick = () => {
-    if (!isUnlocked) {
+    if (!isCurrentCvUnlocked) {
+      if (isUnlocked && unlockedPlan === "student") {
+        if (isProOnlyTemplate(data.template)) {
+          toast.info("👑 Ce modèle Exécutif 2 colonnes nécessite le Pass Pro VIP (+12 DT).", { duration: 5000 });
+        } else {
+          toast.info("🎓 Votre Pass Étudiant couvre déjà votre 1er CV. Pour débloquer ce 2ème CV, passez au Pass Pro (+12 DT).", { duration: 5000 });
+        }
+        setSelectedPlan("pro");
+      }
       setShowPaywallModal(true);
     } else {
       executeDownloadPdf(false);
@@ -2791,7 +2858,12 @@ function Builder({
           {/* ── 9 Templates Responsive Grid ── */}
           <div className="template-options-grid">
             {filteredTemplates.map((template) => {
-              const isSelected = data.template === template.id || (data.template === "professional" && template.id === "professional_executive") || (data.template === "canadian" && template.id === "canadian_classic") || (data.template === "europass" && template.id === "europass_classic");
+              const isSelected =
+                data.template === template.id ||
+                (data.template === "professional" && template.id === "professional_executive") ||
+                (data.template === "canadian" && template.id === "canadian_classic") ||
+                (data.template === "europass" && template.id === "europass_classic");
+              const isProOnly = isProOnlyTemplate(template.id);
               const tagClass =
                 template.category === "canadian"
                   ? "tag-can"
@@ -2814,6 +2886,11 @@ function Builder({
                       <span className={`template-compliance-tag ${tagClass}`}>
                         {template.badge}
                       </span>
+                      {isProOnly && (
+                        <span className="pro-vip-badge" title="Modèle Exécutif Réservé au Pass Pro VIP">
+                          <Crown size={10} /> PRO VIP
+                        </span>
+                      )}
                     </div>
                     <h4>{template.label}</h4>
                     <p>{template.description}</p>
@@ -3380,6 +3457,23 @@ function Builder({
                 </div>
               )}
 
+              {/* ── Student Upgrade Banner (If user already has Student pass on CV #1) ── */}
+              {isUnlocked && unlockedPlan === "student" && (
+                <div className="paywall-upgrade-alert">
+                  <div className="paywall-upgrade-alert-icon">
+                    <Crown size={16} />
+                  </div>
+                  <div>
+                    <strong>🎓 Vous possédez déjà le Pass Étudiant actif.</strong>
+                    <p>
+                      {isProOnlyTemplate(data.template)
+                        ? "Ce modèle Exécutif 2 colonnes nécessite le Pass Pro VIP. Passez au Pass Pro pour seulement 12.000 TND de différence !"
+                        : "Votre Pass Étudiant couvre déjà votre 1er CV. Pour débloquer ce 2ème CV et tous vos futurs CVs à volonté, passez au Pass Pro pour 12.000 TND seulement !"}
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* ── Dual Pricing Plan Selector ── */}
               <div style={{ marginBottom: "0.5rem" }}>
                 <span style={{ display: "block", fontSize: "0.74rem", fontWeight: 700, color: "var(--ink)", marginBottom: "0.4rem" }}>
@@ -3394,17 +3488,17 @@ function Builder({
                     <div>
                       <span className="paywall-plan-tag tag-student">🎓 Étudiant & PFE</span>
                       <div className="paywall-plan-title">Pass Étudiant / Urgence</div>
-                      <div className="paywall-plan-sub">Idéal stage PFE & 1er emploi</div>
+                      <div className="paywall-plan-sub">Idéal stage PFE & 1er emploi (1 CV)</div>
                       <div className="paywall-price-wrap">
                         <span className="paywall-price-main">12.900</span>
                         <span className="paywall-price-unit">TND</span>
                       </div>
                     </div>
                     <ul className="paywall-features-list">
-                      <li><Check size={12} /> 1 CV Haute Résolution (A4 300 DPI)</li>
-                      <li><Check size={12} /> Export PDF net sans aucun flou</li>
-                      <li><Check size={12} /> 5 améliorations de texte par IA</li>
-                      <li><Check size={12} /> Déblocage D17 / WhatsApp immédiat</li>
+                      <li><Check size={12} /> <strong>1 seul CV HD</strong> (A4 300 DPI)</li>
+                      <li><Check size={12} /> Modèles <strong>Classiques & ATS</strong></li>
+                      <li><Check size={12} /> Export PDF net sans filigrane</li>
+                      <li><Check size={12} /> Déblocage D17 / WhatsApp direct</li>
                     </ul>
                   </div>
 
@@ -3414,18 +3508,32 @@ function Builder({
                     onClick={() => setSelectedPlan("pro")}
                   >
                     <div>
-                      <span className="paywall-plan-tag tag-pro">⭐ Recommandé · -50%</span>
-                      <div className="paywall-plan-title">Pass Pro / Exécutif</div>
-                      <div className="paywall-plan-sub">Pour cadres & recherche active</div>
+                      <span className="paywall-plan-tag tag-pro">
+                        {isUnlocked && unlockedPlan === "student" ? "👑 Mise à niveau · -50%" : "⭐ Recommandé · -50%"}
+                      </span>
+                      <div className="paywall-plan-title">
+                        {isUnlocked && unlockedPlan === "student" ? "Mise à niveau Pass Pro VIP" : "Pass Pro / Exécutif"}
+                      </div>
+                      <div className="paywall-plan-sub">
+                        {isUnlocked && unlockedPlan === "student"
+                          ? "Débloquez tous vos CVs & Modèles Exécutifs"
+                          : "Pour cadres & recherche active (Multi-CVs)"}
+                      </div>
                       <div className="paywall-price-wrap">
-                        <span className="paywall-price-main">24.900</span>
-                        <span className="paywall-price-unit">TND</span>
-                        <span className="paywall-price-struck">49 TND</span>
+                        <span className="paywall-price-main">
+                          {isUnlocked && unlockedPlan === "student" ? "12.000" : "24.900"}
+                        </span>
+                        <span className="paywall-price-unit">
+                          {isUnlocked && unlockedPlan === "student" ? "TND (Différence)" : "TND"}
+                        </span>
+                        <span className="paywall-price-struck">
+                          {isUnlocked && unlockedPlan === "student" ? "24.900 TND" : "49 TND"}
+                        </span>
                       </div>
                     </div>
                     <ul className="paywall-features-list">
                       <li><Check size={12} /> <strong>CVs illimités</strong> à volonté</li>
-                      <li><Check size={12} /> Accès aux <strong>9 modèles</strong> ATS & EU</li>
+                      <li><Check size={12} /> Accès aux <strong>9 modèles</strong> (Exécutifs inclus)</li>
                       <li><Check size={12} /> <strong>Sauvegarde Cloud à vie</strong> (PC/Mobile)</li>
                       <li><Check size={12} /> <strong>IA Illimitée</strong> pour chaque poste</li>
                     </ul>
@@ -3453,27 +3561,44 @@ function Builder({
                 </span>
                 <a
                   href={`https://wa.me/21695669209?text=${encodeURIComponent(
-                    `Bonjour, je souhaite commander le *${
-                      selectedPlan === "student" ? "Pass Étudiant / Urgence (12.900 TND)" : "Pass Pro / Recherche Active (24.900 TND)"
-                    }* pour mon CV Tounsi.\n\n` +
-                    `👤 Nom : ${data.fullName || "Client"}\n` +
-                    `📄 Modèle : ${templateCatalog[data.template]?.label || data.template}\n` +
-                    `🔑 Code suggéré : ${generateSuggestedCode(data.fullName, selectedPlan)}`
+                    isUnlocked && unlockedPlan === "student"
+                      ? `Bonjour, je possède déjà le Pass Étudiant et je souhaite commander la *Mise à niveau Pass Pro (+12.000 TND)* pour mon compte CV Tounsi.\n\n` +
+                        `👤 Nom : ${data.fullName || "Client"}\n` +
+                        `📄 Modèle : ${templateCatalog[data.template]?.label || data.template}\n` +
+                        `🔑 Code suggéré : ${generateSuggestedCode(data.fullName, "pro")}`
+                      : `Bonjour, je souhaite commander le *${
+                          selectedPlan === "student" ? "Pass Étudiant / Urgence (12.900 TND)" : "Pass Pro / Recherche Active (24.900 TND)"
+                        }* pour mon CV Tounsi.\n\n` +
+                        `👤 Nom : ${data.fullName || "Client"}\n` +
+                        `📄 Modèle : ${templateCatalog[data.template]?.label || data.template}\n` +
+                        `🔑 Code suggéré : ${generateSuggestedCode(data.fullName, selectedPlan)}`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="whatsapp-action-btn"
-                  onClick={() => trackWhatsAppClicked(generateSuggestedCode(data.fullName, selectedPlan))}
+                  onClick={() =>
+                    trackWhatsAppClicked(
+                      generateSuggestedCode(
+                        data.fullName,
+                        isUnlocked && unlockedPlan === "student" ? "pro" : selectedPlan
+                      )
+                    )
+                  }
                 >
                   <MessageCircle size={18} />
                   <span>
-                    Commander le {selectedPlan === "student" ? "Pass Étudiant (12.9 DT)" : "Pass Pro (24.9 DT)"} sur WhatsApp
+                    {isUnlocked && unlockedPlan === "student"
+                      ? "Commander la Mise à niveau Pro (12.0 DT) sur WhatsApp"
+                      : `Commander le ${selectedPlan === "student" ? "Pass Étudiant (12.9 DT)" : "Pass Pro (24.9 DT)"} sur WhatsApp`}
                   </span>
                 </a>
                 <div style={{ fontSize: "0.71rem", color: "var(--olive-dark)", marginTop: "0.35rem", display: "flex", alignItems: "center", gap: "5px" }}>
-                  <span>💡 Code mémorisable généré pour vous :</span>
+                  <span>💡 Code mémorisable suggéré :</span>
                   <strong style={{ background: "#e8f0e6", padding: "1px 6px", borderRadius: "4px", letterSpacing: "0.04em" }}>
-                    {generateSuggestedCode(data.fullName, selectedPlan)}
+                    {generateSuggestedCode(
+                      data.fullName,
+                      isUnlocked && unlockedPlan === "student" ? "pro" : selectedPlan
+                    )}
                   </strong>
                 </div>
               </div>
@@ -3491,7 +3616,7 @@ function Builder({
                   <input
                     type="text"
                     className="client-unlock-input"
-                    placeholder={`Ex: ${generateSuggestedCode(data.fullName, selectedPlan)}, TN13, PRO25...`}
+                    placeholder={`Ex: ${generateSuggestedCode(data.fullName, isUnlocked && unlockedPlan === "student" ? "pro" : selectedPlan)}, TN13, PRO25, UPGRADE12...`}
                     value={clientCodeInput}
                     onChange={(e) => setClientCodeInput(e.target.value)}
                     autoFocus
@@ -3738,14 +3863,35 @@ function Builder({
             {/* Client Status Badge (Only shown when unlocked) */}
             {isUnlocked && (
               <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                {unlockedPlan === "student" ? (
-                  <span className="unlocked-student-badge" title="Pass Étudiant & Urgence (1 CV HD 300 DPI officiel débloqué)">
-                    <GraduationCap size={13} /> 🎓 Pass Étudiant HD
-                  </span>
-                ) : (
+                {unlockedPlan === "pro" ? (
                   <span className="unlocked-pro-badge" title="Pass Pro & Recherche Active VIP (9 modèles & IA illimités)">
                     <Crown size={13} /> 👑 Pass Pro VIP Illimité
                   </span>
+                ) : isCurrentCvUnlocked ? (
+                  <span className="unlocked-student-badge" title="Pass Étudiant & Urgence (1 CV HD 300 DPI débloqué)">
+                    <GraduationCap size={13} /> 🎓 Pass Étudiant (CV #1 HD)
+                  </span>
+                ) : (
+                  <>
+                    <span
+                      className="unlocked-student-badge"
+                      style={{ borderColor: "#f59e0b", color: "#b45309", background: "#fef3c7" }}
+                      title="Ce document nécessite le Pass Pro pour être débloqué en HD"
+                    >
+                      <Lock size={12} /> {isProOnlyTemplate(data.template) ? "Modèle Pro Requis" : "2ème CV (Mode Démo)"}
+                    </span>
+                    <button
+                      type="button"
+                      className="upgrade-to-pro-btn"
+                      onClick={() => {
+                        setSelectedPlan("pro");
+                        setShowPaywallModal(true);
+                      }}
+                      title="Passer au Pass Pro (+12 DT) pour débloquer ce CV et tous les modèles"
+                    >
+                      <Crown size={12} /> Passer Pro (+12 DT)
+                    </button>
+                  </>
                 )}
                 <button
                   type="button"
@@ -3838,11 +3984,15 @@ function Builder({
                 <strong>Profil :</strong> {isStudent ? "Étudiant / Jeune Diplômé" : "Professionnel Expérimenté"}
                 <br />
                 <strong>Statut :</strong>{" "}
-                {isUnlocked ? (
-                  unlockedPlan === "student" ? (
-                    <span style={{ color: "#0284c7", fontWeight: 700 }}>🎓 Pass Étudiant HD Activé</span>
+                {unlockedPlan === "pro" && isUnlocked ? (
+                  <span style={{ color: "#b45309", fontWeight: 800 }}>👑 Pass Pro VIP Illimité</span>
+                ) : isUnlocked && unlockedPlan === "student" ? (
+                  isCurrentCvUnlocked ? (
+                    <span style={{ color: "#0284c7", fontWeight: 700 }}>🎓 Pass Étudiant (CV #1 HD)</span>
                   ) : (
-                    <span style={{ color: "#b45309", fontWeight: 800 }}>👑 Pass Pro VIP Illimité</span>
+                    <span style={{ color: "#d97706", fontWeight: 700 }}>
+                      🔒 {isProOnlyTemplate(data.template) ? "Modèle Pro VIP Requis" : "2ème CV (Mode Démo)"}
+                    </span>
                   )
                 ) : (
                   "🔒 Version Démo"
@@ -3896,7 +4046,7 @@ function Builder({
                 onFieldChange={(updater) => setData(updater)}
                 editable={true}
                 isMobileMode={false}
-                isUnlocked={isUnlocked}
+                isUnlocked={isCurrentCvUnlocked}
                 isScreenProtected={isScreenProtected}
                 onOpenPaywall={() => setShowPaywallModal(true)}
               />
@@ -3995,7 +4145,7 @@ function Builder({
                 onFieldChange={(updater) => setData(updater)}
                 editable={true}
                 isMobileMode={true}
-                isUnlocked={isUnlocked}
+                isUnlocked={isCurrentCvUnlocked}
                 isScreenProtected={isScreenProtected}
                 onOpenPaywall={() => setShowPaywallModal(true)}
               />
@@ -4090,6 +4240,9 @@ export default function Home() {
       const parsed = JSON.parse(savedCv.dataJson);
       setData(parsed);
       setActiveCvId(savedCv.id);
+      if (savedCv.isUnlocked && typeof window !== "undefined") {
+        localStorage.setItem("cv_tounsi_student_unlocked_cv_id", String(savedCv.id));
+      }
       setIsBuilder(true);
       toast.success(`CV "${savedCv.title}" chargé dans l'éditeur.`);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -4105,6 +4258,10 @@ export default function Home() {
     if (typeof window !== "undefined") {
       localStorage.removeItem(DRAFT_STORAGE_KEY);
       localStorage.setItem("cv_tounsi_builder_step", "0");
+      const currentStudentId = localStorage.getItem("cv_tounsi_student_unlocked_cv_id");
+      if (currentStudentId === "primary_draft") {
+        localStorage.setItem("cv_tounsi_student_unlocked_cv_id", "previous_draft_used");
+      }
     }
     toast.info("Nouveau CV vierge initialisé.");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -4233,6 +4390,15 @@ export default function Home() {
         onClose={() => setIsSavedCvsOpen(false)}
         onLoadCv={handleLoadCv}
         onNewCv={handleNewCv}
+        onUpgradeToPro={() => {
+          setIsSavedCvsOpen(false);
+          setIsBuilder(true);
+        }}
+        unlockedPlan={
+          typeof window !== "undefined"
+            ? ((localStorage.getItem("cv_tounsi_client_plan") as any) || "student")
+            : "student"
+        }
       />
 
       {!isBuilder && (
