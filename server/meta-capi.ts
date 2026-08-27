@@ -5,13 +5,13 @@
  * les restrictions iOS 14.5+ et les pannes réseau.
  * 
  * Spécification : Meta Graph API v22.0
- * Pixel ID : 1426962146006360
+ * Pixel ID : 1409240591423153
  */
 
 import crypto from "node:crypto";
 import type { Request } from "express";
 
-export const META_PIXEL_ID = process.env.META_PIXEL_ID || "1426962146006360";
+export const META_PIXEL_ID = process.env.META_PIXEL_ID || "1409240591423153";
 export const META_CAPI_TOKEN = process.env.META_CAPI_TOKEN || "";
 export const META_TEST_EVENT_CODE = process.env.META_TEST_EVENT_CODE || "";
 
