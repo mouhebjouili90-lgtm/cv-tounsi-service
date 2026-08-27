@@ -52,7 +52,7 @@ export default function Terms() {
               <Phone className="w-5 h-5 text-[#60735A]" /> 4. Service Client & Réclamations
             </h2>
             <p>
-              Pour toute assistance ou demande relative à votre code d'activation ou votre téléchargement, notre service client est joignable 7j/7 au <strong>+216 95 669 209</strong>.
+              Pour toute assistance ou demande relative à votre code d'activation ou votre téléchargement, notre service client est joignable 7j/7 au <strong>+216 92 067 554</strong>.
             </p>
           </section>
         </div>

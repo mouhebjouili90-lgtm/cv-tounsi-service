@@ -985,7 +985,7 @@ Mois 4 : Ouvrir les pays voisins (Algérie, Maroc) si pertinent
 - [ ] CTA visible sans scroller (above the fold)
 - [ ] Sticky CTA mobile fonctionnel
 - [ ] Pages légales accessibles (Privacy + Terms)
-- [ ] Lien WhatsApp fonctionne (`wa.me/21695669209`)
+- [ ] Lien WhatsApp fonctionne (`wa.me/21692067554`)
 
 #### Business Manager Meta
 - [ ] Compte publicitaire actif avec moyen de paiement valide (Carte Technologie)

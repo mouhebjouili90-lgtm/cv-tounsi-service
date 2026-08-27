@@ -60,7 +60,7 @@ const defaultMasterCodes: ActivationCode[] = [
     id: 1,
     code: "TN19",
     customerName: "Code Universel Tunisie",
-    customerPhone: "+216 95 669 209",
+    customerPhone: "+216 92 067 554",
     status: "active",
     amount: 19,
     paymentMethod: "standard",
@@ -636,7 +636,7 @@ export default function AdminDashboard() {
                   onChange={(e) => setPaymentMethod(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#CBD5E1] text-sm bg-white focus:ring-2 focus:ring-[#60735A] focus:outline-none"
                 >
-                  <option value="whatsapp">WhatsApp (+216 95 669 209)</option>
+                  <option value="whatsapp">WhatsApp (+216 92 067 554)</option>
                   <option value="d17">D17 (La Poste Tunisienne)</option>
                   <option value="virement">Virement Bancaire</option>
                   <option value="flouci">Flouci / Konnect</option>

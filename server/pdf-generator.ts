@@ -89,7 +89,7 @@ export function buildPrintHtml(rawHtml: string, isUnlocked: boolean): string {
     <div class="watermark-overlay">
       <div class="watermark-text">
         CV TOUNSI — VERSION DÉMO<br>
-        <span style="font-size: 16px; font-weight: 600; font-family: 'Inter', sans-serif;">DÉBLOCAGE WHATSAPP / D17 : +216 95 669 209</span>
+        <span style="font-size: 16px; font-weight: 600; font-family: 'Inter', sans-serif;">DÉBLOCAGE WHATSAPP / D17 : +216 92 067 554</span>
       </div>
     </div>
   ` : ""}

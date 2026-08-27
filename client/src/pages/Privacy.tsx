@@ -50,7 +50,7 @@ export default function Privacy() {
           <section>
             <h2 className="text-lg font-bold text-[#0F172A] mb-2">4. Vos Droits</h2>
             <p>
-              Conformément à la réglementation sur la protection des données personnelles, vous disposez d'un droit d'accès, de rectification et de suppression de vos données. Pour toute demande, contactez notre support via WhatsApp au <strong>+216 95 669 209</strong>.
+              Conformément à la réglementation sur la protection des données personnelles, vous disposez d'un droit d'accès, de rectification et de suppression de vos données. Pour toute demande, contactez notre support via WhatsApp au <strong>+216 92 067 554</strong>.
             </p>
           </section>
         </div>

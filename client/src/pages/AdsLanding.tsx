@@ -381,7 +381,7 @@ export default function AdsLanding() {
             },
             {
               q: "Comment fonctionne le déblocage du PDF net ?",
-              a: "Pour exporter votre PDF A4 Haute Définition sans flou, vous choisissez votre formule (Pass Étudiant 12.9 DT ou Pass Pro 24.9 DT). Vous recevez votre code en 1 clic via WhatsApp (+216 95 669 209) ou par D17 / Flouci.",
+              a: "Pour exporter votre PDF A4 Haute Définition sans flou, vous choisissez votre formule (Pass Étudiant 12.9 DT ou Pass Pro 24.9 DT). Vous recevez votre code en 1 clic via WhatsApp (+216 92 067 554) ou par D17 / Flouci.",
             },
             {
               q: "Mon CV est-il adapté pour postuler au Canada ou en France ?",

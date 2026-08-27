@@ -28,7 +28,7 @@ async function runActivationVerification() {
   const created = await createActivationCodeInDb({
     code: testCode,
     customerName: "Mohamed Trabelsi",
-    customerPhone: "+216 95 669 209",
+    customerPhone: "+216 92 067 554",
     amount: 19,
     channel: "whatsapp",
     status: "active",

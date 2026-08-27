@@ -2410,7 +2410,7 @@ function Builder({
       return;
     }
 
-    toast.error("Code d'activation incorrect. Veuillez vérifier le code reçu sur WhatsApp (+216 95 669 209).");
+    toast.error("Code d'activation incorrect. Veuillez vérifier le code reçu sur WhatsApp (+216 92 067 554).");
   };
 
   const handleRelockForTest = () => {
@@ -2778,7 +2778,7 @@ function Builder({
       trackPDFDownloaded(data.template, !asDemo);
 
       if (asDemo) {
-        toast.success("Fichier démo téléchargé ! Contactez-nous sur WhatsApp (+216 95 669 209) pour obtenir la version nette.");
+        toast.success("Fichier démo téléchargé ! Contactez-nous sur WhatsApp (+216 92 067 554) pour obtenir la version nette.");
       } else {
         toast.success("Votre PDF A4 officiel a été téléchargé avec succès !");
       }
@@ -3376,7 +3376,7 @@ function Builder({
               </p>
               <div className="pdf-paywall-box-highlight">
                 <div className="price-row">Tarif Déblocage : 12.900 TND (Étudiant) · 24.900 TND (Pro)</div>
-                <div className="whatsapp-num">WhatsApp : +216 95 669 209 · D17 Disponible</div>
+                <div className="whatsapp-num">WhatsApp : +216 92 067 554 · D17 Disponible</div>
               </div>
               <div className="pdf-paywall-instructions">
                 Envoyez un message sur WhatsApp avec votre nom pour obtenir instantanément votre fichier PDF certifié sans restriction.
@@ -3571,7 +3571,7 @@ function Builder({
                   2. Commandez votre code d'activation :
                 </span>
                 <a
-                  href={`https://wa.me/21695669209?text=${encodeURIComponent(
+                  href={`https://wa.me/21692067554?text=${encodeURIComponent(
                     isUnlocked && unlockedPlan === "student"
                       ? `Bonjour, je possède déjà le Pass Étudiant et je souhaite commander la *Mise à niveau Pass Pro (+12.000 TND)* pour mon compte CV Tounsi.\n\n` +
                         `👤 Nom : ${data.fullName || "Client"}\n` +

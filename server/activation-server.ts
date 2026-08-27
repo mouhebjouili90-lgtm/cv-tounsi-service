@@ -59,7 +59,7 @@ const proCodesList = [
   "VIP19",
   "PAID19",
   "19TND",
-  "95669209",
+  "92067554",
   "ADMINPRO",
 ];
 

@@ -25,7 +25,7 @@ const initialMasterCodes: ActivationCode[] = [
     id: 1,
     code: "TN19",
     customerName: "Code Universel Tunisie",
-    customerPhone: "+216 95 669 209",
+    customerPhone: "+216 92 067 554",
     status: "active",
     channel: "whatsapp",
     notes: null,
