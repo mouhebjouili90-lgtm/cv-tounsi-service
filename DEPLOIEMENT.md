@@ -12,6 +12,9 @@ Sur votre plateforme d'hébergement, ajoutez ces 2 variables d'environnement ind
 |:---|:---|:---|
 | `GEMINI_API_KEY` | Clé API Google Gemini (serveur uniquement) | `AQ.Ab8RN6JppqNkX6rg1...` |
 | `ACTIVATION_SECRET` | Clé secrète de signature des tokens HMAC | `votre_phrase_secrete_tres_longue_2026` |
+| `META_CAPI_TOKEN` | Token d'accès Meta Conversions API (Events Manager) | `EAAG...` |
+| `META_PIXEL_ID` | ID du Pixel Meta (par défaut `1426962146006360`) | `1426962146006360` |
+| `DATABASE_URL` | Chaîne de connexion MySQL / TiDB Cloud | `mysql://...` |
 | `NODE_ENV` | Mode de production | `production` |
 | `PORT` | Port d'écoute du serveur (si VPS) | `3000` |
 

@@ -129,14 +129,15 @@ async function startServer() {
     }
   });
 
-  // ── Activation Code Validation ──
+  // ── Activation Code Validation & Meta CAPI Purchase Dispatch ──
   app.post("/api/validate-code", async (req: Request, res: Response) => {
     try {
-      const { code, fullName } = req.body;
+      const { code, fullName, eventId: clientEventId, email, phone, testEventCode } = req.body;
       const validation = await validateActivationCode(code || "", fullName || "");
 
       if (validation.valid) {
         const plan = validation.plan || "pro";
+        const amount = validation.amount || (plan === "student" ? 12.9 : 24.9);
         const token = generateActivationToken(fullName || "Client", plan);
 
         const { verifyUserToken } = await import("./auth-service.js");
@@ -148,11 +149,31 @@ async function startServer() {
           await updateUserPlanInDb(userSession.userId, plan);
         }
 
+        // ── Meta Conversions API (CAPI) : Send Purchase event with deduplication ID ──
+        const eventId = clientEventId || `purchase_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+        const userEmail = email || userSession?.email || undefined;
+
+        try {
+          const { sendCAPIPurchase } = await import("./meta-capi.js");
+          sendCAPIPurchase(req, {
+            eventId,
+            amount,
+            plan,
+            fullName: fullName || undefined,
+            email: userEmail,
+            phone: phone || undefined,
+            testEventCode,
+          }).catch((err) => console.warn("[Meta CAPI] Purchase dispatch error:", err));
+        } catch (e) {
+          console.warn("[Meta CAPI] Module load error:", e);
+        }
+
         res.json({
           valid: true,
           plan,
-          amount: validation.amount,
+          amount,
           token,
+          eventId,
           userId: userSession?.userId || null,
           userEmail: userSession?.email || null,
         });
@@ -161,6 +182,44 @@ async function startServer() {
       }
     } catch {
       res.status(400).json({ valid: false, error: "Invalid request" });
+    }
+  });
+
+  // ── Meta Conversions API (CAPI) General Event Dispatcher Endpoint ──
+  app.post("/api/track-event", async (req: Request, res: Response) => {
+    try {
+      const { eventName, eventId: clientEventId, customData, userData, testEventCode } = req.body;
+      if (!eventName) {
+        res.status(400).json({ error: "eventName required" });
+        return;
+      }
+
+      const { sendCAPIEvent, buildUserData } = await import("./meta-capi.js");
+      const eventId = clientEventId || `ev_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+
+      const mergedUserData = buildUserData(req, {
+        email: userData?.email,
+        fullName: userData?.fullName || userData?.name,
+        phone: userData?.phone,
+        fbp: userData?.fbp,
+        fbc: userData?.fbc,
+      });
+
+      const capiEvent = {
+        event_name: eventName,
+        event_time: Math.floor(Date.now() / 1000),
+        event_id: eventId,
+        event_source_url: (req.headers.referer as string) || "https://cvtounsi.com",
+        action_source: "website" as const,
+        user_data: mergedUserData,
+        custom_data: customData,
+      };
+
+      const result = await sendCAPIEvent(capiEvent, testEventCode);
+      res.json({ success: true, eventId, capiResult: result });
+    } catch (error: any) {
+      console.warn("[CAPI Proxy] Error:", error);
+      res.status(500).json({ error: error?.message || "CAPI event error" });
     }
   });
 
@@ -202,12 +261,29 @@ async function startServer() {
     }
   });
 
-  // ── User Authentication (Email/Password & Google) ──
+  // ── User Authentication (Email/Password & Google) with CAPI CompleteRegistration ──
   app.post("/api/auth/register", async (req: Request, res: Response) => {
     try {
       const { registerWithEmail } = await import("./auth-service.js");
-      const { email, password, name } = req.body;
+      const { email, password, name, eventId: clientEventId, testEventCode } = req.body;
       const result = await registerWithEmail(email, password, name);
+
+      if (result.success && email) {
+        const eventId = clientEventId || `reg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+        try {
+          const { sendCAPICompleteRegistration } = await import("./meta-capi.js");
+          sendCAPICompleteRegistration(req, {
+            eventId,
+            email,
+            name,
+            method: "email",
+            testEventCode,
+          }).catch((err) => console.warn("[Meta CAPI] Register dispatch error:", err));
+        } catch (e) {
+          // ignore
+        }
+      }
+
       res.json(result);
     } catch (error: any) {
       res.status(400).json({ error: error?.message || "Erreur d'inscription" });
@@ -228,7 +304,7 @@ async function startServer() {
   app.post("/api/auth/google", async (req: Request, res: Response) => {
     try {
       const { loginWithGoogle } = await import("./auth-service.js");
-      const { credential, idToken } = req.body;
+      const { credential, idToken, eventId: clientEventId, testEventCode } = req.body;
       const tokenToVerify = credential || idToken;
 
       if (!tokenToVerify) {
@@ -237,6 +313,23 @@ async function startServer() {
       }
 
       const result = await loginWithGoogle(tokenToVerify);
+
+      if (result.success && result.user?.email) {
+        const eventId = clientEventId || `reg_google_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+        try {
+          const { sendCAPICompleteRegistration } = await import("./meta-capi.js");
+          sendCAPICompleteRegistration(req, {
+            eventId,
+            email: result.user.email,
+            name: result.user.name,
+            method: "google",
+            testEventCode,
+          }).catch((err) => console.warn("[Meta CAPI] Google register dispatch error:", err));
+        } catch (e) {
+          // ignore
+        }
+      }
+
       res.json(result);
     } catch (error: any) {
       res.status(400).json({ error: error?.message || "Erreur lors de la connexion Google" });

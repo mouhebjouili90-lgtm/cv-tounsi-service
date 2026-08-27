@@ -2341,6 +2341,8 @@ function Builder({
         body: JSON.stringify({
           code: cleanCode,
           fullName: data.fullName,
+          email: user?.email || data.email,
+          phone: data.phone,
         }),
       });
 
@@ -2364,7 +2366,16 @@ function Builder({
         }
 
         setShowPaywallModal(false);
-        trackCodeActivated(plan === "student" ? "StudentPassCode" : "ProPassCode");
+
+        // ── Deduplicated Meta Pixel + CAPI Purchase Event ──
+        trackCodeActivated({
+          method: plan === "student" ? "StudentPassCode" : "ProPassCode",
+          plan,
+          amount: result.amount || (plan === "student" ? 12.9 : 24.9),
+          eventId: result.eventId,
+          fullName: data.fullName,
+          email: user?.email || data.email,
+        });
 
         // ── Auto-save unlocked state into Cloud database if user is authenticated ──
         if (user) {
@@ -3576,14 +3587,11 @@ function Builder({
                   target="_blank"
                   rel="noopener noreferrer"
                   className="whatsapp-action-btn"
-                  onClick={() =>
-                    trackWhatsAppClicked(
-                      generateSuggestedCode(
-                        data.fullName,
-                        isUnlocked && unlockedPlan === "student" ? "pro" : selectedPlan
-                      )
-                    )
-                  }
+                  onClick={() => {
+                    const activePlan = isUnlocked && unlockedPlan === "student" ? "pro" : selectedPlan;
+                    const suggestedCode = generateSuggestedCode(data.fullName, activePlan);
+                    trackWhatsAppClicked(suggestedCode, activePlan, data.fullName);
+                  }}
                 >
                   <MessageCircle size={18} />
                   <span>

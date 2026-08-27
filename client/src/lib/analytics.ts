@@ -1,13 +1,13 @@
 /**
- * CV Tounsi — Analytics Helpers (Meta Pixel + Google Analytics 4)
+ * CV Tounsi — Analytics Helpers (Meta Pixel + Meta CAPI + Google Analytics 4)
  * 
- * Centralized tracking functions for conversion events.
- * IDs are configured in index.html snippets.
+ * Centralized tracking with automatic event deduplication (event_id)
+ * between client-side Meta Pixel and server-side Meta Conversions API (CAPI).
  */
 
 /* ── Types ── */
-interface EventParams {
-  [key: string]: string | number | boolean;
+export interface EventParams {
+  [key: string]: any;
 }
 
 declare global {
@@ -18,18 +18,64 @@ declare global {
   }
 }
 
-/* ── Meta Pixel Events ── */
-function trackFbEvent(eventName: string, params?: EventParams) {
+/* ── Helper: Extract cookie from browser ── */
+export function getBrowserCookie(name: string): string | undefined {
+  if (typeof document === "undefined") return undefined;
+  const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : undefined;
+}
+
+/* ── Generate unique event ID for Pixel/CAPI deduplication ── */
+export function generateEventId(prefix = "ev"): string {
+  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+}
+
+/* ── Dispatch server-side CAPI event via backend proxy ── */
+export async function sendServerCAPI(
+  eventName: string,
+  customData?: EventParams,
+  userData?: { email?: string; fullName?: string; phone?: string },
+  eventId?: string
+): Promise<string> {
+  const finalEventId = eventId || generateEventId(eventName.toLowerCase());
+  try {
+    const fbp = getBrowserCookie("_fbp");
+    const fbc = getBrowserCookie("_fbc");
+
+    fetch("/api/track-event", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        eventName,
+        eventId: finalEventId,
+        customData,
+        userData: {
+          ...userData,
+          fbp,
+          fbc,
+        },
+      }),
+    }).catch(() => {});
+  } catch {
+    // Silent fail
+  }
+  return finalEventId;
+}
+
+/* ── Meta Pixel Events (with optional eventID for deduplication) ── */
+function trackFbEvent(eventName: string, params?: EventParams, eventId?: string) {
   try {
     if (typeof window !== "undefined" && window.fbq) {
-      if (params) {
+      if (eventId) {
+        window.fbq("track", eventName, params || {}, { eventID: eventId });
+      } else if (params) {
         window.fbq("track", eventName, params);
       } else {
         window.fbq("track", eventName);
       }
     }
   } catch {
-    // Silent fail — analytics should never break the app
+    // Silent fail
   }
 }
 
@@ -54,28 +100,75 @@ export function trackEvent(eventName: string, params?: EventParams) {
 
 /** User started creating a CV (entered the builder) */
 export function trackBuilderStarted(template: string, language: string) {
+  const eventId = generateEventId("init_checkout");
   trackEvent("BuilderStarted", { template, language });
-  trackFbEvent("InitiateCheckout", { content_name: "CV Builder", content_category: template });
+  trackFbEvent(
+    "InitiateCheckout",
+    { content_name: "CV Builder", content_category: template, value: 12.9, currency: "TND" },
+    eventId
+  );
+  sendServerCAPI("InitiateCheckout", { content_name: "CV Builder", content_category: template, value: 12.9, currency: "TND" }, undefined, eventId);
 }
 
 /** User clicked the WhatsApp payment link */
-export function trackWhatsAppClicked(suggestedCode: string) {
-  trackEvent("WhatsAppClicked", { suggested_code: suggestedCode });
-  trackFbEvent("Contact", { content_name: "WhatsApp Payment" });
+export function trackWhatsAppClicked(suggestedCode: string, plan: "student" | "pro" = "student", fullName?: string) {
+  const eventId = generateEventId("whatsapp_click");
+  trackEvent("WhatsAppClicked", { suggested_code: suggestedCode, plan });
+  trackFbEvent("Contact", { content_name: `WhatsApp Payment (${suggestedCode})`, content_category: plan }, eventId);
+  sendServerCAPI(
+    "Contact",
+    { content_name: `WhatsApp Payment (${suggestedCode})`, content_category: plan },
+    { fullName },
+    eventId
+  );
 }
 
-/** User successfully activated their code */
-export function trackCodeActivated(method: string) {
-  trackEvent("CodeActivated", { method });
-  trackFbEvent("Purchase", { value: 19, currency: "TND", content_name: "CV Unlock" });
-  trackGaEvent("purchase", { value: 19, currency: "TND", transaction_id: `cv_${Date.now()}` });
+/** User successfully activated their code (Purchase event) */
+export function trackCodeActivated(options: {
+  method?: string;
+  plan?: "student" | "pro";
+  amount?: number;
+  eventId?: string;
+  fullName?: string;
+  email?: string;
+}) {
+  const plan = options.plan || "student";
+  const amount = options.amount || (plan === "student" ? 12.9 : 24.9);
+  const eventId = options.eventId || generateEventId("purchase");
+  const contentName = plan === "student" ? "Pass Étudiant / Urgence (12.9 DT)" : "Pass Pro / Exécutif (24.9 DT)";
+
+  trackEvent("CodeActivated", { method: options.method || "code", plan, amount });
+
+  // Browser Pixel Purchase (with eventID matching CAPI)
+  trackFbEvent(
+    "Purchase",
+    {
+      value: amount,
+      currency: "TND",
+      content_name: contentName,
+      content_ids: [plan],
+      content_type: "product",
+      num_items: 1,
+    },
+    eventId
+  );
+
+  // Google Analytics Purchase
+  trackGaEvent("purchase", {
+    value: amount,
+    currency: "TND",
+    transaction_id: eventId,
+    items: [{ item_name: contentName, item_id: plan, price: amount, quantity: 1 }],
+  });
 }
 
 /** User downloaded the PDF */
 export function trackPDFDownloaded(template: string, isUnlocked: boolean) {
+  const eventId = generateEventId("pdf_download");
   trackEvent("PDFDownloaded", { template, is_unlocked: isUnlocked });
   if (isUnlocked) {
-    trackFbEvent("Lead", { content_name: "PDF HD Download" });
+    trackFbEvent("Lead", { content_name: "PDF HD Download", content_category: template }, eventId);
+    sendServerCAPI("Lead", { content_name: "PDF HD Download", content_category: template }, undefined, eventId);
   }
 }
 
@@ -89,3 +182,4 @@ export function trackPageView(pageName: string) {
   trackGaEvent("page_view", { page_title: pageName });
   trackFbEvent("PageView");
 }
+
