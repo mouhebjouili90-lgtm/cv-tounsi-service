@@ -202,13 +202,14 @@ export async function sendCAPIPurchase(
   options: {
     eventId: string;
     amount: number;
-    plan: "student" | "pro";
+    plan: "month" | "year" | "student" | "pro";
     fullName?: string;
     email?: string;
     phone?: string;
     testEventCode?: string;
   }
 ) {
+  const isMonth = options.plan === "month" || options.plan === "student";
   const event: CAPIEvent = {
     event_name: "Purchase",
     event_time: Math.floor(Date.now() / 1000),
@@ -223,7 +224,7 @@ export async function sendCAPIPurchase(
     custom_data: {
       value: options.amount,
       currency: "TND",
-      content_name: options.plan === "student" ? "Pass Étudiant / Urgence (12.9 DT)" : "Pass Pro / Exécutif (24.9 DT)",
+      content_name: isMonth ? "Pass 1 Mois (12.9 DT)" : "Pass 1 An (29.9 DT)",
       content_category: "CV Monetization",
       content_ids: [options.plan],
       content_type: "product",

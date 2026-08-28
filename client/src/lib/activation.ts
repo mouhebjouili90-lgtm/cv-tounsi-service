@@ -19,9 +19,9 @@ export function normalizeCodeString(str: string): string {
 
 /**
  * Génère le code mémorisable recommandé pour un candidat
- * Ex: "Mohamed Ben Ali" -> "MOHAMED13" (Étudiant) ou "MOHAMED25" (Pro)
+ * Ex: "Mohamed Ben Ali" -> "MOHAMED13" (1 Mois - 12.9 DT) ou "MOHAMED30" (1 An - 29.9 DT)
  */
-export function generateSuggestedCode(fullName: string, plan: "student" | "pro" = "student"): string {
+export function generateSuggestedCode(fullName: string, plan: "month" | "year" | "student" | "pro" = "month"): string {
   const words = (fullName || "")
     .trim()
     .split(/\s+/)
@@ -29,6 +29,7 @@ export function generateSuggestedCode(fullName: string, plan: "student" | "pro" 
     .filter((w) => w.length > 0);
 
   const firstName = words[0] || "TN";
-  const suffix = plan === "pro" ? "25" : "13";
+  const isYear = plan === "year" || plan === "pro";
+  const suffix = isYear ? "30" : "13";
   return `${firstName}${suffix}`;
 }

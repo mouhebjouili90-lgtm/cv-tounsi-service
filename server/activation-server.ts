@@ -23,42 +23,43 @@ export function normalizeCodeString(str: string): string {
 
 export type ActivationValidationResult = {
   valid: boolean;
-  plan?: "student" | "pro";
+  plan?: "month" | "year" | "student" | "pro";
   amount?: number;
 };
 
-const studentCodesList = [
+const monthCodesList = [
   "TN13",
   "CV13",
   "PASS13",
+  "MOIS13",
+  "MONTH13",
+  "13TND",
   "ETUDIANT13",
   "STUDENT13",
-  "13TND",
   "STAGE13",
   "PFE13",
 ];
 
-const proCodesList = [
+const yearCodesList = [
+  "PRO30",
+  "VIP30",
+  "PASS30",
+  "YEAR30",
+  "AN30",
+  "1AN",
+  "ANNUEL",
+  "TOUNSI30",
+  "30TND",
   "PRO25",
   "VIP25",
   "PASS25",
   "TOUNSI25",
   "25TND",
-  "UPGRADE12",
-  "PRO12",
+  "UPGRADE17",
   "PASSUPGRADE",
   "UPGRADEPRO",
-  "TN19",
-  "CV19",
-  "TOUNSI19",
   "TOUNSI2026",
   "CVTOUNSI",
-  "CVTOUNSI19",
-  "PASS19",
-  "PRO19",
-  "VIP19",
-  "PAID19",
-  "19TND",
   "92067554",
   "ADMINPRO",
 ];
@@ -91,32 +92,32 @@ export async function validateActivationCode(
       // Record successful usage in DB
       await recordCodeUsageInDb(cleanInput);
 
-      const isStudent = Number(dbCode.amount) <= 15;
+      const isMonth = Number(dbCode.amount) <= 15;
       return {
         valid: true,
-        plan: isStudent ? "student" : "pro",
-        amount: Number(dbCode.amount) || (isStudent ? 12.9 : 24.9),
+        plan: isMonth ? "month" : "year",
+        amount: Number(dbCode.amount) || (isMonth ? 12.9 : 29.9),
       };
     }
   } catch (err) {
     console.warn("[Activation Server] DB check skipped, falling back to algorithmic validation:", err);
   }
 
-  // 2. Priority 2: Student standard codes (12.900 DT / 13 DT)
-  if (studentCodesList.includes(cleanInput) || cleanInput.endsWith("13")) {
+  // 2. Priority 2: 1 Month standard codes (12.900 DT / 13 DT)
+  if (monthCodesList.includes(cleanInput) || cleanInput.endsWith("13") || cleanInput.endsWith("MOIS")) {
     return {
       valid: true,
-      plan: "student",
+      plan: "month",
       amount: 12.9,
     };
   }
 
-  // 3. Priority 3: Pro standard promo / admin codes (24.900 DT / 25 DT)
-  if (proCodesList.includes(cleanInput) || cleanInput.endsWith("25") || cleanInput.endsWith("PRO")) {
+  // 3. Priority 3: 1 Year standard promo / admin codes (29.900 DT / 30 DT)
+  if (yearCodesList.includes(cleanInput) || cleanInput.endsWith("30") || cleanInput.endsWith("25") || cleanInput.endsWith("AN") || cleanInput.endsWith("PRO")) {
     return {
       valid: true,
-      plan: "pro",
-      amount: 24.9,
+      plan: "year",
+      amount: 29.9,
     };
   }
 
@@ -125,7 +126,7 @@ export async function validateActivationCode(
 }
 
 /* ── Generate HMAC-SHA256 signed activation token ── */
-export function generateActivationToken(fullName: string, plan: "student" | "pro" = "pro"): string {
+export function generateActivationToken(fullName: string, plan: "month" | "year" | "student" | "pro" = "year"): string {
   const payload = JSON.stringify({
     name: fullName,
     plan,
@@ -141,7 +142,7 @@ export function generateActivationToken(fullName: string, plan: "student" | "pro
 }
 
 /* ── Verify HMAC-SHA256 signed activation token ── */
-export function verifyActivationToken(token: string): { valid: boolean; name?: string; plan?: "student" | "pro" } {
+export function verifyActivationToken(token: string): { valid: boolean; name?: string; plan?: "month" | "year" | "student" | "pro" } {
   try {
     const [base64Payload, signature] = token.split(".");
     if (!base64Payload || !signature) return { valid: false };
@@ -156,14 +157,15 @@ export function verifyActivationToken(token: string): { valid: boolean; name?: s
     const payload = JSON.parse(Buffer.from(base64Payload, "base64url").toString("utf-8"));
     if (!payload.activated) return { valid: false };
 
-    // Token valid for 30 days
-    const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
-    if (Date.now() - payload.timestamp > thirtyDaysMs) return { valid: false };
+    // Token duration: 365 days for year, 30 days for month
+    const isYear = payload.plan === "year" || payload.plan === "pro";
+    const maxDurationMs = isYear ? 365 * 24 * 60 * 60 * 1000 : 30 * 24 * 60 * 60 * 1000;
+    if (Date.now() - payload.timestamp > maxDurationMs) return { valid: false };
 
     return {
       valid: true,
       name: payload.name,
-      plan: payload.plan || "pro",
+      plan: payload.plan || "year",
     };
   } catch {
     return { valid: false };

@@ -12,13 +12,13 @@ interface UserSavedCvsModalProps {
   onLoadCv: (cv: SavedCvItem) => void;
   onNewCv: () => void;
   onUpgradeToPro?: () => void;
-  unlockedPlan?: "student" | "pro";
+  unlockedPlan?: "month" | "year" | "student" | "pro";
 }
 
 export function UserSavedCvsModal({ isOpen, onClose, onLoadCv, onNewCv, onUpgradeToPro, unlockedPlan }: UserSavedCvsModalProps) {
   const { user, savedCvs, isLoadingCvs, deleteCvFromCloud } = useAuth();
-  const isProUser = user?.role === "pro" || unlockedPlan === "pro";
-  const isStudentUser = (user?.role === "student" || unlockedPlan === "student") && !isProUser;
+  const isYearUser = user?.role === "year" || user?.role === "pro" || unlockedPlan === "year" || unlockedPlan === "pro";
+  const isMonthUser = (user?.role === "month" || user?.role === "student" || unlockedPlan === "month" || unlockedPlan === "student") && !isYearUser;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -33,14 +33,14 @@ export function UserSavedCvsModal({ isOpen, onClose, onLoadCv, onNewCv, onUpgrad
               <div>
                 <DialogTitle className="text-xl font-bold text-white flex items-center gap-2">
                   Mes CVs Sauvegardés
-                  {isProUser && (
-                    <span className="text-[10px] bg-gradient-to-r from-amber-500 to-amber-600 text-white font-extrabold px-2 py-0.5 rounded-full flex items-center gap-1">
-                      <Crown className="w-3 h-3" /> VIP PRO
+                  {isYearUser && (
+                    <span className="text-[10px] bg-gradient-to-r from-amber-500 to-amber-600 text-white font-extrabold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
+                      <Crown className="w-3 h-3" /> PASS 1 AN (VIP)
                     </span>
                   )}
-                  {isStudentUser && (
-                    <span className="text-[10px] bg-sky-600 text-white font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                      <GraduationCap className="w-3 h-3" /> ÉTUDIANT
+                  {isMonthUser && (
+                    <span className="text-[10px] bg-emerald-600 text-white font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
+                      <Sparkles className="w-3 h-3" /> PASS 1 MOIS
                     </span>
                   )}
                 </DialogTitle>
@@ -67,15 +67,15 @@ export function UserSavedCvsModal({ isOpen, onClose, onLoadCv, onNewCv, onUpgrad
 
         {/* Content list */}
         <div className="p-6 overflow-y-auto flex-1 space-y-3">
-          {/* Student Upgrade Banner */}
-          {isStudentUser && (
-            <div className="bg-gradient-to-r from-sky-50 to-amber-50/60 border border-sky-200 rounded-xl p-3.5 flex items-center justify-between gap-3 text-xs text-stone-800">
+          {/* 1 Month Active Banner / Extension to 1 Year */}
+          {isMonthUser && (
+            <div className="bg-gradient-to-r from-emerald-50 to-amber-50/60 border border-emerald-200 rounded-xl p-3.5 flex items-center justify-between gap-3 text-xs text-stone-800">
               <div className="flex items-start gap-2.5 min-w-0">
-                <GraduationCap className="w-5 h-5 text-sky-600 shrink-0 mt-0.5" />
+                <Sparkles className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
                 <div>
-                  <strong className="block text-sky-950 font-bold">Pass Étudiant Actif (1 CV HD Inclus)</strong>
+                  <strong className="block text-emerald-950 font-bold">Pass 1 Mois Actif (Accès 100% Illimité)</strong>
                   <p className="text-stone-600 text-[11px] mt-0.5">
-                    Pour créer des CVs illimités et débloquer tous les modèles exécutifs, passez au Pass Pro.
+                    Tous les 9 modèles, exports HD et IA débloqués. Passez au Pass 1 An pour économiser 80% sur l'année.
                   </p>
                 </div>
               </div>
@@ -89,7 +89,7 @@ export function UserSavedCvsModal({ isOpen, onClose, onLoadCv, onNewCv, onUpgrad
                   }}
                   className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-extrabold text-[11px] h-8 px-3 rounded-lg shrink-0 shadow-sm"
                 >
-                  <Crown className="w-3.5 h-3.5 mr-1" /> Passer Pro (+12 DT)
+                  <Crown className="w-3.5 h-3.5 mr-1" /> Pass 1 An (29.9 DT)
                 </Button>
               )}
             </div>

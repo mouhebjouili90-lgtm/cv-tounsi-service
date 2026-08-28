@@ -147,8 +147,9 @@ app.post("/api/validate-code", async (req: Request, res: Response) => {
     const validation = await validateActivationCode(code || "", fullName || "");
 
     if (validation.valid) {
-      const plan = validation.plan || "pro";
-      const amount = validation.amount || (plan === "student" ? 12.9 : 24.9);
+      const plan = validation.plan || "year";
+      const isMonth = plan === "month" || plan === "student";
+      const amount = validation.amount || (isMonth ? 12.9 : 29.9);
       const token = generateActivationToken(fullName || "Client", plan);
 
       // Check if request is from an authenticated user
@@ -427,24 +428,16 @@ app.post("/api/user/cvs/save", requireUserAuth, async (req: AuthenticatedRequest
       return;
     }
 
-    // Determine unlock status based on tier rules:
-    // Pro & Admin: All CVs are automatically unlocked in HD
-    // Student: 1 single CV unlocked; subsequent new CVs are locked in demo mode
+    // Both 1 Month and 1 Year active plans unlock all CVs in HD
     let effectiveUnlocked = !!isUnlocked;
-    if (userRole === "pro" || userRole === "admin") {
+    if (
+      userRole === "pro" ||
+      userRole === "admin" ||
+      userRole === "year" ||
+      userRole === "month" ||
+      userRole === "student"
+    ) {
       effectiveUnlocked = true;
-    } else if (userRole === "student") {
-      const existingCvs = await getUserCvsFromDb(userId);
-      if (existingCvs.length === 0) {
-        effectiveUnlocked = true;
-      } else {
-        const firstCvId = existingCvs[0].id;
-        if (id && Number(id) === firstCvId) {
-          effectiveUnlocked = true;
-        } else {
-          effectiveUnlocked = false;
-        }
-      }
     }
 
     const saved = await saveUserCvInDb({

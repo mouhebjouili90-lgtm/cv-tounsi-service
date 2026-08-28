@@ -126,16 +126,17 @@ export function trackWhatsAppClicked(suggestedCode: string, plan: "student" | "p
 /** User successfully activated their code (Purchase event) */
 export function trackCodeActivated(options: {
   method?: string;
-  plan?: "student" | "pro";
+  plan?: "month" | "year" | "student" | "pro";
   amount?: number;
   eventId?: string;
   fullName?: string;
   email?: string;
 }) {
-  const plan = options.plan || "student";
-  const amount = options.amount || (plan === "student" ? 12.9 : 24.9);
+  const isMonth = options.plan === "month" || options.plan === "student";
+  const plan = isMonth ? "month" : "year";
+  const amount = options.amount || (isMonth ? 12.9 : 29.9);
   const eventId = options.eventId || generateEventId("purchase");
-  const contentName = plan === "student" ? "Pass Étudiant / Urgence (12.9 DT)" : "Pass Pro / Exécutif (24.9 DT)";
+  const contentName = isMonth ? "Pass 1 Mois (12.9 DT)" : "Pass 1 An (29.9 DT)";
 
   trackEvent("CodeActivated", { method: options.method || "code", plan, amount });
 

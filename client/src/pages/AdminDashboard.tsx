@@ -379,7 +379,7 @@ export default function AdminDashboard() {
   };
 
   const copyWhatsAppResponse = (code: string, name?: string | null, amount?: number | null) => {
-    const amountStr = amount ? `${amount} TND` : code.includes("13") ? "12.900 TND" : "24.900 TND";
+    const amountStr = amount ? `${amount} TND` : code.includes("13") ? "12.900 TND" : "29.900 TND";
     const text = `Bonjour ${name ? name : ""} ! Merci pour votre paiement de ${amountStr}. Votre code d'activation officiel pour CV Tounsi est : *${code}*. Entrez-le sur https://cvtounsi.com pour débloquer immédiatement votre CV en Haute Définition !`;
     copyToClipboard(text, "Message WhatsApp client copié !");
   };
@@ -593,17 +593,17 @@ export default function AdminDashboard() {
                         type="button"
                         onClick={() => setAmount(13)}
                         className="text-[10px] px-1.5 py-0.5 bg-[#e0f2fe] text-[#0369a1] rounded font-bold hover:bg-[#bae6fd]"
-                        title="Pass Étudiant (12.9 DT)"
+                        title="Pass 1 Mois (12.9 DT)"
                       >
                         13 DT
                       </button>
                       <button
                         type="button"
-                        onClick={() => setAmount(25)}
+                        onClick={() => setAmount(30)}
                         className="text-[10px] px-1.5 py-0.5 bg-[#fef3c7] text-[#92400e] rounded font-bold hover:bg-[#fde68a]"
-                        title="Pass Pro (24.9 DT)"
+                        title="Pass 1 An (29.9 DT)"
                       >
-                        25 DT
+                        30 DT
                       </button>
                     </div>
                   </div>

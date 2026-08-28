@@ -55,7 +55,7 @@ export default function AdsLanding() {
         <span className="bg-[#D97706] text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
           Offre Spéciale 2026
         </span>
-        <span>Créez votre CV conforme aux normes Tunisie, Canada & Europe <strong>dès 12.900 TND</strong></span>
+        <span>Créez votre CV conforme aux normes Tunisie, Canada & Europe : <strong>12.900 TND (1 Mois)</strong> ou <strong>29.900 TND (1 An)</strong></span>
       </div>
 
       {/* ── Navigation Header (Minimaliste sans fuite de trafic) ── */}
@@ -125,7 +125,7 @@ export default function AdsLanding() {
           </div>
           <div className="flex items-center gap-1.5">
             <CheckCircle2 className="w-4 h-4 text-[#60735A]" />
-            <span>Dès 12.900 TND sans abonnement</span>
+            <span>12.900 TND (1 Mois) · 29.900 TND (1 An)</span>
           </div>
         </div>
 
@@ -323,45 +323,115 @@ export default function AdsLanding() {
       </section>
 
       {/* ── Tarification Claire & Garantie ── */}
-      <section className="py-12 sm:py-20 px-4 sm:px-6 max-w-xl mx-auto text-center">
-        <div className="bg-white rounded-3xl p-6 sm:p-10 border-2 border-[#60735A] shadow-xl shadow-[#60735A]/10">
+      <section className="py-12 sm:py-20 px-4 sm:px-6 max-w-4xl mx-auto text-center">
+        <div className="mb-8">
           <span className="bg-[#60735A]/10 text-[#60735A] font-bold text-xs px-3.5 py-1 rounded-full uppercase tracking-wider">
-            Accès Complet Illimité
+            Tarifs Clairs & Sans Surprise
           </span>
-
-          <h2 className="text-3xl sm:text-4xl font-bold font-serif text-[#0F172A] mt-4 mb-2">
-            Dès 12.900 TND <span className="text-sm font-sans font-normal text-[#64748B]">(Pass Étudiant)</span>
+          <h2 className="text-3xl sm:text-4xl font-bold font-serif text-[#0F172A] mt-3 mb-2">
+            Choisissez la formule qui vous convient
           </h2>
-          <p className="text-xs sm:text-sm text-[#16A34A] font-semibold mb-6">
-            Paiement unique · Aucun abonnement caché · Assistance 7j/7
+          <p className="text-xs sm:text-sm text-[#64748B]">
+            Toutes les fonctionnalités incluses dans les 2 formules · Paiement unique · Assistance 7j/7
           </p>
+        </div>
 
-          <ul className="space-y-3 text-sm text-[#334155] text-left max-w-sm mx-auto mb-8">
-            <li className="flex items-center gap-2.5">
-              <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
-              <span>Accès aux 3 modèles (Tunisie, Canada, Europass)</span>
-            </li>
-            <li className="flex items-center gap-2.5">
-              <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
-              <span>Amélioration rédactionnelle par l'IA illimitée</span>
-            </li>
-            <li className="flex items-center gap-2.5">
-              <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
-              <span>Export PDF A4 Haute Définition sans filigrane</span>
-            </li>
-            <li className="flex items-center gap-2.5">
-              <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
-              <span>Paiement facile : D17, Virement, Flouci ou WhatsApp</span>
-            </li>
-          </ul>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left max-w-3xl mx-auto">
+          {/* Formule 1 Mois */}
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#E2E8F0] shadow-md hover:shadow-lg transition-all flex flex-col justify-between">
+            <div>
+              <div className="flex justify-between items-center mb-3">
+                <span className="text-xs font-bold text-[#60735A] uppercase tracking-wider bg-[#60735A]/10 px-2.5 py-1 rounded-full">
+                  Accès 1 Mois
+                </span>
+              </div>
+              <h3 className="text-xl font-bold font-serif text-[#0F172A]">Pass 1 Mois</h3>
+              <p className="text-xs text-[#64748B] mt-1 mb-4">Idéal pour postuler et finaliser vos CVs immédiatement</p>
+              
+              <div className="flex items-baseline gap-1 mb-6">
+                <span className="text-3xl sm:text-4xl font-bold font-serif text-[#0F172A]">12.900</span>
+                <span className="text-sm font-semibold text-[#64748B]">TND</span>
+                <span className="text-xs text-[#94A3B8] ml-1">/ 1 mois d'accès</span>
+              </div>
 
-          <button
-            onClick={() => handleStartNow("pricing_box")}
-            className="w-full bg-[#60735A] hover:bg-[#4d5c48] text-white text-base sm:text-lg font-bold py-4 rounded-2xl shadow-lg transition-all transform active:scale-95 flex items-center justify-center gap-2"
-          >
-            <span>Créer mon CV Maintenant</span>
-            <ArrowRight className="w-5 h-5" />
-          </button>
+              <ul className="space-y-2.5 text-xs sm:text-sm text-[#334155] mb-6">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
+                  <span><strong>Tous les 9 modèles</strong> (Tunisie, Canada, UE)</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
+                  <span><strong>Téléchargements PDF HD</strong> A4 illimités</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
+                  <span><strong>IA Gemini Flash</strong> illimitée (accroches & compétences)</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
+                  <span><strong>Sauvegarde Cloud</strong> (PC & Mobile)</span>
+                </li>
+              </ul>
+            </div>
+
+            <button
+              onClick={() => handleStartNow("pricing_month")}
+              className="w-full bg-white hover:bg-stone-50 text-[#60735A] border-2 border-[#60735A] text-sm font-bold py-3.5 rounded-xl transition-all transform active:scale-95 flex items-center justify-center gap-2"
+            >
+              <span>Choisir le Pass 1 Mois</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Formule 1 An */}
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#60735A] shadow-xl shadow-[#60735A]/10 relative flex flex-col justify-between">
+            <div className="absolute -top-3.5 right-6 bg-[#D97706] text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
+              ⭐ Meilleure Offre (-80%)
+            </div>
+
+            <div>
+              <div className="flex justify-between items-center mb-3">
+                <span className="text-xs font-bold text-[#60735A] uppercase tracking-wider bg-[#60735A]/10 px-2.5 py-1 rounded-full">
+                  Accès 1 An (12 Mois)
+                </span>
+              </div>
+              <h3 className="text-xl font-bold font-serif text-[#0F172A]">Pass 1 An</h3>
+              <p className="text-xs text-[#64748B] mt-1 mb-4">Pour une recherche d'emploi et mise à jour continue</p>
+              
+              <div className="flex items-baseline gap-1 mb-6">
+                <span className="text-3xl sm:text-4xl font-bold font-serif text-[#0F172A]">29.900</span>
+                <span className="text-sm font-semibold text-[#64748B]">TND</span>
+                <span className="text-xs text-[#94A3B8] ml-1">/ an (soit ~2.4 DT/mois)</span>
+              </div>
+
+              <ul className="space-y-2.5 text-xs sm:text-sm text-[#334155] mb-6">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
+                  <span><strong>Tous les 9 modèles</strong> (Tunisie, Canada, UE)</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
+                  <span><strong>Téléchargements PDF HD</strong> A4 illimités</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
+                  <span><strong>IA Gemini Flash</strong> illimitée pendant 1 an</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
+                  <span><strong>Sauvegarde Cloud & Support VIP</strong> 1 an</span>
+                </li>
+              </ul>
+            </div>
+
+            <button
+              onClick={() => handleStartNow("pricing_year")}
+              className="w-full bg-[#60735A] hover:bg-[#4d5c48] text-white text-sm font-bold py-3.5 rounded-xl shadow-md transition-all transform active:scale-95 flex items-center justify-center gap-2"
+            >
+              <span>Choisir le Pass 1 An (29.9 DT)</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </section>
 
@@ -379,7 +449,7 @@ export default function AdsLanding() {
             },
             {
               q: "Comment fonctionne le déblocage du PDF net ?",
-              a: "Pour exporter votre PDF A4 Haute Définition sans flou, vous choisissez votre formule (Pass Étudiant 12.9 DT ou Pass Pro 24.9 DT). Vous recevez votre code en 1 clic via WhatsApp (+216 92 067 554) ou par D17 / Flouci.",
+              a: "Pour exporter votre PDF A4 Haute Définition sans flou, vous choisissez votre formule (Pass 1 Mois à 12.9 DT ou Pass 1 An à 29.9 DT). Vous recevez votre code en 1 clic via WhatsApp (+216 92 067 554) ou par D17 / Flouci.",
             },
             {
               q: "Mon CV est-il adapté pour postuler au Canada ou en France ?",

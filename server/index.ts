@@ -136,8 +136,9 @@ async function startServer() {
       const validation = await validateActivationCode(code || "", fullName || "");
 
       if (validation.valid) {
-        const plan = validation.plan || "pro";
-        const amount = validation.amount || (plan === "student" ? 12.9 : 24.9);
+        const plan = validation.plan || "year";
+        const isMonth = plan === "month" || plan === "student";
+        const amount = validation.amount || (isMonth ? 12.9 : 29.9);
         const token = generateActivationToken(fullName || "Client", plan);
 
         const { verifyUserToken } = await import("./auth-service.js");
@@ -442,24 +443,16 @@ async function startServer() {
         return;
       }
 
-      // Determine unlock status based on tier rules:
-      // Pro & Admin: All CVs are automatically unlocked in HD
-      // Student: 1 single CV unlocked; subsequent new CVs are locked in demo mode
+      // Both 1 Month and 1 Year active plans unlock all CVs in HD
       let effectiveUnlocked = !!isUnlocked;
-      if (payload.role === "pro" || payload.role === "admin") {
+      if (
+        payload.role === "pro" ||
+        payload.role === "admin" ||
+        payload.role === "year" ||
+        payload.role === "month" ||
+        payload.role === "student"
+      ) {
         effectiveUnlocked = true;
-      } else if (payload.role === "student") {
-        const existingCvs = await getUserCvsFromDb(payload.userId);
-        if (existingCvs.length === 0) {
-          effectiveUnlocked = true;
-        } else {
-          const firstCvId = existingCvs[0].id;
-          if (id && Number(id) === firstCvId) {
-            effectiveUnlocked = true;
-          } else {
-            effectiveUnlocked = false;
-          }
-        }
       }
 
       const saved = await saveUserCvInDb({

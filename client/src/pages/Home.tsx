@@ -2152,42 +2152,17 @@ function Builder({
     }
     return false;
   });
-  const [unlockedPlan, setUnlockedPlan] = useState<"student" | "pro">(() => {
+  const [unlockedPlan, setUnlockedPlan] = useState<"month" | "year">(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("cv_tounsi_client_plan");
-      if (saved === "student" || saved === "pro") return saved;
+      if (saved === "month" || saved === "student") return "month";
+      if (saved === "year" || saved === "pro") return "year";
     }
-    return "pro";
+    return "year";
   });
 
-  // ── Plan Quotas & Differentiated Unlocking Logic ──
-  const isCurrentCvUnlocked = useMemo(() => {
-    if (!isUnlocked) return false;
-    if (unlockedPlan === "pro") return true; // Pro: unlimited CVs and all 9 templates unlocked
-
-    // Student Plan Rules:
-    // Rule 1: Executive templates are PRO-ONLY (Require Pro Pass)
-    if (isProOnlyTemplate(data.template)) {
-      return false;
-    }
-
-    // Rule 2: Student Pass allows 1 single unlocked CV
-    const studentUnlockedCvId =
-      typeof window !== "undefined"
-        ? localStorage.getItem("cv_tounsi_student_unlocked_cv_id")
-        : null;
-
-    // If no CV is claimed yet, the current initial draft is the 1 free unlocked CV
-    if (!studentUnlockedCvId) return true;
-
-    // If on a cloud saved CV: only unlocked if id matches
-    if (activeCvId !== null && activeCvId !== undefined) {
-      return String(activeCvId) === studentUnlockedCvId;
-    }
-
-    // If on local draft: only unlocked if studentUnlockedCvId is "primary_draft"
-    return studentUnlockedCvId === "primary_draft";
-  }, [isUnlocked, unlockedPlan, data.template, activeCvId]);
+  // Both 1 Month (12.900 TND) and 1 Year (29.900 TND) unlock 100% of all templates & HD downloads
+  const isCurrentCvUnlocked = useMemo(() => isUnlocked, [isUnlocked]);
 
   // ── Approche A : Auto-save unlocked CV when guest user signs in after activation ──
   const prevUserRef = useRef(user);
@@ -2204,9 +2179,6 @@ function Builder({
         .then((saved) => {
           if (saved && setActiveCvId) {
             setActiveCvId(saved.id);
-            if (unlockedPlan === "student") {
-              localStorage.setItem("cv_tounsi_student_unlocked_cv_id", String(saved.id));
-            }
           }
           setShowPostUnlockModal(false);
           toast.success("🎉 Compte lié avec succès ! Votre CV débloqué est sauvegardé sur votre espace Cloud.");
@@ -2214,11 +2186,9 @@ function Builder({
         .catch((err) => console.warn("[Cloud] Auto-save on link error:", err));
     }
     prevUserRef.current = user;
-  }, [user, isUnlocked, data, activeCvId, saveCvToCloud, setActiveCvId, unlockedPlan]);
+  }, [user, isUnlocked, data, activeCvId, saveCvToCloud, setActiveCvId]);
   const [showPaywallModal, setShowPaywallModal] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<"student" | "pro">(() =>
-    data.profileType === "student" ? "student" : "pro"
-  );
+  const [selectedPlan, setSelectedPlan] = useState<"month" | "year">("year");
   const [isScreenProtected, setIsScreenProtected] = useState(false);
   const [clientCodeInput, setClientCodeInput] = useState("");
 
@@ -2367,11 +2337,12 @@ function Builder({
 
         setShowPaywallModal(false);
 
+        const isYear = plan === "year" || plan === "pro";
         // ── Deduplicated Meta Pixel + CAPI Purchase Event ──
         trackCodeActivated({
-          method: plan === "student" ? "StudentPassCode" : "ProPassCode",
-          plan,
-          amount: result.amount || (plan === "student" ? 12.9 : 24.9),
+          method: isYear ? "YearPassCode" : "MonthPassCode",
+          plan: isYear ? "year" : "month",
+          amount: result.amount || (isYear ? 29.9 : 12.9),
           eventId: result.eventId,
           fullName: data.fullName,
           email: user?.email || data.email,
@@ -2388,17 +2359,17 @@ function Builder({
             isUnlocked: true,
           }).catch((err) => console.warn("[Cloud] Auto-save on unlock error:", err));
           toast.success(
-            plan === "student"
-              ? "🎓 Pass Étudiant (12.900 DT) validé ! Votre CV HD A4 est débloqué."
-              : "👑 Pass Pro (24.900 DT) validé avec succès ! Accès VIP Illimité débloqué."
+            isYear
+              ? "👑 Pass 1 An (29.900 DT) validé avec succès ! Accès VIP 1 an débloqué."
+              : "⭐ Pass 1 Mois (12.900 DT) validé avec succès ! Accès 30 jours débloqué."
           );
         } else {
           // ── Approche A : Open Post-Unlock Account Linking Modal for Guest Users ──
           setShowPostUnlockModal(true);
           toast.success(
-            plan === "student"
-              ? "🎓 Pass Étudiant validé ! Votre CV HD A4 est débloqué."
-              : "👑 Pass Pro validé ! Accès VIP Illimité débloqué."
+            isYear
+              ? "👑 Pass 1 An validé ! Votre CV HD A4 et accès 1 an sont débloqués."
+              : "⭐ Pass 1 Mois validé ! Votre CV HD A4 et accès 30 jours sont débloqués."
           );
         }
 
@@ -2419,7 +2390,6 @@ function Builder({
       localStorage.removeItem("cv_tounsi_client_unlocked");
       localStorage.removeItem("cv_tounsi_client_token");
       localStorage.removeItem("cv_tounsi_client_plan");
-      localStorage.removeItem("cv_tounsi_student_unlocked_cv_id");
     }
     toast.info("Mode Démo réactivé (Flou & Filigrane réactivés pour tester).");
   };
@@ -2456,12 +2426,6 @@ function Builder({
   };
 
   const selectTemplate = (template: TemplateId) => {
-    if (isProOnlyTemplate(template) && isUnlocked && unlockedPlan === "student") {
-      toast.warning(
-        "👑 Modèle Exécutif Réservé au Pass Pro VIP. Votre Pass Étudiant inclut les 6 modèles Classiques & Modernes. Passez au Pass Pro (+12 DT) pour débloquer les 9 modèles exécutifs.",
-        { duration: 5500 }
-      );
-    }
     const allowedLanguages = templateCatalog[template].languages;
     const language = allowedLanguages.includes(data.language) ? data.language : allowedLanguages[0];
     setData((prev) => ({ ...prev, template, language }));
@@ -2682,14 +2646,6 @@ function Builder({
   /* ── Trigger PDF Download (or Open Paywall if not unlocked) ── */
   const handleDownloadClick = () => {
     if (!isCurrentCvUnlocked) {
-      if (isUnlocked && unlockedPlan === "student") {
-        if (isProOnlyTemplate(data.template)) {
-          toast.info("👑 Ce modèle Exécutif 2 colonnes nécessite le Pass Pro VIP (+12 DT).", { duration: 5000 });
-        } else {
-          toast.info("🎓 Votre Pass Étudiant couvre déjà votre 1er CV. Pour débloquer ce 2ème CV, passez au Pass Pro (+12 DT).", { duration: 5000 });
-        }
-        setSelectedPlan("pro");
-      }
       setShowPaywallModal(true);
     } else {
       executeDownloadPdf(false);
@@ -3375,11 +3331,11 @@ function Builder({
                 Ce document est un extrait protégé de démonstration. Pour recevoir votre <b>CV complet en Haute Définition</b> (sans flou et sans filigrane) :
               </p>
               <div className="pdf-paywall-box-highlight">
-                <div className="price-row">Tarif Déblocage : 12.900 TND (Étudiant) · 24.900 TND (Pro)</div>
-                <div className="whatsapp-num">WhatsApp : +216 92 067 554 · D17 Disponible</div>
+                <div className="price-row">Tarifs Déblocage : 12.900 TND (Pass 1 Mois) · 29.900 TND (Pass 1 An)</div>
+                <div className="whatsapp-num">WhatsApp : +216 92 067 554 · D17 / Flouci / Virement</div>
               </div>
               <div className="pdf-paywall-instructions">
-                Envoyez un message sur WhatsApp avec votre nom pour obtenir instantanément votre fichier PDF certifié sans restriction.
+                Envoyez un message sur WhatsApp avec votre nom pour obtenir instantanément votre code d'activation certifié.
               </div>
             </div>
           )}
@@ -3469,85 +3425,60 @@ function Builder({
                 </div>
               )}
 
-              {/* ── Student Upgrade Banner (If user already has Student pass on CV #1) ── */}
-              {isUnlocked && unlockedPlan === "student" && (
-                <div className="paywall-upgrade-alert">
-                  <div className="paywall-upgrade-alert-icon">
-                    <Crown size={16} />
-                  </div>
-                  <div>
-                    <strong>🎓 Vous possédez déjà le Pass Étudiant actif.</strong>
-                    <p>
-                      {isProOnlyTemplate(data.template)
-                        ? "Ce modèle Exécutif 2 colonnes nécessite le Pass Pro VIP. Passez au Pass Pro pour seulement 12.000 TND de différence !"
-                        : "Votre Pass Étudiant couvre déjà votre 1er CV. Pour débloquer ce 2ème CV et tous vos futurs CVs à volonté, passez au Pass Pro pour 12.000 TND seulement !"}
-                    </p>
-                  </div>
-                </div>
-              )}
-
               {/* ── Dual Pricing Plan Selector ── */}
               <div style={{ marginBottom: "0.5rem" }}>
                 <span style={{ display: "block", fontSize: "0.74rem", fontWeight: 700, color: "var(--ink)", marginBottom: "0.4rem" }}>
-                  1. Choisissez votre formule adaptée :
+                  1. Choisissez votre formule d'abonnement :
                 </span>
                 <div className="paywall-plans-grid">
-                  {/* Option 1: Pass Étudiant */}
+                  {/* Option 1: Pass 1 Mois */}
                   <div
-                    className={`paywall-plan-card ${selectedPlan === "student" ? "selected" : ""}`}
-                    onClick={() => setSelectedPlan("student")}
+                    className={`paywall-plan-card ${selectedPlan === "month" ? "selected" : ""}`}
+                    onClick={() => setSelectedPlan("month")}
                   >
                     <div>
-                      <span className="paywall-plan-tag tag-student">🎓 Étudiant & PFE</span>
-                      <div className="paywall-plan-title">Pass Étudiant / Urgence</div>
-                      <div className="paywall-plan-sub">Idéal stage PFE & 1er emploi (1 CV)</div>
+                      <span className="paywall-plan-tag tag-student">⭐ Accès 1 Mois</span>
+                      <div className="paywall-plan-title">Pass 1 Mois</div>
+                      <div className="paywall-plan-sub">Utilisation complète pendant 30 jours</div>
                       <div className="paywall-price-wrap">
                         <span className="paywall-price-main">12.900</span>
                         <span className="paywall-price-unit">TND</span>
                       </div>
                     </div>
                     <ul className="paywall-features-list">
-                      <li><Check size={12} /> <strong>1 seul CV HD</strong> (A4 300 DPI)</li>
-                      <li><Check size={12} /> Modèles <strong>Classiques & ATS</strong></li>
-                      <li><Check size={12} /> Export PDF net sans filigrane</li>
-                      <li><Check size={12} /> Déblocage D17 / WhatsApp direct</li>
+                      <li><Check size={12} /> <strong>Tous les 9 modèles</strong> (Tunisie, Canada, UE)</li>
+                      <li><Check size={12} /> <strong>CVs illimités</strong> en Haute Définition (300 DPI)</li>
+                      <li><Check size={12} /> <strong>IA Gemini Flash</strong> illimitée</li>
+                      <li><Check size={12} /> <strong>Sauvegarde Cloud</strong> (PC & Mobile)</li>
                     </ul>
                   </div>
 
-                  {/* Option 2: Pass Pro */}
+                  {/* Option 2: Pass 1 An */}
                   <div
-                    className={`paywall-plan-card ${selectedPlan === "pro" ? "selected" : ""}`}
-                    onClick={() => setSelectedPlan("pro")}
+                    className={`paywall-plan-card ${selectedPlan === "year" ? "selected" : ""}`}
+                    onClick={() => setSelectedPlan("year")}
                   >
                     <div>
                       <span className="paywall-plan-tag tag-pro">
-                        {isUnlocked && unlockedPlan === "student" ? "👑 Mise à niveau · -50%" : "⭐ Recommandé · -50%"}
+                        👑 Meilleure Offre · -80%
                       </span>
                       <div className="paywall-plan-title">
-                        {isUnlocked && unlockedPlan === "student" ? "Mise à niveau Pass Pro VIP" : "Pass Pro / Exécutif"}
+                        Pass 1 An
                       </div>
                       <div className="paywall-plan-sub">
-                        {isUnlocked && unlockedPlan === "student"
-                          ? "Débloquez tous vos CVs & Modèles Exécutifs"
-                          : "Pour cadres & recherche active (Multi-CVs)"}
+                        Utilisation complète pendant 1 an (12 mois)
                       </div>
                       <div className="paywall-price-wrap">
-                        <span className="paywall-price-main">
-                          {isUnlocked && unlockedPlan === "student" ? "12.000" : "24.900"}
-                        </span>
-                        <span className="paywall-price-unit">
-                          {isUnlocked && unlockedPlan === "student" ? "TND (Différence)" : "TND"}
-                        </span>
-                        <span className="paywall-price-struck">
-                          {isUnlocked && unlockedPlan === "student" ? "24.900 TND" : "49 TND"}
-                        </span>
+                        <span className="paywall-price-main">29.900</span>
+                        <span className="paywall-price-unit">TND</span>
+                        <span className="paywall-price-struck">59 TND</span>
                       </div>
                     </div>
                     <ul className="paywall-features-list">
-                      <li><Check size={12} /> <strong>CVs illimités</strong> à volonté</li>
-                      <li><Check size={12} /> Accès aux <strong>9 modèles</strong> (Exécutifs inclus)</li>
-                      <li><Check size={12} /> <strong>Sauvegarde Cloud à vie</strong> (PC/Mobile)</li>
-                      <li><Check size={12} /> <strong>IA Illimitée</strong> pour chaque poste</li>
+                      <li><Check size={12} /> <strong>Tous les 9 modèles</strong> (Tunisie, Canada, UE)</li>
+                      <li><Check size={12} /> <strong>CVs illimités</strong> en Haute Définition (300 DPI)</li>
+                      <li><Check size={12} /> <strong>IA Gemini Flash</strong> illimitée pendant 1 an</li>
+                      <li><Check size={12} /> <strong>Sauvegarde Cloud & Support VIP</strong> 1 an</li>
                     </ul>
                   </div>
                 </div>
@@ -3573,41 +3504,30 @@ function Builder({
                 </span>
                 <a
                   href={`https://wa.me/21692067554?text=${encodeURIComponent(
-                    isUnlocked && unlockedPlan === "student"
-                      ? `Bonjour, je possède déjà le Pass Étudiant et je souhaite commander la *Mise à niveau Pass Pro (+12.000 TND)* pour mon compte CV Tounsi.\n\n` +
-                        `👤 Nom : ${data.fullName || "Client"}\n` +
-                        `📄 Modèle : ${templateCatalog[data.template]?.label || data.template}\n` +
-                        `🔑 Code suggéré : ${generateSuggestedCode(data.fullName, "pro")}`
-                      : `Bonjour, je souhaite commander le *${
-                          selectedPlan === "student" ? "Pass Étudiant / Urgence (12.900 TND)" : "Pass Pro / Recherche Active (24.900 TND)"
-                        }* pour mon CV Tounsi.\n\n` +
-                        `👤 Nom : ${data.fullName || "Client"}\n` +
-                        `📄 Modèle : ${templateCatalog[data.template]?.label || data.template}\n` +
-                        `🔑 Code suggéré : ${generateSuggestedCode(data.fullName, selectedPlan)}`
+                    `Bonjour, je souhaite commander le *${
+                      selectedPlan === "month" ? "Pass 1 Mois (12.900 TND)" : "Pass 1 An (29.900 TND)"
+                    }* pour mon CV Tounsi.\n\n` +
+                    `👤 Nom : ${data.fullName || "Client"}\n` +
+                    `📄 Modèle : ${templateCatalog[data.template]?.label || data.template}\n` +
+                    `🔑 Code suggéré : ${generateSuggestedCode(data.fullName, selectedPlan)}`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="whatsapp-action-btn"
                   onClick={() => {
-                    const activePlan = isUnlocked && unlockedPlan === "student" ? "pro" : selectedPlan;
-                    const suggestedCode = generateSuggestedCode(data.fullName, activePlan);
-                    trackWhatsAppClicked(suggestedCode, activePlan, data.fullName);
+                    const suggestedCode = generateSuggestedCode(data.fullName, selectedPlan);
+                    trackWhatsAppClicked(suggestedCode, selectedPlan, data.fullName);
                   }}
                 >
                   <MessageCircle size={18} />
                   <span>
-                    {isUnlocked && unlockedPlan === "student"
-                      ? "Commander la Mise à niveau Pro (12.0 DT) sur WhatsApp"
-                      : `Commander le ${selectedPlan === "student" ? "Pass Étudiant (12.9 DT)" : "Pass Pro (24.9 DT)"} sur WhatsApp`}
+                    {`Commander le ${selectedPlan === "month" ? "Pass 1 Mois (12.9 DT)" : "Pass 1 An (29.9 DT)"} sur WhatsApp`}
                   </span>
                 </a>
                 <div style={{ fontSize: "0.71rem", color: "var(--olive-dark)", marginTop: "0.35rem", display: "flex", alignItems: "center", gap: "5px" }}>
                   <span>💡 Code mémorisable suggéré :</span>
                   <strong style={{ background: "#e8f0e6", padding: "1px 6px", borderRadius: "4px", letterSpacing: "0.04em" }}>
-                    {generateSuggestedCode(
-                      data.fullName,
-                      isUnlocked && unlockedPlan === "student" ? "pro" : selectedPlan
-                    )}
+                    {generateSuggestedCode(data.fullName, selectedPlan)}
                   </strong>
                 </div>
               </div>
@@ -3625,7 +3545,7 @@ function Builder({
                   <input
                     type="text"
                     className="client-unlock-input"
-                    placeholder={`Ex: ${generateSuggestedCode(data.fullName, isUnlocked && unlockedPlan === "student" ? "pro" : selectedPlan)}, TN13, PRO25, UPGRADE12...`}
+                    placeholder={`Ex: ${generateSuggestedCode(data.fullName, selectedPlan)}, TN13, AN30, PRO30...`}
                     value={clientCodeInput}
                     onChange={(e) => setClientCodeInput(e.target.value)}
                     autoFocus
@@ -3681,79 +3601,59 @@ function Builder({
       {showPostUnlockModal && (
         <div className="paywall-modal-backdrop" onClick={() => setShowPostUnlockModal(false)}>
           <div className="post-unlock-modal-box" onClick={(e) => e.stopPropagation()}>
-            <div className={`post-unlock-header ${unlockedPlan === "student" ? "student" : "pro"}`}>
-              <div className={`post-unlock-badge-pill ${unlockedPlan === "student" ? "student-badge" : "pro-badge"}`}>
-                {unlockedPlan === "student" ? (
+            <div className={`post-unlock-header ${unlockedPlan === "year" ? "pro" : "student"}`}>
+              <div className={`post-unlock-badge-pill ${unlockedPlan === "year" ? "pro-badge" : "student-badge"}`}>
+                {unlockedPlan === "year" ? (
                   <>
-                    <GraduationCap size={13} /> 🎓 PASS ÉTUDIANT ACTIVÉ (12.900 TND)
+                    <Crown size={13} /> 👑 PASS 1 AN ACTIVÉ (29.900 TND) — VIP
                   </>
                 ) : (
                   <>
-                    <Crown size={13} /> 👑 PASS PRO & EXÉCUTIF ACTIVÉ (24.900 TND) — VIP
+                    <Sparkles size={13} /> ⭐ PASS 1 MOIS ACTIVÉ (12.900 TND)
                   </>
                 )}
               </div>
               <h3>
-                {unlockedPlan === "student"
-                  ? "🌟 Votre CV Étudiant est Débloqué en HD !"
-                  : "🚀 Bienvenue dans votre Espace Pro Illimité !"}
+                {unlockedPlan === "year"
+                  ? "🚀 Bienvenue dans votre Espace VIP 1 An !"
+                  : "🌟 Votre Pass 1 Mois est Activé en Haute Définition !"}
               </h3>
               <p>
-                {unlockedPlan === "student"
-                  ? "Votre CV officiel au format A4 300 DPI sans flou a été généré et téléchargé avec succès."
-                  : "Vous bénéficiez de l'accès VIP complet : 9 modèles internationaux, multi-CVs et IA sans limite."}
+                {unlockedPlan === "year"
+                  ? "Vous bénéficiez de l'accès complet pendant 1 an : 9 modèles internationaux, multi-CVs et IA sans limite."
+                  : "Vous bénéficiez de l'accès complet pendant 30 jours : 9 modèles internationaux, multi-CVs et IA sans limite."}
               </p>
             </div>
 
             <div className="post-unlock-body">
-              {unlockedPlan === "student" ? (
-                <div className="post-unlock-plan-summary student-summary">
-                  <div className="plan-summary-title">🎓 Inclus dans votre Pass Étudiant :</div>
-                  <ul className="plan-summary-list">
-                    <li>
-                      <Check size={14} style={{ color: "#0284c7" }} />
-                      <span><b>1 CV Haute Définition (300 DPI)</b> pour vos candidatures de stage PFE & 1er emploi</span>
-                    </li>
-                    <li>
-                      <Check size={14} style={{ color: "#0284c7" }} />
-                      <span><b>Téléchargement PDF A4 officiel sans flou</b> direct et prêt à l'emploi</span>
-                    </li>
-                    <li>
-                      <Check size={14} style={{ color: "#0284c7" }} />
-                      <span><b>IA d'optimisation de projet & compétences</b> pour valoriser votre parcours académique</span>
-                    </li>
-                  </ul>
+              <div className="post-unlock-plan-summary pro-summary">
+                <div className="plan-summary-title">
+                  {unlockedPlan === "year" ? "👑 Vos Avantages 1 An Inclus :" : "⭐ Vos Avantages 1 Mois Inclus :"}
                 </div>
-              ) : (
-                <div className="post-unlock-plan-summary pro-summary">
-                  <div className="plan-summary-title">👑 Vos Avantages VIP Pro Débloqués :</div>
-                  <ul className="plan-summary-list">
-                    <li>
-                      <Check size={14} style={{ color: "#d97706" }} />
-                      <span><b>Création de CVs illimités</b> : Déclinez autant de versions de CV que souhaité</span>
-                    </li>
-                    <li>
-                      <Check size={14} style={{ color: "#d97706" }} />
-                      <span><b>Bibliothèque intégrale (9 modèles)</b> : Exécutifs 2 col, Canadiens ATS & Europass UE</span>
-                    </li>
-                    <li>
-                      <Check size={14} style={{ color: "#d97706" }} />
-                      <span><b>Intelligence Artificielle Illimitée</b> pour tous vos postes, accroches et compétences</span>
-                    </li>
-                    <li>
-                      <Check size={14} style={{ color: "#d97706" }} />
-                      <span><b>Sauvegarde Cloud à vie</b> synchronisée en temps réel sur PC, Mac et Téléphone</span>
-                    </li>
-                  </ul>
-                </div>
-              )}
+                <ul className="plan-summary-list">
+                  <li>
+                    <Check size={14} style={{ color: "#16a34a" }} />
+                    <span><b>Création de CVs illimités</b> : Déclinez autant de versions de CV que souhaité</span>
+                  </li>
+                  <li>
+                    <Check size={14} style={{ color: "#16a34a" }} />
+                    <span><b>Bibliothèque intégrale (9 modèles)</b> : Exécutifs 2 col, Canadiens ATS & Europass UE</span>
+                  </li>
+                  <li>
+                    <Check size={14} style={{ color: "#16a34a" }} />
+                    <span><b>Intelligence Artificielle Illimitée</b> pour tous vos postes, accroches et compétences</span>
+                  </li>
+                  <li>
+                    <Check size={14} style={{ color: "#16a34a" }} />
+                    <span><b>Sauvegarde Cloud</b> synchronisée en temps réel sur PC, Mac et Téléphone</span>
+                  </li>
+                </ul>
+              </div>
 
-              <div className={`post-unlock-callout ${unlockedPlan === "pro" ? "pro-callout" : ""}`}>
-                <strong>{unlockedPlan === "student" ? "💡 Ne perdez pas votre travail !" : "⚡ Activez votre Espace Cloud Pro :"}</strong>
+              <div className="post-unlock-callout pro-callout">
+                <strong>⚡ Activez votre Espace Cloud synchronisé :</strong>
                 <p>
-                  {unlockedPlan === "student"
-                    ? "Liez votre compte en 10 secondes pour sauvegarder ce CV sur le Cloud et le retrouver sur votre téléphone à tout moment."
-                    : "Connectez votre compte dès maintenant pour rattacher définitivement votre statut Pro VIP et synchroniser tous vos CVs."}
+                  Liez votre compte en 10 secondes pour sauvegarder tous vos CVs sur le Cloud et les retrouver sur votre téléphone à tout moment.
                 </p>
               </div>
 
@@ -3872,35 +3772,14 @@ function Builder({
             {/* Client Status Badge (Only shown when unlocked) */}
             {isUnlocked && (
               <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                {unlockedPlan === "pro" ? (
-                  <span className="unlocked-pro-badge" title="Pass Pro & Recherche Active VIP (9 modèles & IA illimités)">
-                    <Crown size={13} /> 👑 Pass Pro VIP Illimité
-                  </span>
-                ) : isCurrentCvUnlocked ? (
-                  <span className="unlocked-student-badge" title="Pass Étudiant & Urgence (1 CV HD 300 DPI débloqué)">
-                    <GraduationCap size={13} /> 🎓 Pass Étudiant (CV #1 HD)
+                {unlockedPlan === "year" ? (
+                  <span className="unlocked-pro-badge" title="Pass 1 An VIP (9 modèles & IA illimités)">
+                    <Crown size={13} /> 👑 Pass 1 An (VIP)
                   </span>
                 ) : (
-                  <>
-                    <span
-                      className="unlocked-student-badge"
-                      style={{ borderColor: "#f59e0b", color: "#b45309", background: "#fef3c7" }}
-                      title="Ce document nécessite le Pass Pro pour être débloqué en HD"
-                    >
-                      <Lock size={12} /> {isProOnlyTemplate(data.template) ? "Modèle Pro Requis" : "2ème CV (Mode Démo)"}
-                    </span>
-                    <button
-                      type="button"
-                      className="upgrade-to-pro-btn"
-                      onClick={() => {
-                        setSelectedPlan("pro");
-                        setShowPaywallModal(true);
-                      }}
-                      title="Passer au Pass Pro (+12 DT) pour débloquer ce CV et tous les modèles"
-                    >
-                      <Crown size={12} /> Passer Pro (+12 DT)
-                    </button>
-                  </>
+                  <span className="unlocked-pro-badge" style={{ background: "#ecfdf5", color: "#065f46", borderColor: "#a7f3d0" }} title="Pass 1 Mois (9 modèles & IA illimités)">
+                    <Sparkles size={13} /> ⭐ Pass 1 Mois
+                  </span>
                 )}
                 <button
                   type="button"
@@ -3993,15 +3872,11 @@ function Builder({
                 <strong>Profil :</strong> {isStudent ? "Étudiant / Jeune Diplômé" : "Professionnel Expérimenté"}
                 <br />
                 <strong>Statut :</strong>{" "}
-                {unlockedPlan === "pro" && isUnlocked ? (
-                  <span style={{ color: "#b45309", fontWeight: 800 }}>👑 Pass Pro VIP Illimité</span>
-                ) : isUnlocked && unlockedPlan === "student" ? (
-                  isCurrentCvUnlocked ? (
-                    <span style={{ color: "#0284c7", fontWeight: 700 }}>🎓 Pass Étudiant (CV #1 HD)</span>
+                {isUnlocked ? (
+                  unlockedPlan === "year" ? (
+                    <span style={{ color: "#b45309", fontWeight: 800 }}>👑 Pass 1 An (VIP Illimité)</span>
                   ) : (
-                    <span style={{ color: "#d97706", fontWeight: 700 }}>
-                      🔒 {isProOnlyTemplate(data.template) ? "Modèle Pro VIP Requis" : "2ème CV (Mode Démo)"}
-                    </span>
+                    <span style={{ color: "#065f46", fontWeight: 800 }}>⭐ Pass 1 Mois (Illimité)</span>
                   )
                 ) : (
                   "🔒 Version Démo"
