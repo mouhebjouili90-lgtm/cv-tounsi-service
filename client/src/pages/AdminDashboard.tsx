@@ -58,62 +58,14 @@ interface CvItem {
 const defaultMasterCodes: ActivationCode[] = [
   {
     id: 1,
-    code: "TN19",
-    customerName: "Code Universel Tunisie",
-    customerPhone: "+216 92 067 554",
-    status: "active",
-    amount: 19,
-    paymentMethod: "standard",
-    usageCount: 0,
-    maxUsage: 9999,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 2,
-    code: "PRO19",
-    customerName: "Code Master Pro",
-    customerPhone: null,
-    status: "active",
-    amount: 19,
-    paymentMethod: "standard",
-    usageCount: 0,
-    maxUsage: 9999,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 3,
-    code: "VIP19",
-    customerName: "Code Partenaire VIP",
-    customerPhone: null,
-    status: "active",
-    amount: 19,
-    paymentMethod: "standard",
-    usageCount: 0,
-    maxUsage: 9999,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 4,
     code: "ADMINPRO",
     customerName: "Code Administrateur Test",
     customerPhone: null,
     status: "active",
-    amount: 0,
+    amount: 30,
     paymentMethod: "admin",
     usageCount: 0,
-    maxUsage: 9999,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 5,
-    code: "CV19",
-    customerName: "Code Promo Lancement",
-    customerPhone: null,
-    status: "active",
-    amount: 19,
-    paymentMethod: "promo",
-    usageCount: 0,
-    maxUsage: 9999,
+    maxUsage: 1000,
     createdAt: new Date().toISOString(),
   },
 ];
@@ -151,10 +103,11 @@ export default function AdminDashboard() {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   // Form State for creating a new code
+  const [planType, setPlanType] = useState<"month" | "year">("month");
   const [newCode, setNewCode] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
-  const [amount, setAmount] = useState(19);
+  const [amount, setAmount] = useState(13);
   const [paymentMethod, setPaymentMethod] = useState("whatsapp");
   const [maxUsage, setMaxUsage] = useState(3);
   const [isSubmittingCode, setIsSubmittingCode] = useState(false);
@@ -263,12 +216,18 @@ export default function AdminDashboard() {
     toast.info("Déconnecté");
   };
 
-  const generateRandomCode = () => {
-    const randomNum = Math.floor(1000 + Math.random() * 9000);
-    const prefix = customerName
-      ? customerName.split(" ")[0].replace(/[^a-zA-Z]/g, "").toUpperCase()
+  const generatePlanCode = (type: "month" | "year") => {
+    setPlanType(type);
+    setAmount(type === "year" ? 30 : 13);
+    const cleanFirst = customerName.trim()
+      ? customerName.trim().split(" ")[0].replace(/[^a-zA-Z]/g, "").toUpperCase()
       : "TN";
-    setNewCode(`${prefix}${randomNum}`);
+    const suffix = type === "year" ? "30" : "13";
+    setNewCode(`${cleanFirst}${suffix}`);
+  };
+
+  const generateRandomCode = () => {
+    generatePlanCode(planType);
   };
 
   const handleCreateCode = async (e: React.FormEvent) => {
@@ -378,10 +337,21 @@ export default function AdminDashboard() {
     setTimeout(() => setCopiedCode(null), 2500);
   };
 
-  const copyWhatsAppResponse = (code: string, name?: string | null, amount?: number | null) => {
-    const amountStr = amount ? `${amount} TND` : code.includes("13") ? "12.900 TND" : "29.900 TND";
-    const text = `Bonjour ${name ? name : ""} ! Merci pour votre paiement de ${amountStr}. Votre code d'activation officiel pour CV Tounsi est : *${code}*. Entrez-le sur https://cvtounsi.com pour débloquer immédiatement votre CV en Haute Définition !`;
-    copyToClipboard(text, "Message WhatsApp client copié !");
+  const copyWhatsAppResponse = (code: string, customerName?: string | null, codeAmount?: number | null) => {
+    const isMonth = (codeAmount ?? 13) <= 15;
+    const planLabel = isMonth ? "Pass 1 Mois (12.900 TND — 30 jours)" : "Pass 1 An VIP (29.900 TND — 365 jours)";
+    const cleanName = customerName ? customerName.trim() : "Cher candidat";
+    const msg = `🌟 Félicitations ${cleanName} ! Votre paiement a été validé avec succès.
+
+💳 Formule : *${planLabel}*
+🔑 Votre Code d'Activation Officiel : *${code}*
+
+👉 Rendez-vous sur https://cvtounsi.com pour débloquer votre CV en Haute Définition (300 DPI sans filigrane) et profiter de l'IA.
+
+En cas de besoin, notre assistance WhatsApp (+216 92 067 554) reste à votre disposition. Bon succès pour vos candidatures ! 🚀`;
+
+    navigator.clipboard.writeText(msg);
+    toast.success(`Message WhatsApp copié pour ${code} (${isMonth ? "1 Mois" : "1 An"}) !`);
   };
 
   const filteredCodes = codes.filter((c) => {
@@ -552,12 +522,46 @@ export default function AdminDashboard() {
             </p>
 
             <form onSubmit={handleCreateCode} className="space-y-4">
+              {/* Formule selector (1 Mois vs 1 An) */}
+              <div>
+                <label className="block text-xs font-semibold text-[#475569] mb-1.5">Formule à Débloquer</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => generatePlanCode("month")}
+                    className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all flex flex-col items-center gap-0.5 ${
+                      planType === "month"
+                        ? "bg-[#EBF0E9] border-[#60735A] text-[#2d6a4f] shadow-sm ring-1 ring-[#60735A]"
+                        : "bg-white border-[#E2E8F0] text-[#64748B] hover:bg-stone-50"
+                    }`}
+                  >
+                    <span className="flex items-center gap-1">🎓 Pass 1 Mois</span>
+                    <span className="text-[11px] font-extrabold text-[#0369a1]">12.900 DT (30j)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => generatePlanCode("year")}
+                    className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all flex flex-col items-center gap-0.5 ${
+                      planType === "year"
+                        ? "bg-[#FEF3C7] border-[#D97706] text-[#92400e] shadow-sm ring-1 ring-[#D97706]"
+                        : "bg-white border-[#E2E8F0] text-[#64748B] hover:bg-stone-50"
+                    }`}
+                  >
+                    <span className="flex items-center gap-1">👑 Pass 1 An VIP</span>
+                    <span className="text-[11px] font-extrabold text-[#b45309]">29.900 DT (365j)</span>
+                  </button>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-xs font-semibold text-[#475569] mb-1">Nom & Prénom du Client</label>
                 <input
                   type="text"
                   value={customerName}
-                  onChange={(e) => setCustomerName(e.target.value)}
+                  onChange={(e) => {
+                    setCustomerName(e.target.value);
+                  }}
                   placeholder="Ex: Mohamed Ben Ali"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#CBD5E1] text-sm focus:ring-2 focus:ring-[#60735A] focus:outline-none"
                 />
@@ -571,14 +575,14 @@ export default function AdminDashboard() {
                     onClick={generateRandomCode}
                     className="text-[11px] font-semibold text-[#60735A] hover:underline"
                   >
-                    Générer automatiquement
+                    Générer automatiquement ({planType === "year" ? "Suffixe 30" : "Suffixe 13"})
                   </button>
                 </div>
                 <input
                   type="text"
                   value={newCode}
                   onChange={(e) => setNewCode(e.target.value.toUpperCase())}
-                  placeholder="Ex: SARRA19 ou TN8492"
+                  placeholder={planType === "year" ? "Ex: MOHAMED30 ou TN30" : "Ex: MOHAMED13 ou TN13"}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#CBD5E1] font-mono font-bold text-sm tracking-wider uppercase focus:ring-2 focus:ring-[#60735A] focus:outline-none"
                   required
                 />
@@ -586,32 +590,12 @@ export default function AdminDashboard() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="block text-xs font-semibold text-[#475569]">Montant (TND)</label>
-                    <div className="flex gap-1">
-                      <button
-                        type="button"
-                        onClick={() => setAmount(13)}
-                        className="text-[10px] px-1.5 py-0.5 bg-[#e0f2fe] text-[#0369a1] rounded font-bold hover:bg-[#bae6fd]"
-                        title="Pass 1 Mois (12.9 DT)"
-                      >
-                        13 DT
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setAmount(30)}
-                        className="text-[10px] px-1.5 py-0.5 bg-[#fef3c7] text-[#92400e] rounded font-bold hover:bg-[#fde68a]"
-                        title="Pass 1 An (29.9 DT)"
-                      >
-                        30 DT
-                      </button>
-                    </div>
-                  </div>
+                  <label className="block text-xs font-semibold text-[#475569] mb-1">Montant (TND)</label>
                   <input
                     type="number"
                     value={amount}
                     onChange={(e) => setAmount(Number(e.target.value))}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#CBD5E1] text-sm focus:ring-2 focus:ring-[#60735A] focus:outline-none"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#CBD5E1] text-sm focus:ring-2 focus:ring-[#60735A] focus:outline-none font-bold"
                   />
                 </div>
                 <div>
@@ -715,11 +699,22 @@ export default function AdminDashboard() {
                         </td>
 
                         <td className="py-3.5 pr-4">
-                          <div className="font-semibold text-[#0F172A]">
-                            {c.customerName || "Code Maître / Promo"}
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-[#0F172A]">
+                              {c.customerName || "Code Client"}
+                            </span>
+                            {(c.amount ?? 13) <= 15 ? (
+                              <span className="text-[9px] font-extrabold bg-[#e0f2fe] text-[#0369a1] px-2 py-0.5 rounded-full whitespace-nowrap">
+                                🎓 1 MOIS (30j)
+                              </span>
+                            ) : (
+                              <span className="text-[9px] font-extrabold bg-[#fef3c7] text-[#92400e] px-2 py-0.5 rounded-full whitespace-nowrap">
+                                👑 1 AN VIP (365j)
+                              </span>
+                            )}
                           </div>
-                          <div className="text-[11px] text-[#64748B]">
-                            {c.paymentMethod || "standard"} · {c.amount ?? 19} TND
+                          <div className="text-[11px] text-[#64748B] mt-0.5">
+                            {c.paymentMethod || "standard"} · {c.amount ?? ((c.amount ?? 13) <= 15 ? 12.9 : 29.9)} TND
                           </div>
                         </td>
 

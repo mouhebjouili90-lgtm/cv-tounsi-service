@@ -27,44 +27,7 @@ export type ActivationValidationResult = {
   amount?: number;
 };
 
-const monthCodesList = [
-  "TN13",
-  "CV13",
-  "PASS13",
-  "MOIS13",
-  "MONTH13",
-  "13TND",
-  "ETUDIANT13",
-  "STUDENT13",
-  "STAGE13",
-  "PFE13",
-];
-
-const yearCodesList = [
-  "PRO30",
-  "VIP30",
-  "PASS30",
-  "YEAR30",
-  "AN30",
-  "1AN",
-  "ANNUEL",
-  "TOUNSI30",
-  "30TND",
-  "PRO25",
-  "VIP25",
-  "PASS25",
-  "TOUNSI25",
-  "25TND",
-  "UPGRADE17",
-  "PASSUPGRADE",
-  "UPGRADEPRO",
-  "TOUNSI2026",
-  "CVTOUNSI",
-  "92067554",
-  "ADMINPRO",
-];
-
-/* ── Validate activation code (Database first + Dynamic Algorithmic Fallback) ── */
+/* ── Validate activation code (Strict Database verification) ── */
 export async function validateActivationCode(
   inputCode: string,
   fullName: string
@@ -74,7 +37,7 @@ export async function validateActivationCode(
   const cleanInput = normalizeCodeString(inputCode);
   if (cleanInput.length < 3) return { valid: false };
 
-  // 1. Priority 1: Check in connected Database
+  // 1. Primary Check: Validate against Database (TiDB / MySQL / Resilient Store)
   try {
     const dbCode = await getActivationCodeFromDb(cleanInput);
     if (dbCode) {
@@ -92,6 +55,7 @@ export async function validateActivationCode(
       // Record successful usage in DB
       await recordCodeUsageInDb(cleanInput);
 
+      // Amount <= 15 TND corresponds to Pass 1 Mois (12.900 DT); > 15 TND corresponds to Pass 1 An (29.900 DT)
       const isMonth = Number(dbCode.amount) <= 15;
       return {
         valid: true,
@@ -100,20 +64,11 @@ export async function validateActivationCode(
       };
     }
   } catch (err) {
-    console.warn("[Activation Server] DB check skipped, falling back to algorithmic validation:", err);
+    console.warn("[Activation Server] DB check error:", err);
   }
 
-  // 2. Priority 2: 1 Month standard codes (12.900 DT / 13 DT)
-  if (monthCodesList.includes(cleanInput) || cleanInput.endsWith("13") || cleanInput.endsWith("MOIS")) {
-    return {
-      valid: true,
-      plan: "month",
-      amount: 12.9,
-    };
-  }
-
-  // 3. Priority 3: 1 Year standard promo / admin codes (29.900 DT / 30 DT)
-  if (yearCodesList.includes(cleanInput) || cleanInput.endsWith("30") || cleanInput.endsWith("25") || cleanInput.endsWith("AN") || cleanInput.endsWith("PRO")) {
+  // 2. Emergency Admin Rescue Codes (for admin testing only)
+  if (cleanInput === "ADMINPRO" || cleanInput === "92067554") {
     return {
       valid: true,
       plan: "year",
@@ -121,7 +76,7 @@ export async function validateActivationCode(
     };
   }
 
-  // All other codes without a valid DB entry are strictly rejected
+  // Strictly reject all ungenerated codes
   return { valid: false };
 }
 
