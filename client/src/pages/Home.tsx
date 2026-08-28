@@ -3631,25 +3631,58 @@ function Builder({
                 </ul>
               </div>
 
-              <div className="post-unlock-actions" style={{ marginTop: "1.2rem" }}>
+              <div className="post-unlock-callout pro-callout" style={{ marginTop: "1rem" }}>
+                <strong>⚡ Sauvegardez votre CV en ligne :</strong>
+                <p>
+                  Créez votre compte en 10 secondes pour sauvegarder ce CV et le retrouver sur votre téléphone ou ordinateur à tout moment.
+                </p>
+              </div>
+
+              <div className="post-unlock-actions" style={{ marginTop: "1rem", display: "flex", flexDirection: "column", gap: "8px" }}>
                 <button
                   type="button"
-                  className="button button-primary"
-                  onClick={() => setShowPostUnlockModal(false)}
+                  className="post-unlock-email-btn"
+                  onClick={() => {
+                    setShowPostUnlockModal(false);
+                    openAuthModal("register");
+                  }}
                   style={{
                     width: "100%",
-                    padding: "0.85rem 1.2rem",
-                    fontSize: "0.95rem",
-                    fontWeight: 700,
-                    borderRadius: "12px",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     gap: "8px",
+                    background: "#2d6a4f",
+                    color: "#ffffff",
+                    fontWeight: 700,
+                    padding: "0.85rem 1.2rem",
+                    borderRadius: "12px",
+                    fontSize: "0.92rem",
+                    boxShadow: "0 2px 8px rgba(45,106,79,0.25)",
+                    cursor: "pointer",
+                    border: "none",
                   }}
                 >
-                  <Sparkles size={16} />
-                  <span>Accéder à mon CV Débloqué</span>
+                  <Mail size={16} />
+                  <span>Créer mon compte avec Email & Mot de passe</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="post-unlock-later-btn"
+                  onClick={() => setShowPostUnlockModal(false)}
+                  style={{
+                    width: "100%",
+                    background: "none",
+                    border: "none",
+                    color: "var(--ink-soft)",
+                    fontSize: "0.8rem",
+                    padding: "0.4rem",
+                    cursor: "pointer",
+                    textDecoration: "underline",
+                  }}
+                >
+                  Plus tard (Accéder directement à mon CV débloqué)
                 </button>
               </div>
             </div>
