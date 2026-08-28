@@ -11,9 +11,6 @@ import {
   type ProfileType,
 } from "@/lib/gemini";
 import {
-  generateSuggestedCode,
-} from "@/lib/activation";
-import {
   trackEvent,
   trackBuilderStarted,
   trackWhatsAppClicked,
@@ -631,14 +628,6 @@ function ProfessionalTemplate({
             ) : (
               <p className="prof-role">{data.targetRole || "Intitulé du poste recherché"}</p>
             )}
-          </div>
-        </div>
-
-        <div className="prof-header-right">
-          <div className="prof-badge-card">
-            <span>{isStudent ? "ÉTUDIANT / STAGE" : "CV / TN"}</span>
-            <span className="prof-badge-dot" />
-            <span>{templateCatalog.professional.eyebrow}</span>
           </div>
         </div>
       </header>
@@ -3508,15 +3497,13 @@ function Builder({
                       selectedPlan === "month" ? "Pass 1 Mois (12.900 TND)" : "Pass 1 An (29.900 TND)"
                     }* pour mon CV Tounsi.\n\n` +
                     `👤 Nom : ${data.fullName || "Client"}\n` +
-                    `📄 Modèle : ${templateCatalog[data.template]?.label || data.template}\n` +
-                    `🔑 Code suggéré : ${generateSuggestedCode(data.fullName, selectedPlan)}`
+                    `📄 Modèle : ${templateCatalog[data.template]?.label || data.template}`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="whatsapp-action-btn"
                   onClick={() => {
-                    const suggestedCode = generateSuggestedCode(data.fullName, selectedPlan);
-                    trackWhatsAppClicked(suggestedCode, selectedPlan, data.fullName);
+                    trackWhatsAppClicked("ORDER", selectedPlan, data.fullName);
                   }}
                 >
                   <MessageCircle size={18} />
@@ -3524,12 +3511,6 @@ function Builder({
                     {`Commander le ${selectedPlan === "month" ? "Pass 1 Mois (12.9 DT)" : "Pass 1 An (29.9 DT)"} sur WhatsApp`}
                   </span>
                 </a>
-                <div style={{ fontSize: "0.71rem", color: "var(--olive-dark)", marginTop: "0.35rem", display: "flex", alignItems: "center", gap: "5px" }}>
-                  <span>💡 Code mémorisable suggéré :</span>
-                  <strong style={{ background: "#e8f0e6", padding: "1px 6px", borderRadius: "4px", letterSpacing: "0.04em" }}>
-                    {generateSuggestedCode(data.fullName, selectedPlan)}
-                  </strong>
-                </div>
               </div>
 
               {/* Step 3: Enter Client Activation Code */}
@@ -3538,14 +3519,14 @@ function Builder({
                   <Key size={14} /> 3. Vous avez reçu votre code ? Entrez-le ici :
                 </div>
                 <p className="client-unlock-desc">
-                  Saisissez votre code pour débloquer immédiatement votre CV en qualité maximale.
+                  Saisissez votre code d'activation pour débloquer immédiatement votre CV en Haute Définition.
                 </p>
 
                 <form onSubmit={handleUnlockWithClientCode} className="client-unlock-form">
                   <input
                     type="text"
                     className="client-unlock-input"
-                    placeholder={`Ex: ${generateSuggestedCode(data.fullName, selectedPlan)}, TN13, AN30, PRO30...`}
+                    placeholder="Entrez votre code d'activation ici..."
                     value={clientCodeInput}
                     onChange={(e) => setClientCodeInput(e.target.value)}
                     autoFocus
