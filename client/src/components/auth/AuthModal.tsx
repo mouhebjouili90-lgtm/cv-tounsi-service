@@ -67,7 +67,7 @@ export function AuthModal() {
             <DialogDescription className="text-emerald-100/90 text-sm mt-1">
               {tab === "login"
                 ? "Retrouvez tous vos CVs sauvegardés et vos téléchargements."
-                : "Sauvegardez vos CVs dans le cloud et modifiez-les à tout moment."}
+                : "Sauvegardez vos CVs en ligne et modifiez-les à tout moment."}
             </DialogDescription>
           </DialogHeader>
 

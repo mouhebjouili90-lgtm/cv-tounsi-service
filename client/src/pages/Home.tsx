@@ -3388,7 +3388,7 @@ function Builder({
                       <Cloud size={16} />
                     </div>
                     <div>
-                      <strong>Sauvegarder mon CV sur le Cloud à vie</strong>
+                      <strong>Sauvegarder mon CV en ligne</strong>
                       <p>Connectez-vous pour conserver et modifier votre CV sur PC et Téléphone à tout moment.</p>
                     </div>
                   </div>
@@ -3408,7 +3408,7 @@ function Builder({
                     </div>
                     <div>
                       <strong>Compte connecté : {user.name || user.email}</strong>
-                      <p>Votre achat et vos CVs seront automatiquement synchronisés et sécurisés sur votre espace Cloud.</p>
+                      <p>Votre achat et vos CVs seront automatiquement synchronisés et sécurisés sur votre compte.</p>
                     </div>
                   </div>
                 </div>
@@ -3438,7 +3438,7 @@ function Builder({
                       <li><Check size={12} /> <strong>Tous les 9 modèles</strong> (Tunisie, Canada, UE)</li>
                       <li><Check size={12} /> <strong>CVs illimités</strong> en Haute Définition (300 DPI)</li>
                       <li><Check size={12} /> <strong>IA Gemini Flash</strong> illimitée</li>
-                      <li><Check size={12} /> <strong>Sauvegarde Cloud</strong> (PC & Mobile)</li>
+                      <li><Check size={12} /> <strong>Sauvegarde en ligne</strong> (PC & Mobile)</li>
                     </ul>
                   </div>
 
@@ -3467,7 +3467,7 @@ function Builder({
                       <li><Check size={12} /> <strong>Tous les 9 modèles</strong> (Tunisie, Canada, UE)</li>
                       <li><Check size={12} /> <strong>CVs illimités</strong> en Haute Définition (300 DPI)</li>
                       <li><Check size={12} /> <strong>IA Gemini Flash</strong> illimitée pendant 1 an</li>
-                      <li><Check size={12} /> <strong>Sauvegarde Cloud & Support VIP</strong> 1 an</li>
+                      <li><Check size={12} /> <strong>Sauvegarde en ligne & Support VIP</strong> 1 an</li>
                     </ul>
                   </div>
                 </div>
@@ -3626,15 +3626,15 @@ function Builder({
                   </li>
                   <li>
                     <Check size={14} style={{ color: "#16a34a" }} />
-                    <span><b>Sauvegarde Cloud</b> synchronisée en temps réel sur PC, Mac et Téléphone</span>
+                    <span><b>Sauvegarde en ligne</b> synchronisée en temps réel sur PC, Mac et Téléphone</span>
                   </li>
                 </ul>
               </div>
 
               <div className="post-unlock-callout pro-callout">
-                <strong>⚡ Activez votre Espace Cloud synchronisé :</strong>
+                <strong>⚡ Activez votre Espace Personnel synchronisé :</strong>
                 <p>
-                  Liez votre compte en 10 secondes pour sauvegarder tous vos CVs sur le Cloud et les retrouver sur votre téléphone à tout moment.
+                  Liez votre compte en 10 secondes pour sauvegarder tous vos CVs en ligne et les retrouver sur votre téléphone à tout moment.
                 </p>
               </div>
 
@@ -3727,7 +3727,7 @@ function Builder({
               ) : (
                 <>
                   <Cloud size={14} className={user ? "text-emerald-600" : "text-stone-400"} />
-                  <span>{user ? "Sauvegarder" : "Sauvegarder (Cloud)"}</span>
+                  <span>{user ? "Sauvegarder" : "Sauvegarder en ligne"}</span>
                 </>
               )}
             </button>

@@ -369,7 +369,7 @@ export default function AdsLanding() {
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
-                  <span><strong>Sauvegarde Cloud</strong> (PC & Mobile)</span>
+                  <span><strong>Sauvegarde en ligne</strong> (PC & Mobile)</span>
                 </li>
               </ul>
             </div>
@@ -419,7 +419,7 @@ export default function AdsLanding() {
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
-                  <span><strong>Sauvegarde Cloud & Support VIP</strong> 1 an</span>
+                  <span><strong>Sauvegarde en ligne & Support VIP</strong> 1 an</span>
                 </li>
               </ul>
             </div>
