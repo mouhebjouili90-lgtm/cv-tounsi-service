@@ -54,7 +54,8 @@ export function AuthModal() {
     <Dialog open={isAuthModalOpen} onOpenChange={(open) => !open && closeAuthModal()}>
       <DialogContent className="sm:max-w-[440px] p-0 overflow-hidden bg-white border border-stone-200 shadow-2xl rounded-2xl">
         {/* Header Banner */}
-        <div className="bg-gradient-to-br from-[#1b4332] via-[#2d6a4f] to-[#40916c] p-6 text-white text-center relative">
+        <div className="bg-gradient-to-br from-[#1b4332] via-[#2d6a4f] to-[#40916c] p-6 text-white text-center relative flex flex-col items-center">
+          <img src="/icon.jpg" alt="CV Tounsi Logo" className="w-12 h-12 rounded-xl object-cover shadow-lg border-2 border-white/20 mb-2.5" />
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-xs font-semibold text-emerald-100 mb-2 border border-white/20">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-300" />
             Espace Candidat Sécurisé

@@ -3390,8 +3390,9 @@ function Builder({
       {showPaywallModal && (
         <div className="paywall-modal-backdrop" onClick={() => setShowPaywallModal(false)}>
           <div className="paywall-modal-box" onClick={(e) => e.stopPropagation()}>
-            <div className="paywall-modal-header">
-              <div>
+            <div className="paywall-modal-header" style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <img src="/icon.jpg" alt="CV Tounsi Logo" style={{ width: "42px", height: "42px", borderRadius: "10px", objectFit: "cover", flexShrink: 0, boxShadow: "0 4px 10px rgba(0,0,0,0.15)" }} />
+              <div style={{ flex: 1 }}>
                 <h3>Débloquez votre CV en Haute Définition</h3>
                 <p>Format A4 300 DPI certifié conforme aux normes internationales ATS</p>
               </div>
@@ -3820,8 +3821,8 @@ function Builder({
             <ChevronLeft size={16} /> Accueil
           </button>
 
-          <div className="builder-brand-bar">
-            <span className="brand-mark small-mark" aria-hidden="true" />
+          <div className="builder-brand-bar" onClick={onBack} style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }} title="Retour à l'accueil">
+            <img src="/icon.jpg" alt="CV Tounsi Logo" style={{ width: "30px", height: "30px", borderRadius: "8px", objectFit: "cover", boxShadow: "0 2px 6px rgba(0,0,0,0.12)" }} />
             <span>
               CV <b>Tounsi</b>
             </span>
@@ -4284,8 +4285,9 @@ export default function Home() {
               className="brand"
               onClick={() => scrollToId("top")}
               aria-label="Retour au début"
+              style={{ display: "flex", alignItems: "center", gap: "9px" }}
             >
-              <span className="brand-mark" aria-hidden="true" />
+              <img src="/icon.jpg" alt="CV Tounsi Logo" style={{ width: "34px", height: "34px", borderRadius: "9px", objectFit: "cover", boxShadow: "0 2px 6px rgba(0,0,0,0.12)" }} />
               <span>
                  CV <b>Tounsi</b>
               </span>
@@ -4412,8 +4414,8 @@ export default function Home() {
       {!isBuilder && (
         <footer className="site-footer">
           <div className="container footer-inner">
-            <div className="brand footer-brand">
-              <span className="brand-mark" aria-hidden="true" />
+            <div className="brand footer-brand" style={{ display: "flex", alignItems: "center", gap: "8px", justifyContent: "center" }}>
+              <img src="/icon.jpg" alt="CV Tounsi Logo" style={{ width: "28px", height: "28px", borderRadius: "7px", objectFit: "cover" }} />
               <span>
                 CV <b>Tounsi</b>
               </span>

@@ -446,10 +446,8 @@ export default function AdminDashboard() {
       <header className="bg-white border-b border-[#E2E8F0] sticky top-0 z-30 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2">
-              <span className="w-8 h-8 rounded-lg bg-[#60735A] text-white flex items-center justify-center font-bold font-serif">
-                C
-              </span>
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <img src="/icon.jpg" alt="CV Tounsi" className="w-8 h-8 rounded-lg object-cover border border-[#60735A]/25 shadow-xs transition-transform group-hover:scale-105" />
               <span className="font-serif font-bold text-lg text-[#0F172A]">CV Tounsi</span>
             </Link>
             <span className="bg-[#60735A]/10 text-[#60735A] text-xs font-bold px-2.5 py-0.5 rounded-full">

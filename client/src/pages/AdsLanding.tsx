@@ -62,9 +62,7 @@ export default function AdsLanding() {
       <header className="border-b border-[#E2E8F0] bg-white/80 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <span className="w-8 h-8 rounded-lg bg-[#60735A] text-white flex items-center justify-center font-bold font-serif text-lg">
-              C
-            </span>
+            <img src="/icon.jpg" alt="CV Tounsi Logo" className="w-8 h-8 rounded-lg object-cover shadow-sm" />
             <span className="text-xl font-bold font-serif text-[#0F172A]">
               CV <span className="text-[#60735A]">Tounsi</span>
             </span>
@@ -419,6 +417,10 @@ export default function AdsLanding() {
 
       {/* ── Footer ── */}
       <footer className="border-t border-[#E2E8F0] bg-white py-8 px-4 text-center text-xs text-[#64748B]">
+        <div className="flex items-center justify-center gap-2 mb-3">
+          <img src="/icon.jpg" alt="CV Tounsi Logo" className="w-6 h-6 rounded-md object-cover" />
+          <span className="font-bold font-serif text-[#0F172A] text-sm">CV Tounsi</span>
+        </div>
         <div className="flex justify-center gap-6 mb-4">
           <Link href="/politique-de-confidentialite" className="hover:underline text-[#60735A]">
             Politique de Confidentialité
