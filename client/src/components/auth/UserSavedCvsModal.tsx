@@ -6,6 +6,8 @@ import { FileText, Trash2, Calendar, Sparkles, Plus, Download, CheckCircle, Cloc
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
+import { getSubscriptionStatus } from "@/lib/activation";
+
 interface UserSavedCvsModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -19,6 +21,11 @@ export function UserSavedCvsModal({ isOpen, onClose, onLoadCv, onNewCv, onUpgrad
   const { user, savedCvs, isLoadingCvs, deleteCvFromCloud } = useAuth();
   const isYearUser = user?.role === "year" || user?.role === "pro" || unlockedPlan === "year" || unlockedPlan === "pro";
   const isMonthUser = (user?.role === "month" || user?.role === "student" || unlockedPlan === "month" || unlockedPlan === "student") && !isYearUser;
+
+  const subInfo = getSubscriptionStatus(
+    isYearUser || isMonthUser,
+    isYearUser ? "year" : "month"
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -34,18 +41,23 @@ export function UserSavedCvsModal({ isOpen, onClose, onLoadCv, onNewCv, onUpgrad
                 <DialogTitle className="text-xl font-bold text-white flex items-center gap-2">
                   Mes CVs Sauvegardés
                   {isYearUser && (
-                    <span className="text-[10px] bg-gradient-to-r from-amber-500 to-amber-600 text-white font-extrabold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
-                      <Crown className="w-3 h-3" /> PASS 1 AN (VIP)
+                    <span className="text-[10px] bg-gradient-to-r from-amber-500 to-amber-600 text-white font-extrabold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm" title={`Valide jusqu'au ${subInfo.expiresAtFormatted}`}>
+                      <Crown className="w-3 h-3" /> PASS 1 AN ({subInfo.daysRemaining}j)
                     </span>
                   )}
                   {isMonthUser && (
-                    <span className="text-[10px] bg-emerald-600 text-white font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
-                      <Sparkles className="w-3 h-3" /> PASS 1 MOIS
+                    <span className="text-[10px] bg-emerald-600 text-white font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm" title={`Valide jusqu'au ${subInfo.expiresAtFormatted}`}>
+                      <Sparkles className="w-3 h-3" /> PASS 1 MOIS ({subInfo.daysRemaining}j)
                     </span>
                   )}
                 </DialogTitle>
-                <DialogDescription className="text-stone-400 text-xs mt-0.5">
-                  Espace de <span className="text-emerald-400 font-semibold">{user?.name}</span> ({user?.email})
+                <DialogDescription className="text-stone-400 text-xs mt-0.5 flex items-center gap-1.5">
+                  <span>Espace de <strong className="text-emerald-400">{user?.name}</strong></span>
+                  {(isYearUser || isMonthUser) && (
+                    <span className="text-stone-300 bg-white/10 px-2 py-0.5 rounded text-[10px]">
+                      Expire le {subInfo.expiresAtFormatted}
+                    </span>
+                  )}
                 </DialogDescription>
               </div>
             </div>
@@ -73,9 +85,9 @@ export function UserSavedCvsModal({ isOpen, onClose, onLoadCv, onNewCv, onUpgrad
               <div className="flex items-start gap-2.5 min-w-0">
                 <Sparkles className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
                 <div>
-                  <strong className="block text-emerald-950 font-bold">Pass 1 Mois Actif (Accès 100% Illimité)</strong>
+                  <strong className="block text-emerald-950 font-bold">Pass 1 Mois Actif · {subInfo.daysRemaining} jours restants</strong>
                   <p className="text-stone-600 text-[11px] mt-0.5">
-                    Tous les 9 modèles, exports HD et IA débloqués. Passez au Pass 1 An pour économiser 80% sur l'année.
+                    Valide jusqu'au <strong>{subInfo.expiresAtFormatted}</strong>. Passez au Pass 1 An pour prolonger votre accès de 12 mois.
                   </p>
                 </div>
               </div>

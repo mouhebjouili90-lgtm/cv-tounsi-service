@@ -22,6 +22,7 @@ import { Link } from "wouter";
 import { toast } from "sonner";
 import { useAuth, type SavedCvItem } from "@/contexts/AuthContext";
 import { UserSavedCvsModal } from "@/components/auth/UserSavedCvsModal";
+import { generateSuggestedCode, getSubscriptionStatus } from "@/lib/activation";
 import {
   ArrowLeft,
   ArrowUpLeft,
@@ -2150,6 +2151,10 @@ function Builder({
     return "year";
   });
 
+  const subscriptionInfo = useMemo(() => {
+    return getSubscriptionStatus(isUnlocked, unlockedPlan);
+  }, [isUnlocked, unlockedPlan]);
+
   // Both 1 Month (12.900 TND) and 1 Year (29.900 TND) unlock 100% of all templates & HD downloads
   const isCurrentCvUnlocked = useMemo(() => isUnlocked, [isUnlocked]);
 
@@ -2316,6 +2321,7 @@ function Builder({
         }
         localStorage.setItem("cv_tounsi_client_unlocked", "true");
         localStorage.setItem("cv_tounsi_client_plan", plan);
+        localStorage.setItem("cv_tounsi_activation_date", String(Date.now()));
 
         if (plan === "student") {
           const assignedId = activeCvId !== null && activeCvId !== undefined ? String(activeCvId) : "primary_draft";
@@ -3601,8 +3607,8 @@ function Builder({
               </h3>
               <p>
                 {unlockedPlan === "year"
-                  ? "Vous bénéficiez de l'accès complet pendant 1 an : 9 modèles internationaux, multi-CVs et IA sans limite."
-                  : "Vous bénéficiez de l'accès complet pendant 30 jours : 9 modèles internationaux, multi-CVs et IA sans limite."}
+                  ? `Votre accès 1 an est actif jusqu'au ${subscriptionInfo.expiresAtFormatted} (365 jours) : 9 modèles internationaux, multi-CVs et IA sans limite.`
+                  : `Votre accès 1 mois est actif jusqu'au ${subscriptionInfo.expiresAtFormatted} (30 jours) : 9 modèles internationaux, multi-CVs et IA sans limite.`}
               </p>
             </div>
 
@@ -3749,12 +3755,20 @@ function Builder({
             {isUnlocked && (
               <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                 {unlockedPlan === "year" ? (
-                  <span className="unlocked-pro-badge" title="Pass 1 An VIP (9 modèles & IA illimités)">
-                    <Crown size={13} /> 👑 Pass 1 An (VIP)
+                  <span
+                    className="unlocked-pro-badge"
+                    title={`Pass 1 An VIP · ${subscriptionInfo.fullDetails}`}
+                    style={{ cursor: "help" }}
+                  >
+                    <Crown size={13} /> 👑 Pass 1 An ({subscriptionInfo.daysRemaining}j)
                   </span>
                 ) : (
-                  <span className="unlocked-pro-badge" style={{ background: "#ecfdf5", color: "#065f46", borderColor: "#a7f3d0" }} title="Pass 1 Mois (9 modèles & IA illimités)">
-                    <Sparkles size={13} /> ⭐ Pass 1 Mois
+                  <span
+                    className="unlocked-pro-badge"
+                    style={{ background: "#ecfdf5", color: "#065f46", borderColor: "#a7f3d0", cursor: "help" }}
+                    title={`Pass 1 Mois · ${subscriptionInfo.fullDetails}`}
+                  >
+                    <Sparkles size={13} /> ⭐ Pass 1 Mois ({subscriptionInfo.daysRemaining}j)
                   </span>
                 )}
                 <button
@@ -3850,9 +3864,19 @@ function Builder({
                 <strong>Statut :</strong>{" "}
                 {isUnlocked ? (
                   unlockedPlan === "year" ? (
-                    <span style={{ color: "#b45309", fontWeight: 800 }}>👑 Pass 1 An (VIP Illimité)</span>
+                    <div>
+                      <span style={{ color: "#b45309", fontWeight: 800 }}>👑 Pass 1 An (VIP)</span>
+                      <span style={{ display: "block", color: "#92400e", fontSize: "0.72rem", marginTop: "2px", fontWeight: 600 }}>
+                        Expire le {subscriptionInfo.expiresAtFormatted} ({subscriptionInfo.daysRemaining}j restants)
+                      </span>
+                    </div>
                   ) : (
-                    <span style={{ color: "#065f46", fontWeight: 800 }}>⭐ Pass 1 Mois (Illimité)</span>
+                    <div>
+                      <span style={{ color: "#065f46", fontWeight: 800 }}>⭐ Pass 1 Mois</span>
+                      <span style={{ display: "block", color: "#047857", fontSize: "0.72rem", marginTop: "2px", fontWeight: 600 }}>
+                        Expire le {subscriptionInfo.expiresAtFormatted} ({subscriptionInfo.daysRemaining}j restants)
+                      </span>
+                    </div>
                   )
                 ) : (
                   "🔒 Version Démo"
