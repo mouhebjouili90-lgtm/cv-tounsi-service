@@ -3323,14 +3323,43 @@ function Builder({
               </div>
               <h2>🔒 VERSION DÉMO PROTÉGÉE — CV TOUNSI</h2>
               <p>
-                Ce document est un extrait protégé de démonstration. Pour recevoir votre <b>CV complet en Haute Définition</b> (sans flou et sans filigrane) :
+                Ce document est un extrait protégé de démonstration. Pour débloquer votre <b>CV complet en Haute Définition</b> (sans flou et sans filigrane) :
               </p>
+              
               <div className="pdf-paywall-box-highlight">
-                <div className="price-row">Tarifs Déblocage : 12.900 TND (Pass 1 Mois) · 29.900 TND (Pass 1 An)</div>
-                <div className="whatsapp-num">WhatsApp : +216 92 067 554 · D17 / Flouci / Virement</div>
+                <div className="price-row">Tarifs : 12.900 TND (Pass 1 Mois) · 29.900 TND (Pass 1 An)</div>
+                <div className="whatsapp-num">Paiement facile : D17 / Flouci / WhatsApp</div>
               </div>
+
+              {/* Clickable Buy & Unlock Button */}
+              <div style={{ pointerEvents: "auto", margin: "0.8rem 0" }}>
+                <a
+                  href={`https://wa.me/21692067554?text=${encodeURIComponent("Bonjour ! J'ai créé mon CV sur CV Tounsi et je souhaite le débloquer en Haute Définition via WhatsApp / D17.")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="pdf-paywall-buy-btn"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                    background: "#25D366",
+                    color: "#ffffff",
+                    textDecoration: "none",
+                    fontWeight: 800,
+                    fontSize: "0.95rem",
+                    padding: "0.85rem 1.6rem",
+                    borderRadius: "10px",
+                    boxShadow: "0 4px 14px rgba(37, 211, 102, 0.4)",
+                    cursor: "pointer",
+                  }}
+                >
+                  <span>👉 Acheter & Débloquer sur WhatsApp (+216 92 067 554)</span>
+                </a>
+              </div>
+
               <div className="pdf-paywall-instructions">
-                Envoyez un message sur WhatsApp avec votre nom pour obtenir instantanément votre code d'activation certifié.
+                Cliquez sur le bouton ci-dessus pour recevoir instantanément votre code d'activation certifié.
               </div>
             </div>
           )}
