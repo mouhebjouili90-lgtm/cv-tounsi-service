@@ -51,16 +51,16 @@ export function FloatingWhatsApp() {
             </div>
             <div>
               <p className="text-xs font-bold text-stone-900 leading-tight">
-                Besoin d'aide ou paiement D17 ?
+                💬 Besoin d'aide ou paiement ?
               </p>
               <p className="text-[11px] text-stone-600 mt-1 leading-snug">
-                Notre conseiller WhatsApp est en ligne pour activer votre CV en direct.
+                Notre conseiller est en ligne sur WhatsApp (+216 92 067 554)
               </p>
               <button
                 onClick={handleWhatsAppClick}
                 className="mt-2 text-[11px] font-bold text-[#1b7a43] hover:underline flex items-center gap-1"
               >
-                <span>Discuter sur WhatsApp (+216 92 067 554)</span> →
+                <span>Ouvrir la discussion WhatsApp</span> →
               </button>
             </div>
           </div>
