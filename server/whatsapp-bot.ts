@@ -115,40 +115,63 @@ Rédige la réponse parfaite en arabe tunisien (ou arabe professionnel) selon le
   }
 }
 
+const GREEN_API_INSTANCE_ID = process.env.GREEN_API_INSTANCE_ID || "710722723763";
+const GREEN_API_TOKEN = process.env.GREEN_API_TOKEN || "d9c991a8253e46289476fd563844a564dace439e516546db82";
+const GREEN_API_HOST = process.env.GREEN_API_HOST || "https://7107.api.greenapi.com";
+
 /**
- * Envoie un message WhatsApp via la passerelle configurée (UltraMsg, GreenAPI ou Custom)
+ * Envoie un message WhatsApp via Green-API
  */
-export async function sendWhatsAppMessage(toPhone: string, messageText: string): Promise<boolean> {
-  const instanceId = process.env.WHATSAPP_INSTANCE_ID || process.env.ULTRAMSG_INSTANCE_ID;
-  const token = process.env.WHATSAPP_TOKEN || process.env.ULTRAMSG_TOKEN;
+export async function sendWhatsAppMessage(toPhoneOrChatId: string, messageText: string): Promise<boolean> {
+  const instanceId = process.env.WHATSAPP_INSTANCE_ID || GREEN_API_INSTANCE_ID;
+  const token = process.env.WHATSAPP_TOKEN || GREEN_API_TOKEN;
 
   if (!instanceId || !token) {
-    console.log(`[WhatsApp Bot] Simulation d'envoi (API non configurée) à ${toPhone} :\n${messageText}`);
+    console.log(`[WhatsApp Bot] Simulation d'envoi (API non configurée) à ${toPhoneOrChatId} :\n${messageText}`);
     return true;
   }
 
-  try {
-    // Exemple UltraMsg Standard API
-    const cleanPhone = toPhone.replace(/[^0-9]/g, "");
-    const res = await fetch(`https://api.ultramsg.com/${instanceId}/messages/chat`, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        token,
-        to: cleanPhone,
-        body: messageText,
-      }),
-    });
-
-    return res.ok;
-  } catch (err) {
-    console.error("[WhatsApp Bot] Erreur envoi API:", err);
-    return false;
+  // Format chatId for Green-API (e.g. 21692067554@c.us)
+  let chatId = toPhoneOrChatId.trim();
+  if (!chatId.includes("@")) {
+    const cleanPhone = chatId.replace(/[^0-9]/g, "");
+    chatId = `${cleanPhone}@c.us`;
   }
+
+  const hostsToTry = [
+    GREEN_API_HOST,
+    `https://${instanceId.slice(0, 4)}.api.greenapi.com`,
+    "https://api.green-api.com",
+    "https://7107.api.greenapi.com",
+  ];
+
+  for (const host of hostsToTry) {
+    try {
+      const url = `${host}/waInstance${instanceId}/sendMessage/${token}`;
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chatId,
+          message: messageText,
+        }),
+      });
+
+      if (res.ok) {
+        console.log(`[WhatsApp Bot] Message envoyé avec succès à ${chatId} via Green-API (${host})`);
+        return true;
+      }
+    } catch (err) {
+      // try next host
+    }
+  }
+
+  console.warn(`[WhatsApp Bot] Échec d'envoi Green-API à ${chatId}`);
+  return false;
 }
 
 /**
- * Traite un Webhook entrant WhatsApp
+ * Traite un Webhook entrant WhatsApp (Green-API, UltraMsg, etc.)
  */
 export async function processWhatsAppWebhook(payload: any): Promise<{
   handled: boolean;
@@ -157,15 +180,20 @@ export async function processWhatsAppWebhook(payload: any): Promise<{
   senderPhone?: string;
   reason?: string;
 }> {
-  // Normalise les formats courants (UltraMsg, GreenAPI, Twilio, etc.)
+  // 1. Extraction du corps du message (Compatible Green-API, UltraMsg, Meta Cloud)
   const messageBody =
+    payload?.messageData?.textMessageData?.textMessage ||
+    payload?.messageData?.extendedTextMessageData?.text ||
     payload?.data?.body ||
     payload?.body ||
     payload?.message?.text ||
     payload?.entry?.[0]?.changes?.[0]?.value?.messages?.[0]?.text?.body ||
     "";
 
-  const senderPhone =
+  // 2. Extraction du contact / expéditeur
+  const chatId =
+    payload?.senderData?.chatId ||
+    payload?.senderData?.sender ||
     payload?.data?.from ||
     payload?.from ||
     payload?.sender ||
@@ -173,10 +201,17 @@ export async function processWhatsAppWebhook(payload: any): Promise<{
     "";
 
   const senderName =
+    payload?.senderData?.senderName ||
+    payload?.senderData?.chatName ||
     payload?.data?.pushname ||
     payload?.name ||
     payload?.entry?.[0]?.changes?.[0]?.value?.contacts?.[0]?.profile?.name ||
     "";
+
+  // Ignorer les messages envoyés par le bot lui-même ou les accusés de réception
+  if (payload?.typeWebhook && payload?.typeWebhook !== "incomingMessageReceived") {
+    return { handled: false, reason: `ignored_event_${payload?.typeWebhook}` };
+  }
 
   if (!messageBody) {
     return { handled: false, reason: "no_message_body" };
@@ -194,14 +229,15 @@ export async function processWhatsAppWebhook(payload: any): Promise<{
 
   // 3. Envoi de la réponse automatique
   let replySent = false;
-  if (senderPhone) {
-    replySent = await sendWhatsAppMessage(senderPhone, replyText);
+  const targetRecipient = chatId || senderName;
+  if (targetRecipient) {
+    replySent = await sendWhatsAppMessage(targetRecipient, replyText);
   }
 
   return {
     handled: true,
     replySent,
     replyText,
-    senderPhone,
+    senderPhone: targetRecipient,
   };
 }
