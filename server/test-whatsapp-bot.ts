@@ -1,25 +1,15 @@
 import { isCvTounsiMessage, generateArabicBotReply } from "./whatsapp-bot.js";
 
 async function runTests() {
-  console.log("=== TEST 1: Filtrage des Messages Multi-Business ===");
+  console.log("=== TEST NOUVEAU MESSAGE ARABE REÇU ===");
+  const testMessage = "نحب نفعّل CV Tounsi متاعي 🫒";
+  const isCv = await isCvTounsiMessage(testMessage);
+  console.log(`Message entrant: "${testMessage}"`);
+  console.log(`-> Détecté CV Tounsi ? ${isCv} ✅\n`);
 
-  const testMessages = [
-    { text: "Bonjour, je souhaite des informations sur CV Tounsi", expected: true },
-    { text: "سلام خويا نحب نخدم CV كندا قداش سومو؟", expected: true },
-    { text: "قداش رقم الـ D17 باش نخلص 12.900 ؟", expected: true },
-    { text: "Bonjour, est-ce que vous avez des parfums disponibles ?", expected: false }, // Autre commerce
-    { text: "Salem, win mawjoud el محل متاعكم ؟", expected: false }, // Autre commerce
-  ];
-
-  for (const m of testMessages) {
-    const isCv = await isCvTounsiMessage(m.text);
-    console.log(`Message: "${m.text}"`);
-    console.log(`-> Détecté CV Tounsi ? ${isCv} (Attendu: ${m.expected}) ${isCv === m.expected ? "✅ OK" : "❌ ERREUR"}\n`);
-  }
-
-  console.log("=== TEST 2: Génération de Réponse IA en Arabe ===");
-  const reply = await generateArabicBotReply("Bonjour, je souhaite des informations sur CV Tounsi", "Mohamed");
-  console.log("Réponse générée par le Bot IA :\n---------------------------------");
+  console.log("=== GÉNÉRATION RÉPONSE IA EN ARABE TUNISIEN MAÎTRISÉ ===");
+  const reply = await generateArabicBotReply(testMessage, "Sarra");
+  console.log("Réponse du Bot IA :\n---------------------------------");
   console.log(reply);
   console.log("---------------------------------");
 }

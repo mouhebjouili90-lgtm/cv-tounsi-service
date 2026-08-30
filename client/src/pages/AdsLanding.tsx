@@ -113,7 +113,7 @@ export default function AdsLanding() {
           </button>
 
           <a
-            href={`https://wa.me/21692067554?text=${encodeURIComponent("Bonjour, je veux activer mon CV")}`}
+            href={`https://wa.me/21692067554?text=${encodeURIComponent("نحب نفعّل CV Tounsi متاعي 🫒")}`}
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackWhatsAppClicked("HERO_DIRECT", "student", "Hero Direct WhatsApp")}
@@ -394,7 +394,7 @@ export default function AdsLanding() {
                 <ArrowRight className="w-4 h-4" />
               </button>
               <a
-                href={`https://wa.me/21692067554?text=${encodeURIComponent("Bonjour, je veux le Pass 1 Mois (12.9 DT)")}`}
+                href={`https://wa.me/21692067554?text=${encodeURIComponent("نحب نفعّل Pass شهر CV Tounsi (12.9 DT) 🫒")}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => trackWhatsAppClicked("PRICING_MONTH", "student", "Pass 1 Mois Direct")}
@@ -457,7 +457,7 @@ export default function AdsLanding() {
                 <ArrowRight className="w-4 h-4" />
               </button>
               <a
-                href={`https://wa.me/21692067554?text=${encodeURIComponent("Bonjour, je veux le Pass 1 An (29.9 DT)")}`}
+                href={`https://wa.me/21692067554?text=${encodeURIComponent("نحب نفعّل Pass سنة VIP CV Tounsi (29.9 DT) 👑")}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => trackWhatsAppClicked("PRICING_YEAR", "pro", "Pass 1 An Direct")}

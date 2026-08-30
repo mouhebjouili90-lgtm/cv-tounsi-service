@@ -3334,7 +3334,7 @@ function Builder({
               {/* Clickable Buy & Unlock Button */}
               <div style={{ pointerEvents: "auto", margin: "0.8rem 0" }}>
                 <a
-                  href={`https://wa.me/21692067554?text=${encodeURIComponent("Bonjour, je veux débloquer mon CV")}`}
+                  href={`https://wa.me/21692067554?text=${encodeURIComponent("نحب نفعّل CV Tounsi متاعي 🫒")}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="pdf-paywall-buy-btn"
@@ -3528,7 +3528,9 @@ function Builder({
                 </span>
                 <a
                   href={`https://wa.me/21692067554?text=${encodeURIComponent(
-                    `Bonjour, je veux débloquer mon CV (${selectedPlan === "month" ? "12.9 DT" : "29.9 DT"})`
+                    selectedPlan === "month"
+                      ? "نحب نفعّل Pass شهر CV Tounsi (12.9 DT) 🫒"
+                      : "نحب نفعّل Pass سنة VIP CV Tounsi (29.9 DT) 👑"
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
