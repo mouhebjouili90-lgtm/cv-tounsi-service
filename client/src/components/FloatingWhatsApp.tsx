@@ -24,7 +24,7 @@ export function FloatingWhatsApp() {
   const handleWhatsAppClick = () => {
     trackWhatsAppClicked("ASSISTANCE", "student", "Visiteur Site");
     const message = encodeURIComponent(
-      "Bonjour ! Je suis sur le site CV Tounsi et je souhaite avoir des informations / commander un Pass pour mon CV."
+      "Bonjour, je souhaite des informations sur CV Tounsi"
     );
     window.open(`https://wa.me/21692067554?text=${message}`, "_blank", "noopener,noreferrer");
   };

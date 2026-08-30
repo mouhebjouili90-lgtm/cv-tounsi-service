@@ -90,7 +90,7 @@ export function buildPrintHtml(rawHtml: string, isUnlocked: boolean): string {
       <div class="watermark-text">
         CV TOUNSI — VERSION DÉMO<br>
         <span style="font-size: 15px; font-weight: 600; font-family: 'Inter', sans-serif; display: block; margin: 8px 0;">Tarifs : 12.900 DT (1 Mois) · 29.900 DT (1 An)</span>
-        <a href="https://wa.me/21692067554?text=Bonjour%20!%20Je%20souhaite%20d%C3%A9bloquer%20mon%20CV%20en%20Haute%20D%C3%A9finition." target="_blank" style="display: inline-block; background: #25D366; color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 800; font-family: 'Inter', sans-serif; padding: 10px 22px; border-radius: 8px; margin-top: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+        <a href="https://wa.me/21692067554?text=Bonjour,%20je%20veux%20d%C3%A9bloquer%20mon%20CV" target="_blank" style="display: inline-block; background: #25D366; color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 800; font-family: 'Inter', sans-serif; padding: 10px 22px; border-radius: 8px; margin-top: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
           👉 Acheter & Débloquer sur WhatsApp (+216 92 067 554)
         </a>
       </div>

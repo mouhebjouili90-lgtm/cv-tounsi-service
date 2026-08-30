@@ -3334,7 +3334,7 @@ function Builder({
               {/* Clickable Buy & Unlock Button */}
               <div style={{ pointerEvents: "auto", margin: "0.8rem 0" }}>
                 <a
-                  href={`https://wa.me/21692067554?text=${encodeURIComponent("Bonjour ! J'ai créé mon CV sur CV Tounsi et je souhaite le débloquer en Haute Définition via WhatsApp / D17.")}`}
+                  href={`https://wa.me/21692067554?text=${encodeURIComponent("Bonjour, je veux débloquer mon CV")}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="pdf-paywall-buy-btn"
@@ -3528,11 +3528,7 @@ function Builder({
                 </span>
                 <a
                   href={`https://wa.me/21692067554?text=${encodeURIComponent(
-                    `Bonjour, je souhaite commander le *${
-                      selectedPlan === "month" ? "Pass 1 Mois (12.900 TND)" : "Pass 1 An (29.900 TND)"
-                    }* pour mon CV Tounsi.\n\n` +
-                    `👤 Nom : ${data.fullName || "Client"}\n` +
-                    `📄 Modèle : ${templateCatalog[data.template]?.label || data.template}`
+                    `Bonjour, je veux débloquer mon CV (${selectedPlan === "month" ? "12.9 DT" : "29.9 DT"})`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
