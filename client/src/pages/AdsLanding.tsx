@@ -103,14 +103,25 @@ export default function AdsLanding() {
         </p>
 
         {/* Hero CTA Box */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full max-w-md mx-auto mb-8">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full max-w-lg mx-auto mb-8">
           <button
             onClick={() => handleStartNow("hero_primary")}
-            className="w-full bg-[#60735A] hover:bg-[#4d5c48] text-white text-base sm:text-lg font-bold px-8 py-4 rounded-2xl shadow-lg shadow-[#60735A]/25 transition-all transform hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2"
+            className="w-full sm:w-auto flex-1 bg-[#60735A] hover:bg-[#4d5c48] text-white text-base sm:text-lg font-bold px-7 py-4 rounded-2xl shadow-lg shadow-[#60735A]/25 transition-all transform hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2"
           >
             <span>Créer mon CV maintenant</span>
             <ArrowRight className="w-5 h-5" />
           </button>
+
+          <a
+            href={`https://wa.me/21692067554?text=${encodeURIComponent("Bonjour ! Je souhaite commander un Pass CV Tounsi via D17 / WhatsApp.")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackWhatsAppClicked("HERO_DIRECT", "student", "Hero Direct WhatsApp")}
+            className="w-full sm:w-auto bg-[#25D366] hover:bg-[#20bd5a] text-white text-sm sm:text-base font-bold px-5 py-4 rounded-2xl shadow-md transition-all transform hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2"
+          >
+            <MessageCircle className="w-5 h-5 fill-white" />
+            <span>Payer par D17 / WhatsApp</span>
+          </a>
         </div>
 
         {/* Trust Points */}
@@ -387,11 +398,12 @@ export default function AdsLanding() {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => trackWhatsAppClicked("PRICING_MONTH", "student", "Pass 1 Mois Direct")}
-                className="w-full py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition-all flex items-center justify-center gap-1.5 border border-emerald-200"
+                className="w-full py-3 px-3 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs sm:text-sm font-bold shadow-md transition-all transform hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-2 border border-emerald-500"
               >
-                <MessageCircle className="w-4 h-4 text-emerald-600" />
-                <span>Payer par D17 / WhatsApp (12.9 DT)</span>
+                <MessageCircle className="w-4 h-4 fill-white" />
+                <span>Commander sur WhatsApp (D17 / 12.9 DT)</span>
               </a>
+              <p className="text-[11px] text-center text-[#64748B]">Code envoyé instantanément après paiement D17</p>
             </div>
           </div>
 
@@ -449,11 +461,12 @@ export default function AdsLanding() {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => trackWhatsAppClicked("PRICING_YEAR", "pro", "Pass 1 An Direct")}
-                className="w-full py-2.5 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-bold transition-all flex items-center justify-center gap-1.5 border border-amber-200"
+                className="w-full py-3 px-3 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs sm:text-sm font-bold shadow-md transition-all transform hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-2 border border-emerald-500"
               >
-                <MessageCircle className="w-4 h-4 text-amber-600" />
-                <span>Payer par D17 / WhatsApp (29.9 DT)</span>
+                <MessageCircle className="w-4 h-4 fill-white" />
+                <span>Commander sur WhatsApp (D17 / 29.9 DT)</span>
               </a>
+              <p className="text-[11px] text-center text-[#64748B]">Code VIP envoyé instantanément après paiement D17</p>
             </div>
           </div>
         </div>
