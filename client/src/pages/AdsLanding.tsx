@@ -374,13 +374,25 @@ export default function AdsLanding() {
               </ul>
             </div>
 
-            <button
-              onClick={() => handleStartNow("pricing_month")}
-              className="w-full bg-white hover:bg-stone-50 text-[#60735A] border-2 border-[#60735A] text-sm font-bold py-3.5 rounded-xl transition-all transform active:scale-95 flex items-center justify-center gap-2"
-            >
-              <span>Choisir le Pass 1 Mois</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
+            <div className="space-y-2.5">
+              <button
+                onClick={() => handleStartNow("pricing_month")}
+                className="w-full bg-white hover:bg-stone-50 text-[#60735A] border-2 border-[#60735A] text-sm font-bold py-3.5 rounded-xl transition-all transform active:scale-95 flex items-center justify-center gap-2"
+              >
+                <span>Créer mon CV (Pass 1 Mois)</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+              <a
+                href={`https://wa.me/21692067554?text=${encodeURIComponent("Bonjour ! Je souhaite commander le Pass 1 Mois (12.900 TND) pour mon CV via D17 / Virement.")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackWhatsAppClicked("PRICING_MONTH", "student", "Pass 1 Mois Direct")}
+                className="w-full py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition-all flex items-center justify-center gap-1.5 border border-emerald-200"
+              >
+                <MessageCircle className="w-4 h-4 text-emerald-600" />
+                <span>Payer par D17 / WhatsApp (12.9 DT)</span>
+              </a>
+            </div>
           </div>
 
           {/* Formule 1 An */}
@@ -424,13 +436,25 @@ export default function AdsLanding() {
               </ul>
             </div>
 
-            <button
-              onClick={() => handleStartNow("pricing_year")}
-              className="w-full bg-[#60735A] hover:bg-[#4d5c48] text-white text-sm font-bold py-3.5 rounded-xl shadow-md transition-all transform active:scale-95 flex items-center justify-center gap-2"
-            >
-              <span>Choisir le Pass 1 An (29.9 DT)</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
+            <div className="space-y-2.5">
+              <button
+                onClick={() => handleStartNow("pricing_year")}
+                className="w-full bg-[#60735A] hover:bg-[#4d5c48] text-white text-sm font-bold py-3.5 rounded-xl shadow-md transition-all transform active:scale-95 flex items-center justify-center gap-2"
+              >
+                <span>Créer mon CV (Pass 1 An VIP)</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+              <a
+                href={`https://wa.me/21692067554?text=${encodeURIComponent("Bonjour ! Je souhaite commander le Pass 1 An VIP (29.900 TND) pour mon CV via D17 / Virement.")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackWhatsAppClicked("PRICING_YEAR", "pro", "Pass 1 An Direct")}
+                className="w-full py-2.5 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-bold transition-all flex items-center justify-center gap-1.5 border border-amber-200"
+              >
+                <MessageCircle className="w-4 h-4 text-amber-600" />
+                <span>Payer par D17 / WhatsApp (29.9 DT)</span>
+              </a>
+            </div>
           </div>
         </div>
       </section>

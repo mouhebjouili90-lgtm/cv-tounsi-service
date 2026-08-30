@@ -6,6 +6,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { AuthModal } from "./components/auth/AuthModal";
+import { FloatingWhatsApp } from "./components/FloatingWhatsApp";
 import Home from "./pages/Home";
 
 import Privacy from "@/pages/Privacy";
@@ -37,6 +38,7 @@ export default function App() {
           <TooltipProvider>
             <Toaster position="top-center" />
             <AuthModal />
+            <FloatingWhatsApp />
             <div dir="ltr" lang="fr">
               <Router />
             </div>
