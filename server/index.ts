@@ -235,6 +235,41 @@ async function startServer() {
     }
   });
 
+  // ── WhatsApp AI Chatbot Webhook & Simulation Endpoints ──
+  app.post("/api/whatsapp/webhook", async (req: Request, res: Response) => {
+    try {
+      const { processWhatsAppWebhook } = await import("./whatsapp-bot.js");
+      const result = await processWhatsAppWebhook(req.body);
+      res.json({ success: true, ...result });
+    } catch (err: any) {
+      console.error("[WhatsApp Webhook] Error:", err);
+      res.status(500).json({ error: err?.message || "Webhook processing error" });
+    }
+  });
+
+  app.post("/api/whatsapp/simulate", async (req: Request, res: Response) => {
+    try {
+      const { message, name } = req.body;
+      const { isCvTounsiMessage, generateArabicBotReply } = await import("./whatsapp-bot.js");
+      const isRelevant = await isCvTounsiMessage(message || "");
+      if (!isRelevant) {
+        res.json({
+          handled: false,
+          reason: "ignored_other_business",
+          replyText: null,
+        });
+        return;
+      }
+      const reply = await generateArabicBotReply(message || "", name);
+      res.json({
+        handled: true,
+        replyText: reply,
+      });
+    } catch (err: any) {
+      res.status(500).json({ error: err?.message || "Simulation error" });
+    }
+  });
+
   // ── Server-side PDF Generator & Paywall Verification ──
   app.post("/api/pdf/generate", async (req: Request, res: Response) => {
     try {

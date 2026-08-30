@@ -246,6 +246,41 @@ app.post("/api/verify-token", (req: Request, res: Response) => {
   }
 });
 
+// ── WhatsApp AI Chatbot Webhook & Simulation Endpoints ──
+app.post("/api/whatsapp/webhook", async (req: Request, res: Response) => {
+  try {
+    const { processWhatsAppWebhook } = await import("../server/whatsapp-bot.js");
+    const result = await processWhatsAppWebhook(req.body);
+    res.json({ success: true, ...result });
+  } catch (err: any) {
+    console.error("[WhatsApp Webhook Vercel] Error:", err);
+    res.status(500).json({ error: err?.message || "Webhook processing error" });
+  }
+});
+
+app.post("/api/whatsapp/simulate", async (req: Request, res: Response) => {
+  try {
+    const { message, name } = req.body;
+    const { isCvTounsiMessage, generateArabicBotReply } = await import("../server/whatsapp-bot.js");
+    const isRelevant = await isCvTounsiMessage(message || "");
+    if (!isRelevant) {
+      res.json({
+        handled: false,
+        reason: "ignored_other_business",
+        replyText: null,
+      });
+      return;
+    }
+    const reply = await generateArabicBotReply(message || "", name);
+    res.json({
+      handled: true,
+      replyText: reply,
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err?.message || "Simulation error" });
+  }
+});
+
 // ── Server-side PDF Generator & Paywall Verification ──
 import { canGenerateCleanPdf, buildPrintHtml } from "../server/pdf-generator.js";
 
