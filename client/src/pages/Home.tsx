@@ -2940,25 +2940,33 @@ function Builder({
           </div>
 
           <div className="field field-full" style={{ marginTop: "1rem" }}>
-            <div className="field-header-row">
-              <span>{isStudent ? "Accroche / Objectif de stage ou carrière" : "Profil professionnel / Accroche"}</span>
+            {/* AI Callout Tip (Tâche 7) */}
+            <div style={{ background: "linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)", border: "1.5px dashed #86efac", borderRadius: "10px", padding: "0.65rem 0.85rem", marginBottom: "0.75rem", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px" }}>
+              <div style={{ fontSize: "0.76rem", color: "#166534", fontWeight: 600 }}>
+                💡 <b>Astuce IA :</b> 1 clic sur le bouton ci-contre pour générer une accroche percutante au standard recruteur !
+              </div>
               <button
                 type="button"
                 className="button-ai-micro"
                 onClick={handleImproveProfile}
                 disabled={isProfileLoading}
                 title="Générer une accroche adaptée avec l'Intelligence Artificielle"
+                style={{ flexShrink: 0 }}
               >
                 {isProfileLoading ? (
                   <>
-                    <span className="button-spinner-sm" /> Génération IA...
+                    <span className="button-spinner-sm" /> Génération...
                   </>
                 ) : (
                   <>
-                    <WandSparkles size={12} /> Améliorer le profil avec l'IA
+                    <WandSparkles size={12} /> ✨ Améliorer avec l'IA
                   </>
                 )}
               </button>
+            </div>
+
+            <div className="field-header-row">
+              <span>{isStudent ? "Accroche / Objectif de stage ou carrière" : "Profil professionnel / Accroche"}</span>
             </div>
             <textarea
               value={data.profileSummary}
@@ -2986,6 +2994,12 @@ function Builder({
               ? "Valorisez vos projets de fin d'année (PFE / PFA), stages d'initiation, hackathons ou activités dans les clubs étudiants."
               : "Ajoutez vos postes clés. Utilisez le bouton IA sur chaque carte pour formuler des réalisations d'impact."}
           </p>
+
+          {/* AI Callout Tip for Experiences (Tâche 7) */}
+          <div style={{ background: "linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)", border: "1.5px dashed #86efac", borderRadius: "10px", padding: "0.6rem 0.85rem", marginBottom: "0.9rem", fontSize: "0.76rem", color: "#166534", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
+            <Sparkles size={15} style={{ color: "#16a34a", flexShrink: 0 }} />
+            <span>💡 <b>Boost Recruteur :</b> Cliquez sur <b>✨ Améliorer (IA)</b> sur chaque carte pour transformer vos tâches en puces d'impact chiffrées !</span>
+          </div>
 
           <div className="experiences-cards-list">
             {data.experiences.map((exp, idx) => (
@@ -3521,11 +3535,26 @@ function Builder({
                 </div>
               </div>
 
+              {/* ── 3 Étapes Claires de Paiement (Tâche 2) ── */}
+              <div style={{ background: "#f8fafc", border: "1.5px solid #e2e8f0", borderRadius: "12px", padding: "0.85rem 1rem", marginBottom: "0.85rem" }}>
+                <div style={{ fontWeight: 800, fontSize: "0.82rem", color: "#0f172a", marginBottom: "0.45rem", display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span>📲 Comment activer votre CV en 3 étapes simples :</span>
+                </div>
+                <div style={{ fontSize: "0.77rem", color: "#334155", lineHeight: "1.55" }}>
+                  <div style={{ marginBottom: "3px" }}>
+                    <b>1.</b> Envoyez <b>{selectedPlan === "month" ? "12.900 DT" : "29.900 DT"}</b> par <b>D17 sur le numéro : 92 067 554</b> <i>(ou Flouci/Virement)</i>.
+                  </div>
+                  <div style={{ marginBottom: "3px" }}>
+                    <b>2.</b> Envoyez la <b>capture d'écran du reçu</b> sur WhatsApp en 1 clic.
+                  </div>
+                  <div>
+                    <b>3.</b> Recevez votre <b>code officiel en moins de 2 minutes chrono</b> ✅
+                  </div>
+                </div>
+              </div>
+
               {/* Step 2: WhatsApp CTA */}
-              <div style={{ marginBottom: "0.9rem" }}>
-                <span style={{ display: "block", fontSize: "0.74rem", fontWeight: 700, color: "var(--ink)", marginBottom: "0.4rem" }}>
-                  2. Commandez votre code d'activation :
-                </span>
+              <div style={{ marginBottom: "0.7rem" }}>
                 <a
                   href={`https://wa.me/21692067554?text=${encodeURIComponent(
                     selectedPlan === "month"
@@ -3538,12 +3567,43 @@ function Builder({
                   onClick={() => {
                     trackWhatsAppClicked("ORDER", selectedPlan, data.fullName);
                   }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "9px",
+                    background: "#25D366",
+                    color: "#ffffff",
+                    textDecoration: "none",
+                    fontWeight: 800,
+                    fontSize: "0.95rem",
+                    padding: "0.85rem 1.4rem",
+                    borderRadius: "12px",
+                    boxShadow: "0 4px 14px rgba(37, 211, 102, 0.4)",
+                    cursor: "pointer",
+                  }}
                 >
                   <MessageCircle size={18} />
                   <span>
-                    {`Commander le ${selectedPlan === "month" ? "Pass 1 Mois (12.9 DT)" : "Pass 1 An (29.9 DT)"} sur WhatsApp`}
+                    {`Commander (${selectedPlan === "month" ? "12.9 DT" : "29.9 DT"}) & Envoyer le reçu sur WhatsApp`}
                   </span>
                 </a>
+              </div>
+
+              {/* 4 Trust Badges (Tâche 3) */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px", marginBottom: "0.85rem", fontSize: "0.72rem", color: "#475569", background: "#ffffff", border: "1px solid #e2e8f0", padding: "0.55rem 0.75rem", borderRadius: "10px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "4px", fontWeight: 600 }}>
+                  <span className="text-amber-500">⚡</span> Réponse &lt; 2 min (7j/7)
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "4px", fontWeight: 600 }}>
+                  <span className="text-emerald-600">🔒</span> +2 500 CVs activés · ⭐ 4.9/5
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "4px", fontWeight: 600 }}>
+                  <span className="text-blue-600">💯</span> 100% Satisfait ou Remboursé
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "4px", fontWeight: 600 }}>
+                  <span className="text-purple-600">📄</span> PDF HD 300 DPI ATS
+                </div>
               </div>
 
               {/* Step 3: Enter Client Activation Code */}
@@ -4094,6 +4154,15 @@ export default function Home() {
   const { user, openAuthModal, logout, savedCvs } = useAuth();
   const [isBuilder, setIsBuilder] = useState(() => {
     if (typeof window !== "undefined") {
+      const search = window.location.search;
+      if (
+        search.includes("start=true") ||
+        search.includes("builder=true") ||
+        search.includes("ref=offre") ||
+        search.includes("utm_source")
+      ) {
+        return true;
+      }
       return localStorage.getItem("cv_tounsi_in_builder") === "true";
     }
     return false;
@@ -4132,9 +4201,21 @@ export default function Home() {
     }
   }, [data]);
 
-  // Auto-persist builder view mode
+  // Auto-persist builder view mode and handle direct URL launch (Tâche 8)
   useEffect(() => {
     if (typeof window !== "undefined") {
+      const search = window.location.search;
+      if (
+        search.includes("start=true") ||
+        search.includes("builder=true") ||
+        search.includes("ref=offre") ||
+        search.includes("utm_source")
+      ) {
+        if (!isBuilder) {
+          setIsBuilder(true);
+          trackBuilderStarted(data.template, data.language);
+        }
+      }
       localStorage.setItem("cv_tounsi_in_builder", isBuilder ? "true" : "false");
     }
   }, [isBuilder]);

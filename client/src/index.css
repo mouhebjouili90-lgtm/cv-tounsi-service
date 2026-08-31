@@ -550,6 +550,34 @@ h1, h2, h3, p { margin: 0; }
 .button-spinner { width: 13px; height: 13px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; }
 .improvement-badge { display: inline-flex; align-items: center; gap: .3rem; color: var(--olive-dark); background: #dfeada; border: 1px solid #b8d4b0; padding: .35rem .55rem; font-size: .65rem; border-radius: 4px; font-weight: 600; }
 
+/* AI Micro Action Buttons (Pulsing & Engaging - Tâche 7) */
+.button-ai-micro {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: linear-gradient(135deg, #15803d 0%, #16a34a 100%);
+  color: #ffffff !important;
+  border: 1px solid #15803d;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.25);
+}
+
+.button-ai-micro:hover:not(:disabled) {
+  background: linear-gradient(135deg, #166534 0%, #15803d 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
+}
+
+.button-ai-micro:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
 /* ── Right Preview Panel (Always Sticky & Dynamic with Zoom Toolbar) ── */
 .builder-preview {
   background: #ded8cb;

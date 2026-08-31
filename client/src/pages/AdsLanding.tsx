@@ -41,7 +41,7 @@ export default function AdsLanding() {
       content_name: "CTA Clicked",
       content_category: source,
     });
-    setLocation("/");
+    setLocation("/?start=true&ref=offre");
   };
 
   const toggleFaq = (index: number) => {
@@ -55,7 +55,7 @@ export default function AdsLanding() {
         <span className="bg-[#D97706] text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
           Offre Spéciale 2026
         </span>
-        <span>Créez votre CV conforme aux normes Tunisie, Canada & Europe : <strong>12.900 TND (1 Mois)</strong> ou <strong>29.900 TND (1 An)</strong></span>
+        <span>Créez votre CV conforme Tunisie, Canada & Europe : <strong>12.900 TND (1 Mois)</strong> ou <strong>29.900 TND (1 An)</strong></span>
       </div>
 
       {/* ── Navigation Header (Minimaliste sans fuite de trafic) ── */}
@@ -79,14 +79,19 @@ export default function AdsLanding() {
       </header>
 
       {/* ── Hero Section ── */}
-      <section className="pt-8 sm:pt-16 pb-12 sm:pb-20 px-4 sm:px-6 max-w-4xl mx-auto flex flex-col items-center justify-center text-center">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#EBF0E9] text-[#43523e] text-xs sm:text-sm font-semibold mb-6 border border-[#60735A]/20 shadow-sm">
-          <Sparkles className="w-4 h-4 text-[#60735A]" />
-          <span>N°1 de la création de CV assistée par l'IA en Tunisie</span>
+      <section className="pt-8 sm:pt-14 pb-12 sm:pb-16 px-4 sm:px-6 max-w-4xl mx-auto flex flex-col items-center justify-center text-center">
+        {/* Bilingual Badge */}
+        <div className="inline-flex flex-col sm:flex-row items-center gap-1.5 sm:gap-2 px-4 py-2 rounded-2xl bg-[#EBF0E9] text-[#43523e] text-xs sm:text-sm font-semibold mb-6 border border-[#60735A]/20 shadow-sm">
+          <div className="flex items-center gap-1.5 font-bold">
+            <Sparkles className="w-4 h-4 text-[#60735A]" />
+            <span>N°1 en Tunisie</span>
+          </div>
+          <span className="hidden sm:inline text-[#60735A]/60">·</span>
+          <span className="font-bold text-[#2d3a2a]">سيرتك الذاتية، محسّنة بالذكاء الاصطناعي 🇹🇳✨</span>
         </div>
 
         <h1
-          className="text-3xl sm:text-5xl lg:text-6xl font-bold font-serif text-[#0F172A] leading-[1.22] tracking-tight max-w-3xl mx-auto mb-6 text-center"
+          className="text-3xl sm:text-5xl lg:text-6xl font-bold font-serif text-[#0F172A] leading-[1.22] tracking-tight max-w-3xl mx-auto mb-4 text-center"
           style={{ textWrap: "balance" }}
         >
           Décrochez plus d'entretiens avec un CV{" "}
@@ -95,15 +100,20 @@ export default function AdsLanding() {
           </span>
         </h1>
 
+        {/* Arabic Subtitle */}
+        <p className="text-sm sm:text-base font-medium text-[#60735A] mb-3 max-w-xl mx-auto" dir="rtl">
+          اصنع سيرة ذاتية احترافية مطابقة للمواصفات التونسية، الكندية (ATS) والأوروبية في دقائق 🚀
+        </p>
+
         <p
-          className="text-base sm:text-lg lg:text-xl text-[#475569] max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed text-center"
+          className="text-base sm:text-lg text-[#475569] max-w-2xl mx-auto mb-8 leading-relaxed text-center"
           style={{ textWrap: "balance" }}
         >
-          Générez un CV conforme aux formats <strong>Tunisiens</strong>, <strong>Canadiens (IRCC)</strong> et <strong>Européens (Europass)</strong>. L'intelligence artificielle sublime vos phrases en 1 clic.
+          Générez un CV conforme aux formats <strong>Tunisiens</strong>, <strong>Canadiens (ATS / IRCC)</strong> et <strong>Européens (Europass)</strong>. L'intelligence artificielle sublime vos phrases en 1 clic.
         </p>
 
         {/* Hero CTA Box */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full max-w-lg mx-auto mb-8">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full max-w-lg mx-auto mb-6">
           <button
             onClick={() => handleStartNow("hero_primary")}
             className="w-full sm:w-auto flex-1 bg-[#60735A] hover:bg-[#4d5c48] text-white text-base sm:text-lg font-bold px-7 py-4 rounded-2xl shadow-lg shadow-[#60735A]/25 transition-all transform hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2"
@@ -124,19 +134,23 @@ export default function AdsLanding() {
           </a>
         </div>
 
-        {/* Trust Points */}
-        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs sm:text-sm text-[#64748B] max-w-2xl mx-auto">
-          <div className="flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-[#60735A]" />
-            <span>Essai & Aperçu 100% gratuit</span>
+        {/* 4 Trust Points (Tâche 3) */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4 w-full max-w-3xl mx-auto text-xs text-[#334155] bg-white border border-[#E2E8F0] p-3.5 sm:p-4 rounded-2xl shadow-sm mb-6 text-center">
+          <div className="flex items-center justify-center gap-1.5 font-semibold">
+            <span className="text-amber-500">⚡</span>
+            <span>Réponse &lt; 2 min (7j/7)</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-[#60735A]" />
-            <span>Téléchargement PDF A4 net</span>
+          <div className="flex items-center justify-center gap-1.5 font-semibold">
+            <span className="text-emerald-600">🔒</span>
+            <span>+2 500 CVs activés</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-[#60735A]" />
-            <span>12.900 TND (1 Mois) · 29.900 TND (1 An)</span>
+          <div className="flex items-center justify-center gap-1.5 font-semibold">
+            <span className="text-blue-600">💯</span>
+            <span>100% Satisfait / Remboursé</span>
+          </div>
+          <div className="flex items-center justify-center gap-1.5 font-semibold">
+            <span className="text-purple-600">📄</span>
+            <span>PDF HD 300 DPI ATS</span>
           </div>
         </div>
 
@@ -342,9 +356,30 @@ export default function AdsLanding() {
           <h2 className="text-3xl sm:text-4xl font-bold font-serif text-[#0F172A] mt-3 mb-2">
             Choisissez la formule qui vous convient
           </h2>
-          <p className="text-xs sm:text-sm text-[#64748B]">
+          <p className="text-xs sm:text-sm text-[#64748B] mb-6">
             Toutes les fonctionnalités incluses dans les 2 formules · Paiement unique · Assistance 7j/7
           </p>
+
+          {/* 3 Étapes de Paiement (Tâche 2) */}
+          <div className="bg-white border border-[#E2E8F0] rounded-2xl p-4 sm:p-6 shadow-sm mb-8 text-left max-w-3xl mx-auto">
+            <h3 className="text-sm sm:text-base font-bold text-[#0F172A] mb-3 flex items-center gap-2">
+              <span>📲 Comment débloquer votre CV en 3 étapes simples :</span>
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs sm:text-sm text-[#475569]">
+              <div className="bg-[#F8FAFC] p-3 rounded-xl border border-slate-100">
+                <strong className="text-[#0F172A] block mb-1">1. Paiement D17 / Flouci</strong>
+                <span>Envoyez 12.9 DT (1 Mois) ou 29.9 DT (1 An) par D17 au <strong>92 067 554</strong>.</span>
+              </div>
+              <div className="bg-[#F8FAFC] p-3 rounded-xl border border-slate-100">
+                <strong className="text-[#0F172A] block mb-1">2. Envoi du reçu</strong>
+                <span>Envoyez la capture d'écran du reçu sur WhatsApp en 1 clic.</span>
+              </div>
+              <div className="bg-[#F8FAFC] p-3 rounded-xl border border-slate-100">
+                <strong className="text-[#0F172A] block mb-1">3. Code en 2 min ⚡</strong>
+                <span>Recevez votre code officiel et téléchargez votre CV HD sans filigrane !</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left max-w-3xl mx-auto">
