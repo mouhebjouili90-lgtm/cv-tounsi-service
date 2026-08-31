@@ -3341,8 +3341,26 @@ function Builder({
               </p>
               
               <div className="pdf-paywall-box-highlight">
-                <div className="price-row">Tarifs : 12.900 TND (Pass 1 Mois) · 29.900 TND (Pass 1 An)</div>
-                <div className="whatsapp-num">Paiement facile : D17 / Flouci / WhatsApp</div>
+                <div className="price-row">Tarifs Déblocage : 12.900 TND (Pass 1 Mois) · 29.900 TND (Pass 1 An)</div>
+                <div style={{ pointerEvents: "auto", marginTop: "4px" }}>
+                  <a
+                    href={`https://wa.me/21692067554?text=${encodeURIComponent("نحب نفعّل CV Tounsi متاعي 🫒")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="whatsapp-num"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      color: "#059669",
+                      textDecoration: "underline",
+                      fontWeight: 800,
+                      cursor: "pointer",
+                    }}
+                  >
+                    <span>WhatsApp : +216 92 067 554 · D17 / Flouci / Virement</span>
+                  </a>
+                </div>
               </div>
 
               {/* Clickable Buy & Unlock Button */}
