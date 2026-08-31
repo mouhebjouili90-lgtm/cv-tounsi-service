@@ -23,7 +23,7 @@ export function FloatingWhatsApp() {
 
   const handleWhatsAppClick = () => {
     trackWhatsAppClicked("ASSISTANCE", "student", "Visiteur Site");
-    const message = encodeURIComponent("نحب نفعّل CV Tounsi متاعي 🫒");
+    const message = encodeURIComponent("سلام، نحب سيرة ذاتية (CV) جاهزة واحترافية 🫒");
     window.open(`https://wa.me/21692067554?text=${message}`, "_blank", "noopener,noreferrer");
   };
 
@@ -31,13 +31,13 @@ export function FloatingWhatsApp() {
     <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end pointer-events-auto select-none print:hidden">
       {/* Interactive Tooltip Bubble */}
       {hasPrompted && (
-        <div className="mb-2.5 max-w-[260px] sm:max-w-[290px] bg-white rounded-2xl p-3.5 shadow-2xl border border-emerald-100 relative animate-in fade-in slide-in-from-bottom-3 duration-300">
+        <div className="mb-2.5 max-w-[270px] sm:max-w-[300px] bg-white rounded-2xl p-3.5 shadow-2xl border border-emerald-100 relative animate-in fade-in slide-in-from-bottom-3 duration-300" dir="rtl">
           <button
             onClick={(e) => {
               e.stopPropagation();
               setHasPrompted(false);
             }}
-            className="absolute top-2 right-2 text-stone-400 hover:text-stone-600 p-0.5"
+            className="absolute top-2 left-2 text-stone-400 hover:text-stone-600 p-0.5"
             aria-label="Fermer"
           >
             <X size={14} />
@@ -49,16 +49,16 @@ export function FloatingWhatsApp() {
             </div>
             <div>
               <p className="text-xs font-bold text-stone-900 leading-tight">
-                💬 Besoin d'aide ou paiement ?
+                💬 تحب CV حاضر واحترافي ؟
               </p>
               <p className="text-[11px] text-stone-600 mt-1 leading-snug">
-                Notre conseiller est en ligne sur WhatsApp (+216 92 067 554)
+                فريقنا يجهّزلك سيرتك الذاتية ويفعّلهالك في دقائق على WhatsApp ⚡
               </p>
               <button
                 onClick={handleWhatsAppClick}
                 className="mt-2 text-[11px] font-bold text-[#1b7a43] hover:underline flex items-center gap-1"
               >
-                <span>Ouvrir la discussion WhatsApp</span> →
+                <span>📲 اطلب الـ CV متاعك الآن</span> ➔
               </button>
             </div>
           </div>

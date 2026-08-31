@@ -2749,25 +2749,28 @@ function Builder({
          ═══════════════════════════════════════════════════════════════════════ */}
       {step === 0 && (
         <div className="form-panel reveal-up">
-          <div className="panel-kicker">المرحلة 01 : اختيار النموذج والشكل</div>
-          <h2>اختار نموذج الـ CV واللغة المناسبة.</h2>
-          <p className="panel-lead">
-            اختار من بين 9 نماذج معتمدة ومطابقة للمعايير الدولية (Exécutif بعمودين، كندي ATS بعمود واحد، أو Europass الأوروبي)، مع تحديد وضعيتك ولغة السيرة الذاتية.
+          <div className="panel-kicker" dir="rtl" style={{ textAlign: "right" }}>المرحلة 01 : اختيار النموذج واللغة</div>
+          <h2 dir="rtl" style={{ textAlign: "right", fontFamily: "'Tajawal', 'Cairo', 'Inter', sans-serif", fontWeight: 700 }}>
+            اختر النموذج المناسب لسيرتك الذاتية
+          </h2>
+          <p className="panel-lead" dir="rtl" style={{ textAlign: "right" }}>
+            اختر من بين 9 نماذج معتمدة ومطابقة للمعايير الدولية (كندا، أوروبا وتونس)، مع تحديد وضعيتك ولغة الـ CV.
           </p>
 
           {/* ── Profile Type Selector (Experienced vs Student) ── */}
-          <div className="panel-kicker" style={{ marginTop: "1rem" }}>وضعيتك المهنية / البروفايل</div>
+          <div className="panel-kicker" dir="rtl" style={{ textAlign: "right", marginTop: "1rem" }}>وضعيتك المهنية / البروفايل</div>
           <div className="profile-type-grid" style={{ marginBottom: "0.8rem" }}>
             <button
               type="button"
               className={`profile-type-card ${data.profileType === "experienced" ? "selected" : ""}`}
               onClick={() => handleSelectProfileType("experienced")}
+              dir="rtl"
             >
               <div className="profile-type-icon-box">
                 <Briefcase size={17} />
               </div>
-              <div className="profile-type-text">
-                <strong>💼 صاحب خبرة (Professionnel)</strong>
+              <div className="profile-type-text" style={{ textAlign: "right" }}>
+                <strong>💼 أصحاب الخبرة المهنية</strong>
                 <p>تجارب مهنية (CDI، CDD، Freelance...). إبراز المهام والإنجازات.</p>
               </div>
             </button>
@@ -2776,12 +2779,13 @@ function Builder({
               type="button"
               className={`profile-type-card ${data.profileType === "student" ? "selected" : ""}`}
               onClick={() => handleSelectProfileType("student")}
+              dir="rtl"
             >
               <div className="profile-type-icon-box">
                 <GraduationCap size={17} />
               </div>
-              <div className="profile-type-text">
-                <strong>🎓 طالب / متخرج جديد (Étudiant)</strong>
+              <div className="profile-type-text" style={{ textAlign: "right" }}>
+                <strong>🎓 الطلبة والمتخرجين الجدد (PFE)</strong>
                 <p>بحث عن تربص PFE أو أول وظيفة. إبراز الشهائد ومشاريع التخرج.</p>
               </div>
             </button>
@@ -2790,7 +2794,8 @@ function Builder({
           <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "1.2rem" }}>
             <button
               type="button"
-              style={{ fontSize: "0.72rem", color: "var(--olive-dark)", background: "transparent", textDecoration: "underline", cursor: "pointer", fontWeight: 600 }}
+              dir="rtl"
+              style={{ fontSize: "0.74rem", color: "var(--olive-dark)", background: "transparent", textDecoration: "underline", cursor: "pointer", fontWeight: 700 }}
               onClick={() => loadSample(data.profileType)}
             >
               ✦ تعمير مثال نموذجي {isStudent ? "لطالب (PFE / تربصات)" : "لمحترف ذو خبرة"}
@@ -2798,7 +2803,7 @@ function Builder({
           </div>
 
           {/* ── Category Filter Tabs ── */}
-          <div className="panel-kicker">مكتبة النماذج المعتمدة (9)</div>
+          <div className="panel-kicker" dir="rtl" style={{ textAlign: "right" }}>مكتبة النماذج المعتمدة (9)</div>
           <div className="template-category-tabs">
             {[
               { id: "all", label: "جميع النماذج (9)" },
@@ -2895,13 +2900,15 @@ function Builder({
          ═══════════════════════════════════════════════════════════════════════ */}
       {step === 1 && (
         <div className="form-panel reveal-up">
-          <div className="panel-kicker">المرحلة 02 : معلومات الاتصال والبروفايل المهني</div>
-          <h2>معلوماتك الشخصية ورابط التواصل.</h2>
-          <p className="panel-lead">
+          <div className="panel-kicker" dir="rtl" style={{ textAlign: "right" }}>المرحلة 02 : معلومات الاتصال والبروفايل</div>
+          <h2 dir="rtl" style={{ textAlign: "right", fontFamily: "'Tajawal', 'Cairo', 'Inter', sans-serif", fontWeight: 700 }}>
+            المعلومات الشخصية ورابط التواصل
+          </h2>
+          <p className="panel-lead" dir="rtl" style={{ textAlign: "right" }}>
             اكتب هويتك الشخصية واستعمل الذكاء الاصطناعي لتوليد فقرة بروفايل احترافية ومقنعة للمشغّل.
           </p>
 
-          <div className="panel-kicker" style={{ marginTop: "1rem" }}>معلومات الاتصال الأساسية</div>
+          <div className="panel-kicker" dir="rtl" style={{ textAlign: "right", marginTop: "1rem" }}>معلومات الاتصال الأساسية</div>
           <div className="form-grid">
             <Field
               label="Nom complet"
@@ -2983,20 +2990,20 @@ function Builder({
          ═══════════════════════════════════════════════════════════════════════ */}
       {step === 2 && (
         <div className="form-panel reveal-up">
-          <div className="panel-kicker">
+          <div className="panel-kicker" dir="rtl" style={{ textAlign: "right" }}>
             {isStudent ? "المرحلة 03 : مشاريع التخرج، التربصات والأنشطة" : "المرحلة 03 : المسار المهني والخبرات"}
           </div>
-          <h2>
-            {isStudent ? "مشاريع الدراسة والتربصات (PFE / Stages)." : "تجاربك المهنية وإنجازاتك."}
+          <h2 dir="rtl" style={{ textAlign: "right", fontFamily: "'Tajawal', 'Cairo', 'Inter', sans-serif", fontWeight: 700 }}>
+            {isStudent ? "مشاريع الدراسة والتربصات (PFE / Stages)" : "الخبرات المهنية والإنجازات"}
           </h2>
-          <p className="panel-lead">
+          <p className="panel-lead" dir="rtl" style={{ textAlign: "right" }}>
             {isStudent
               ? "ابرز مشاريع نهاية السنة (PFE / PFA)، تربصات الإدماج، الهاكاثونات أو الأنشطة في النوادي الطلابية."
               : "أضف مناصبك السابقة. استعمل زر الذكاء الاصطناعي في كل بطاقة لتحويل مهامك لإنجازات قوية."}
           </p>
 
           {/* AI Callout Tip for Experiences (Tâche 7) */}
-          <div style={{ background: "linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)", border: "1.5px dashed #86efac", borderRadius: "10px", padding: "0.6rem 0.85rem", marginBottom: "0.9rem", fontSize: "0.76rem", color: "#166534", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
+          <div dir="rtl" style={{ background: "linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)", border: "1.5px dashed #86efac", borderRadius: "10px", padding: "0.6rem 0.85rem", marginBottom: "0.9rem", fontSize: "0.76rem", color: "#166534", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
             <Sparkles size={15} style={{ color: "#16a34a", flexShrink: 0 }} />
             <span>💡 <b>نصيحة للمشغّل :</b> كليك على <b>✨ تحسين (IA)</b> على كل بطاقة لتحويل مهامك لرؤوس أقلام مقنعة بالأرقام !</span>
           </div>
@@ -3096,20 +3103,22 @@ function Builder({
          ═══════════════════════════════════════════════════════════════════════ */}
       {step === 3 && (
         <div className="form-panel reveal-up">
-          <div className="panel-kicker">المرحلة 04 : الشهائد، المهارات وتحميل الـ PDF</div>
-          <h2>الشهائد، المهارات والتحميل النهائي.</h2>
-          <p className="panel-lead">
+          <div className="panel-kicker" dir="rtl" style={{ textAlign: "right" }}>المرحلة 04 : الشهائد، المهارات وتحميل الـ PDF</div>
+          <h2 dir="rtl" style={{ textAlign: "right", fontFamily: "'Tajawal', 'Cairo', 'Inter', sans-serif", fontWeight: 700 }}>
+            الشهائد، المهارات والتحميل النهائي
+          </h2>
+          <p className="panel-lead" dir="rtl" style={{ textAlign: "right" }}>
             {isStudent
               ? "تكوينك الأكاديمي هو أساس الـ CV. فصّل قرايتك، ولّد مهاراتك الأساسية وحمّل نسختك الرسمية."
               : "فصّل تكوينك الجامعي وشهاداتك، عزّز مهاراتك بالذكاء الاصطناعي وحمّل سيرتك الذاتية المعتمدة."}
           </p>
 
           {/* ── AI Harmonization Banner ── */}
-          <div className="ai-step-banner" style={{ marginBottom: "1.6rem" }}>
+          <div className="ai-step-banner" dir="rtl" style={{ marginBottom: "1.6rem" }}>
             <div className="ai-step-banner-icon">
               <WandSparkles size={20} />
             </div>
-            <div className="ai-step-banner-text">
+            <div className="ai-step-banner-text" style={{ textAlign: "right" }}>
               <strong>تنسيق شامل وتحسين بالذكاء الاصطناعي</strong>
               <p>تنسيق أوتوماتيكي لكل النصوص، الكلمات المفتاحية وأسلوب الصياغة بما يناسب بروفايلك {isStudent ? "الطلابي" : "المهني"}.</p>
             </div>
