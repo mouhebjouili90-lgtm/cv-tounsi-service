@@ -462,10 +462,10 @@ export const studentSampleData: CvData = {
 };
 
 const steps = [
-  { label: "Modèle & design", caption: "9 modèles conformes", icon: LayoutGrid },
-  { label: "Vos informations", caption: "Identité & profil IA", icon: PenLine },
-  { label: "Parcours & projets", caption: "Expériences & missions", icon: Briefcase },
-  { label: "Savoir-faire & export", caption: "Compétences & PDF HD", icon: GraduationCap },
+  { label: "اختيار النموذج", caption: "9 نماذج معتمدة دولياً", icon: LayoutGrid },
+  { label: "المعلومات الشخصية", caption: "الهوية والبروفايل المهني", icon: PenLine },
+  { label: "الخبرات والمشاريع", caption: "التجارب والمهام بالـ IA", icon: Briefcase },
+  { label: "الشهائد والتحميل", caption: "المهارات وملف الـ PDF HD", icon: GraduationCap },
 ];
 
 function scrollToId(id: string) {
@@ -2749,14 +2749,14 @@ function Builder({
          ═══════════════════════════════════════════════════════════════════════ */}
       {step === 0 && (
         <div className="form-panel reveal-up">
-          <div className="panel-kicker">SÉLECTION DU MODÈLE & STYLE</div>
-          <h2>Choisissez votre modèle de CV & langue.</h2>
+          <div className="panel-kicker">المرحلة 01 : اختيار النموذج والشكل</div>
+          <h2>اختار نموذج الـ CV واللغة المناسبة.</h2>
           <p className="panel-lead">
-            Sélectionnez parmi 9 modèles certifiés et conformes aux normes internationales (Exécutif 2 colonnes, Canadien ATS 1 colonne ou Europass UE), votre profil et la langue du CV.
+            اختار من بين 9 نماذج معتمدة ومطابقة للمعايير الدولية (Exécutif بعمودين، كندي ATS بعمود واحد، أو Europass الأوروبي)، مع تحديد وضعيتك ولغة السيرة الذاتية.
           </p>
 
           {/* ── Profile Type Selector (Experienced vs Student) ── */}
-          <div className="panel-kicker" style={{ marginTop: "1rem" }}>VOTRE SITUATION / PROFIL</div>
+          <div className="panel-kicker" style={{ marginTop: "1rem" }}>وضعيتك المهنية / البروفايل</div>
           <div className="profile-type-grid" style={{ marginBottom: "0.8rem" }}>
             <button
               type="button"
@@ -2767,8 +2767,8 @@ function Builder({
                 <Briefcase size={17} />
               </div>
               <div className="profile-type-text">
-                <strong>💼 Profil Expérimenté</strong>
-                <p>Expérience professionnelle (CDI, CDD, Freelance...). Postes valorisés.</p>
+                <strong>💼 صاحب خبرة (Professionnel)</strong>
+                <p>تجارب مهنية (CDI، CDD، Freelance...). إبراز المهام والإنجازات.</p>
               </div>
             </button>
 
@@ -2781,8 +2781,8 @@ function Builder({
                 <GraduationCap size={17} />
               </div>
               <div className="profile-type-text">
-                <strong>🎓 Étudiant / Jeune Diplômé</strong>
-                <p>Recherche de stage PFE ou 1er emploi. Formations et projets valorisés.</p>
+                <strong>🎓 طالب / متخرج جديد (Étudiant)</strong>
+                <p>بحث عن تربص PFE أو أول وظيفة. إبراز الشهائد ومشاريع التخرج.</p>
               </div>
             </button>
           </div>
@@ -2793,18 +2793,18 @@ function Builder({
               style={{ fontSize: "0.72rem", color: "var(--olive-dark)", background: "transparent", textDecoration: "underline", cursor: "pointer", fontWeight: 600 }}
               onClick={() => loadSample(data.profileType)}
             >
-              ✦ Charger un exemple type {isStudent ? "Étudiant (PFE / Projets)" : "Professionnel Expérimenté"}
+              ✦ تعمير مثال نموذجي {isStudent ? "لطالب (PFE / تربصات)" : "لمحترف ذو خبرة"}
             </button>
           </div>
 
           {/* ── Category Filter Tabs ── */}
-          <div className="panel-kicker">BIBLIOTHÈQUE DE MODÈLES CONFORMES (9)</div>
+          <div className="panel-kicker">مكتبة النماذج المعتمدة (9)</div>
           <div className="template-category-tabs">
             {[
-              { id: "all", label: "Tous les modèles (9)" },
-              { id: "professional", label: "💼 Professionnels (3)" },
-              { id: "canadian", label: "🍁 Canadiens ATS (3)" },
-              { id: "europass", label: "🇪🇺 Europass UE (3)" },
+              { id: "all", label: "جميع النماذج (9)" },
+              { id: "professional", label: "💼 نماذج مهنية (3)" },
+              { id: "canadian", label: "🍁 نماذج كندية ATS (3)" },
+              { id: "europass", label: "🇪🇺 نماذج أوروبية (3)" },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -2895,13 +2895,13 @@ function Builder({
          ═══════════════════════════════════════════════════════════════════════ */}
       {step === 1 && (
         <div className="form-panel reveal-up">
-          <div className="panel-kicker">COORDONNÉES & ACCROCHE PROFESSIONNELLE</div>
-          <h2>Vos informations de contact.</h2>
+          <div className="panel-kicker">المرحلة 02 : معلومات الاتصال والبروفايل المهني</div>
+          <h2>معلوماتك الشخصية ورابط التواصل.</h2>
           <p className="panel-lead">
-            Renseignez votre identité et personnalisez votre accroche professionnelle avec l'aide de l'IA.
+            اكتب هويتك الشخصية واستعمل الذكاء الاصطناعي لتوليد فقرة بروفايل احترافية ومقنعة للمشغّل.
           </p>
 
-          <div className="panel-kicker" style={{ marginTop: "1rem" }}>COORDONNÉES PRINCIPALES</div>
+          <div className="panel-kicker" style={{ marginTop: "1rem" }}>معلومات الاتصال الأساسية</div>
           <div className="form-grid">
             <Field
               label="Nom complet"
@@ -2984,21 +2984,21 @@ function Builder({
       {step === 2 && (
         <div className="form-panel reveal-up">
           <div className="panel-kicker">
-            {isStudent ? "PROJETS ACADÉMIQUES, STAGES & ENGAGEMENTS" : "PARCOURS PROFESSIONNEL"}
+            {isStudent ? "المرحلة 03 : مشاريع التخرج، التربصات والأنشطة" : "المرحلة 03 : المسار المهني والخبرات"}
           </div>
           <h2>
-            {isStudent ? "Vos projets d'études et stages." : "Vos expériences et réalisations."}
+            {isStudent ? "مشاريع الدراسة والتربصات (PFE / Stages)." : "تجاربك المهنية وإنجازاتك."}
           </h2>
           <p className="panel-lead">
             {isStudent
-              ? "Valorisez vos projets de fin d'année (PFE / PFA), stages d'initiation, hackathons ou activités dans les clubs étudiants."
-              : "Ajoutez vos postes clés. Utilisez le bouton IA sur chaque carte pour formuler des réalisations d'impact."}
+              ? "ابرز مشاريع نهاية السنة (PFE / PFA)، تربصات الإدماج، الهاكاثونات أو الأنشطة في النوادي الطلابية."
+              : "أضف مناصبك السابقة. استعمل زر الذكاء الاصطناعي في كل بطاقة لتحويل مهامك لإنجازات قوية."}
           </p>
 
           {/* AI Callout Tip for Experiences (Tâche 7) */}
           <div style={{ background: "linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)", border: "1.5px dashed #86efac", borderRadius: "10px", padding: "0.6rem 0.85rem", marginBottom: "0.9rem", fontSize: "0.76rem", color: "#166534", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
             <Sparkles size={15} style={{ color: "#16a34a", flexShrink: 0 }} />
-            <span>💡 <b>Boost Recruteur :</b> Cliquez sur <b>✨ Améliorer (IA)</b> sur chaque carte pour transformer vos tâches en puces d'impact chiffrées !</span>
+            <span>💡 <b>نصيحة للمشغّل :</b> كليك على <b>✨ تحسين (IA)</b> على كل بطاقة لتحويل مهامك لرؤوس أقلام مقنعة بالأرقام !</span>
           </div>
 
           <div className="experiences-cards-list">
@@ -3085,7 +3085,7 @@ function Builder({
 
           <div className="add-item-row">
             <button type="button" className="button button-quiet-add" onClick={addExperience}>
-              <Plus size={16} /> {isStudent ? "Ajouter un autre projet / stage" : "Ajouter une autre expérience"}
+              <Plus size={16} /> {isStudent ? "+ إضافة مشروع / تربص آخر" : "+ إضافة تجربة مهنية أخرى"}
             </button>
           </div>
         </div>
@@ -3096,12 +3096,12 @@ function Builder({
          ═══════════════════════════════════════════════════════════════════════ */}
       {step === 3 && (
         <div className="form-panel reveal-up">
-          <div className="panel-kicker">FORMATION, SAVOIR-FAIRE & EXPORT PDF</div>
-          <h2>Diplômes, compétences et export final.</h2>
+          <div className="panel-kicker">المرحلة 04 : الشهائد، المهارات وتحميل الـ PDF</div>
+          <h2>الشهائد، المهارات والتحميل النهائي.</h2>
           <p className="panel-lead">
             {isStudent
-              ? "Votre formation académique est au cœur de votre CV. Détaillez vos études, générez vos compétences clés et exportez votre CV."
-              : "Détaillez vos formations universitaires, enrichissez vos compétences avec l'IA et téléchargez votre CV certifié."}
+              ? "تكوينك الأكاديمي هو أساس الـ CV. فصّل قرايتك، ولّد مهاراتك الأساسية وحمّل نسختك الرسمية."
+              : "فصّل تكوينك الجامعي وشهاداتك، عزّز مهاراتك بالذكاء الاصطناعي وحمّل سيرتك الذاتية المعتمدة."}
           </p>
 
           {/* ── AI Harmonization Banner ── */}
@@ -3110,8 +3110,8 @@ function Builder({
               <WandSparkles size={20} />
             </div>
             <div className="ai-step-banner-text">
-              <strong>Harmonisation Globale par l'IA</strong>
-              <p>Harmonisez automatiquement tous les textes, mots-clés et tournures de phrases pour votre profil {isStudent ? "étudiant" : "professionnel"}.</p>
+              <strong>تنسيق شامل وتحسين بالذكاء الاصطناعي</strong>
+              <p>تنسيق أوتوماتيكي لكل النصوص، الكلمات المفتاحية وأسلوب الصياغة بما يناسب بروفايلك {isStudent ? "الطلابي" : "المهني"}.</p>
             </div>
             <button
               type="button"
@@ -3119,13 +3119,13 @@ function Builder({
               onClick={improveCopy}
               disabled={isGlobalLoading}
             >
-              {isGlobalLoading ? "Harmonisation..." : "Harmoniser (IA)"}
+              {isGlobalLoading ? "جاري التنسيق..." : "✨ تنسيق كامل الـ CV (IA)"}
             </button>
           </div>
 
           {/* ── Formations & Diplômes ── */}
           <div className="section-subheading">
-            <GraduationCap size={16} /> Formations & Diplômes
+            <GraduationCap size={16} /> الشهائد والتكوين الجامعي (Formations)
           </div>
           <div className="experiences-cards-list">
             {data.educations.map((edu, idx) => (
@@ -3170,13 +3170,13 @@ function Builder({
 
           <div className="add-item-row">
             <button type="button" className="button button-quiet-add" onClick={addEducation}>
-              <Plus size={16} /> Ajouter une autre formation
+              <Plus size={16} /> + إضافة شهادة أو تكوين آخر
             </button>
           </div>
 
           {/* ── Compétences Clés ── */}
           <div className="section-subheading" style={{ marginTop: "1.8rem" }}>
-            <Sparkles size={16} /> Compétences Clés & Outils
+            <Sparkles size={16} /> المهارات الأساسية والأدوات (Compétences & Outils)
           </div>
           <div className="field field-full">
             <div className="field-header-row">
@@ -3282,10 +3282,10 @@ function Builder({
           {/* ── Export Action Box ── */}
           <div className="export-action-box" style={{ marginTop: "2.2rem", padding: "20px", background: "#f5efe3", border: "1.5px solid #dcd1ba", borderRadius: "12px", textAlign: "center" }}>
             <h3 style={{ fontSize: "1.05rem", fontWeight: 800, color: "var(--olive-dark)", marginBottom: "6px" }}>
-              Votre CV est prêt à être exporté !
+              🎉 الـ CV متاعك جاهز للتحميل !
             </h3>
             <p style={{ fontSize: "0.8rem", color: "var(--ink-soft)", maxWidth: "460px", margin: "0 auto 16px", lineHeight: 1.45 }}>
-              Document au format officiel A4 haute résolution (300 DPI), optimisé pour les logiciels recruteurs ATS et l'impression directe.
+              ملف PDF A4 رسمي عالي الدقة (300 DPI)، مطابق لبرامج التوظيف الدولية ATS والطباعة المباشرة.
             </p>
             <div style={{ display: "flex", justifyContent: "center", gap: "10px", flexWrap: "wrap" }}>
               <button
@@ -3295,7 +3295,7 @@ function Builder({
                 disabled={isExporting}
                 style={{ fontSize: "0.88rem", padding: "0.75rem 1.8rem" }}
               >
-                <Download size={16} /> {isExporting ? "Génération du PDF..." : "Télécharger mon CV (PDF A4)"}
+                <Download size={16} /> {isExporting ? "...جاري تجهيز الملف" : "📥 تحميل الـ CV متاعي (PDF A4)"}
               </button>
             </div>
           </div>
@@ -3796,10 +3796,10 @@ function Builder({
       <div className="builder-topbar">
         <div className="builder-topbar-inner">
           <button className="back-link" onClick={onBack}>
-            <ChevronLeft size={16} /> Accueil
+            <ChevronLeft size={16} /> الرئيسية
           </button>
 
-          <div className="builder-brand-bar" onClick={onBack} style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }} title="Retour à l'accueil">
+          <div className="builder-brand-bar" onClick={onBack} style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }} title="الرجوع للرئيسية">
             <img src="/icon.jpg" alt="CV Tounsi Logo" style={{ width: "30px", height: "30px", borderRadius: "8px", objectFit: "cover", boxShadow: "0 2px 6px rgba(0,0,0,0.12)" }} />
             <span>
               CV <b>Tounsi</b>
@@ -3813,18 +3813,18 @@ function Builder({
               className="button button-quiet"
               onClick={handleSaveToCloud}
               disabled={isSavingCloud}
-              title={user ? "Sauvegarder les modifications de votre CV dans votre compte" : "Connectez-vous pour sauvegarder votre CV en ligne"}
+              title={user ? "حفظ التعديلات في حسابك السحابي" : "سجّل دخولك لحفظ سيرتك الذاتية أونلاين"}
               style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "0.78rem" }}
             >
               {isSavingCloud ? (
                 <>
                   <span className="button-spinner-sm" />
-                  <span>Enregistrement...</span>
+                  <span>جاري الحفظ...</span>
                 </>
               ) : (
                 <>
                   <Cloud size={14} className={user ? "text-emerald-600" : "text-stone-400"} />
-                  <span>{user ? "Sauvegarder" : "Sauvegarder en ligne"}</span>
+                  <span>{user ? "حفظ الـ CV" : "حفظ أونلاين"}</span>
                 </>
               )}
             </button>
@@ -3834,11 +3834,11 @@ function Builder({
                 type="button"
                 className="button button-quiet"
                 onClick={onOpenSavedCvs}
-                title="Consulter et gérer vos CVs enregistrés"
+                title="عرض وإدارة سيرك الذاتية المحفوظة"
                 style={{ display: "inline-flex", alignItems: "center", gap: "5px", fontSize: "0.78rem" }}
               >
                 <FolderOpen size={14} />
-                <span>Mes CVs</span>
+                <span>ملفاتي (CVs)</span>
                 {savedCvs.length > 0 && (
                   <span style={{ background: "#2d6a4f", color: "#fff", borderRadius: "10px", padding: "1px 6px", fontSize: "0.68rem", fontWeight: "bold" }}>
                     {savedCvs.length}
@@ -3856,7 +3856,7 @@ function Builder({
                     title={`Pass 1 An VIP · ${subscriptionInfo.fullDetails}`}
                     style={{ cursor: "help" }}
                   >
-                    <Crown size={13} /> 👑 Pass 1 An ({subscriptionInfo.daysRemaining}j)
+                    <Crown size={13} /> 👑 Pass عام VIP ({subscriptionInfo.daysRemaining} يوم)
                   </span>
                 ) : (
                   <span
@@ -3864,7 +3864,7 @@ function Builder({
                     style={{ background: "#ecfdf5", color: "#065f46", borderColor: "#a7f3d0", cursor: "help" }}
                     title={`Pass 1 Mois · ${subscriptionInfo.fullDetails}`}
                   >
-                    <Sparkles size={13} /> ⭐ Pass 1 Mois ({subscriptionInfo.daysRemaining}j)
+                    <Sparkles size={13} /> ⭐ Pass شهر ({subscriptionInfo.daysRemaining} يوم)
                   </span>
                 )}
                 <button
@@ -3891,22 +3891,22 @@ function Builder({
             >
               {isGlobalLoading ? (
                 <>
-                  <span className="button-spinner" /> Optimisation...
+                  <span className="button-spinner" /> جاري التنسيق...
                 </>
               ) : (
                 <>
-                  <WandSparkles size={15} /> Harmoniser IA
+                  <WandSparkles size={15} /> تحسين كامل (IA)
                 </>
               )}
             </button>
             <button className="button button-primary" onClick={handleDownloadClick} disabled={isExporting}>
               {isExporting ? (
                 <>
-                  <span className="button-spinner" /> Export...
+                  <span className="button-spinner" /> تجهيز...
                 </>
               ) : (
                 <>
-                  <Download size={15} /> Télécharger PDF
+                  <Download size={15} /> تحميل PDF
                 </>
               )}
             </button>
@@ -3923,7 +3923,7 @@ function Builder({
           <aside className="builder-sidebar">
             <div className="builder-intro">
               <div className="eyebrow">
-                ÉTAPE 0{step + 1} / 04
+                المرحلة 0{step + 1} / 04
               </div>
               <h1>{steps[step].label}</h1>
               <p>{steps[step].caption}</p>
@@ -3994,7 +3994,7 @@ function Builder({
               >
                 {step > 0 ? (
                   <>
-                    <ChevronLeft size={16} /> Précédent
+                    <ChevronLeft size={16} /> السابق
                   </>
                 ) : (
                   ""
@@ -4003,7 +4003,7 @@ function Builder({
 
               {step < 3 ? (
                 <button type="button" className="button button-primary" onClick={goNext}>
-                  Continuer <ArrowLeft size={17} />
+                  المرحلة التالية ➔
                 </button>
               ) : (
                 <button
@@ -4012,7 +4012,7 @@ function Builder({
                   onClick={handleDownloadClick}
                   disabled={isExporting}
                 >
-                  <Download size={16} /> Télécharger mon CV (PDF A4)
+                  <Download size={16} /> 📥 تحميل الـ CV متاعي (PDF A4)
                 </button>
               )}
             </div>
@@ -4045,14 +4045,14 @@ function Builder({
               className={`mobile-tab-btn ${mobileTab === "form" ? "active" : ""}`}
               onClick={() => setMobileTab("form")}
             >
-              <Edit3 size={14} /> Formulaire (Étape 0{step + 1})
+              <Edit3 size={14} /> تعمير المعلومات (مرحلة 0{step + 1})
             </button>
             <button
               type="button"
               className={`mobile-tab-btn ${mobileTab === "preview" ? "active" : ""}`}
               onClick={() => setMobileTab("preview")}
             >
-              <Eye size={14} /> Aperçu Live du CV
+              <Eye size={14} /> معاينة الـ CV مباشر
             </button>
           </div>
 
@@ -4069,7 +4069,7 @@ function Builder({
                 }}
               >
                 <span className="mobile-step-pill-num">0{idx + 1}</span>
-                <span className="mobile-step-pill-title">{item.label.split(" ")[0]}</span>
+                <span className="mobile-step-pill-title">{item.label}</span>
               </button>
             ))}
           </div>
@@ -4086,7 +4086,7 @@ function Builder({
                   className="button button-quiet"
                   onClick={() => setMobileTab("preview")}
                 >
-                  <Eye size={15} /> Voir CV
+                  <Eye size={15} /> معاينة
                 </button>
 
                 <button
@@ -4096,12 +4096,12 @@ function Builder({
                   disabled={isGlobalLoading}
                   style={{ minWidth: "90px" }}
                 >
-                  <WandSparkles size={14} /> IA
+                  <WandSparkles size={14} /> تحسين IA
                 </button>
 
                 {step < 3 ? (
                   <button type="button" className="button button-primary" onClick={goNext}>
-                    Suivant <ArrowLeft size={16} />
+                    التالي ➔
                   </button>
                 ) : (
                   <button
@@ -4110,7 +4110,7 @@ function Builder({
                     onClick={handleDownloadClick}
                     disabled={isExporting}
                   >
-                    <Download size={15} /> PDF A4
+                    <Download size={15} /> تحميل PDF
                   </button>
                 )}
               </div>
@@ -4137,7 +4137,7 @@ function Builder({
                   className="button button-quiet"
                   onClick={() => setMobileTab("form")}
                 >
-                  <Edit3 size={15} /> Éditer infos
+                  <Edit3 size={15} /> تعديل المعلومات
                 </button>
                 <button
                   type="button"
@@ -4145,7 +4145,7 @@ function Builder({
                   onClick={handleDownloadClick}
                   disabled={isExporting}
                 >
-                  <Download size={15} /> Télécharger PDF
+                  <Download size={15} /> 📥 تحميل الـ CV (PDF)
                 </button>
               </div>
             </div>
