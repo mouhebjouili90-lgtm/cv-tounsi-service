@@ -101,7 +101,12 @@ export function trackEvent(eventName: string, params?: EventParams) {
 /** User started creating a CV (entered the builder) */
 export function trackBuilderStarted(template: string, language: string) {
   const eventId = generateEventId("init_checkout");
-  trackEvent("BuilderStarted", { template, language });
+  trackEvent("BuilderStarted", {
+    template,
+    language,
+    value: 12.9,
+    currency: "TND",
+  });
   trackFbEvent(
     "InitiateCheckout",
     { content_name: "CV Builder", content_category: template, value: 12.9, currency: "TND" },
@@ -113,11 +118,17 @@ export function trackBuilderStarted(template: string, language: string) {
 /** User clicked the WhatsApp payment link */
 export function trackWhatsAppClicked(suggestedCode: string, plan: "student" | "pro" = "student", fullName?: string) {
   const eventId = generateEventId("whatsapp_click");
-  trackEvent("WhatsAppClicked", { suggested_code: suggestedCode, plan });
-  trackFbEvent("Contact", { content_name: `WhatsApp Payment (${suggestedCode})`, content_category: plan }, eventId);
+  const amount = plan === "pro" ? 29.9 : 12.9;
+  trackEvent("WhatsAppClicked", {
+    suggested_code: suggestedCode,
+    plan,
+    value: amount,
+    currency: "TND",
+  });
+  trackFbEvent("Contact", { content_name: `WhatsApp Payment (${suggestedCode})`, content_category: plan, value: amount, currency: "TND" }, eventId);
   sendServerCAPI(
     "Contact",
-    { content_name: `WhatsApp Payment (${suggestedCode})`, content_category: plan },
+    { content_name: `WhatsApp Payment (${suggestedCode})`, content_category: plan, value: amount, currency: "TND" },
     { fullName },
     eventId
   );
