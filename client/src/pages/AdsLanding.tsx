@@ -379,6 +379,21 @@ export default function AdsLanding() {
                 <span>Recevez votre code officiel et téléchargez votre CV HD sans filigrane !</span>
               </div>
             </div>
+
+            {/* No D17 Assistance Callout */}
+            <div className="mt-4 pt-3 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#92400e] bg-[#fffbeb] p-3 rounded-xl border border-amber-200">
+              <span className="font-semibold text-center sm:text-left">
+                💬 <strong>ما عندكش D17 ؟</strong> تواصل معنا على الواتساب نلقاولك حلّ دفع ساهل (Flouci، تحويل بنكي، أو خلاص مباشر) !
+              </span>
+              <a
+                href={`https://wa.me/21692067554?text=${encodeURIComponent("سلام، ما عنديش D17 ونحب نخلّص الـ CV 🫒")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 bg-[#d97706] hover:bg-[#b45309] text-white font-bold px-3.5 py-1.5 rounded-lg shadow-sm transition-all"
+              >
+                تواصل معنا
+              </a>
+            </div>
           </div>
         </div>
 

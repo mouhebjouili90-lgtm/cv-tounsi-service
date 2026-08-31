@@ -3404,9 +3404,13 @@ function Builder({
           <div className="paywall-modal-box" onClick={(e) => e.stopPropagation()}>
             <div className="paywall-modal-header" style={{ display: "flex", alignItems: "center", gap: "12px" }}>
               <img src="/icon.jpg" alt="CV Tounsi Logo" style={{ width: "42px", height: "42px", borderRadius: "10px", objectFit: "cover", flexShrink: 0, boxShadow: "0 4px 10px rgba(0,0,0,0.15)" }} />
-              <div style={{ flex: 1 }}>
-                <h3>Débloquez votre CV en Haute Définition</h3>
-                <p>Format A4 300 DPI certifié conforme aux normes internationales ATS</p>
+              <div style={{ flex: 1 }} dir="rtl">
+                <h3 style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a", margin: 0 }}>
+                  🔓 فعّل الـ CV متاعك بالـ Haute Définition
+                </h3>
+                <p style={{ fontSize: "0.75rem", color: "#64748b", margin: "2px 0 0" }}>
+                  ملف PDF A4 بدقة 300 DPI مطابق للمواصفات التونسية، الكندية والأوروبية ATS
+                </p>
               </div>
               <button
                 type="button"
@@ -3419,7 +3423,7 @@ function Builder({
             </div>
 
             <div className="paywall-modal-body">
-              {/* ── Free Demo Download Bar (En haut, au-dessus du paiement) ── */}
+              {/* ── Free Demo Download Bar ── */}
               <div style={{ marginBottom: "0.85rem" }}>
                 <button
                   type="button"
@@ -3428,7 +3432,7 @@ function Builder({
                   style={{
                     background: "#fbf9f4",
                     border: "1.5px dashed #c8beab",
-                    padding: "0.65rem 1rem",
+                    padding: "0.6rem 1rem",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -3443,20 +3447,20 @@ function Builder({
                   }}
                 >
                   <Download size={15} style={{ color: "var(--olive-dark)" }} />
-                  <span>📥 Télécharger un extrait d'essai gratuit (version démo protégée)</span>
+                  <span>📥 تحميل نسخة تجريبية مجانية (نسخة Démo للتقييم)</span>
                 </button>
               </div>
 
-              {/* ── Cloud Account Synchronization Banner (Point 4) ── */}
+              {/* ── Cloud Account Synchronization Banner ── */}
               {!user ? (
-                <div className="paywall-account-banner guest">
+                <div className="paywall-account-banner guest" dir="rtl">
                   <div className="paywall-account-banner-left">
                     <div className="paywall-account-icon-wrap">
                       <Cloud size={16} />
                     </div>
                     <div>
-                      <strong>Sauvegarder mon CV en ligne</strong>
-                      <p>Connectez-vous pour conserver et modifier votre CV sur PC et Téléphone à tout moment.</p>
+                      <strong>حفظ الـ CV أونلاين على حسابك</strong>
+                      <p>سجّل دخولك باش ترجع تعدّل على الـ CV متاعك من الهاتف أو الحاسوب في أي وقت.</p>
                     </div>
                   </div>
                   <button
@@ -3464,41 +3468,41 @@ function Builder({
                     className="paywall-account-btn"
                     onClick={() => openAuthModal("login")}
                   >
-                    Se connecter
+                    تسجيل الدخول
                   </button>
                 </div>
               ) : (
-                <div className="paywall-account-banner logged-in">
+                <div className="paywall-account-banner logged-in" dir="rtl">
                   <div className="paywall-account-banner-left">
                     <div className="paywall-account-icon-wrap active">
                       <UserCheck size={16} />
                     </div>
                     <div>
-                      <strong>Compte connecté : {user.name || user.email}</strong>
-                      <p>Votre achat et vos CVs seront automatiquement synchronisés et sécurisés sur votre compte.</p>
+                      <strong>حساب متصل : {user.name || user.email}</strong>
+                      <p>عملية التفعيل والـ CVs متاعك باش تتحفظ أوتوماتيكياً على حسابك الشخصي.</p>
                     </div>
                   </div>
                 </div>
               )}
 
               {/* ── Dual Pricing Plan Selector ── */}
-              <div style={{ marginBottom: "0.5rem" }}>
-                <span style={{ display: "block", fontSize: "0.74rem", fontWeight: 700, color: "var(--ink)", marginBottom: "0.4rem" }}>
-                  1. Choisissez votre formule d'abonnement :
+              <div style={{ marginBottom: "0.5rem" }} dir="rtl">
+                <span style={{ display: "block", fontSize: "0.76rem", fontWeight: 800, color: "var(--ink)", marginBottom: "0.45rem" }}>
+                  1️⃣ اختار الباقة المناسبة ليك :
                 </span>
-                <div className="paywall-plans-grid">
+                <div className="paywall-plans-grid" style={{ direction: "ltr" }}>
                   {/* Option 1: Pass 1 Mois */}
                   <div
                     className={`paywall-plan-card ${selectedPlan === "month" ? "selected" : ""}`}
                     onClick={() => setSelectedPlan("month")}
                   >
                     <div>
-                      <span className="paywall-plan-tag tag-student">⭐ Accès 1 Mois</span>
-                      <div className="paywall-plan-title">Pass 1 Mois</div>
-                      <div className="paywall-plan-sub">Utilisation complète pendant 30 jours</div>
+                      <span className="paywall-plan-tag tag-student">⭐ دخول لمدة شهر (30 يوم)</span>
+                      <div className="paywall-plan-title">Pass شهر</div>
+                      <div className="paywall-plan-sub">استعمال كامل وغير محدود طيلة 30 يوم</div>
                       <div className="paywall-price-wrap">
                         <span className="paywall-price-main">12.900</span>
-                        <span className="paywall-price-unit">TND</span>
+                        <span className="paywall-price-unit">دينار</span>
                       </div>
                     </div>
                     <ul className="paywall-features-list">
@@ -3516,18 +3520,18 @@ function Builder({
                   >
                     <div>
                       <span className="paywall-plan-tag tag-pro">
-                        👑 Meilleure Offre · -80%
+                        👑 أفضل عرض · تخفيض 80%
                       </span>
                       <div className="paywall-plan-title">
-                        Pass 1 An
+                        Pass سنة VIP
                       </div>
                       <div className="paywall-plan-sub">
-                        Utilisation complète pendant 1 an (12 mois)
+                        استعمال كامل لمدة سنة كاملة (12 شهر)
                       </div>
                       <div className="paywall-price-wrap">
                         <span className="paywall-price-main">29.900</span>
-                        <span className="paywall-price-unit">TND</span>
-                        <span className="paywall-price-struck">59 TND</span>
+                        <span className="paywall-price-unit">دينار</span>
+                        <span className="paywall-price-struck">59 DT</span>
                       </div>
                     </div>
                     <ul className="paywall-features-list">
@@ -3540,39 +3544,26 @@ function Builder({
                 </div>
               </div>
 
-              {/* ── Payment Methods Bar ── */}
-              <div className="paywall-payment-methods">
-                <div className="paywall-methods-title">
-                  <ShieldCheck size={13} /> Moyens de paiement acceptés en Tunisie :
-                </div>
-                <div className="paywall-methods-chips">
-                  <span className="paywall-method-chip">📲 D17 La Poste</span>
-                  <span className="paywall-method-chip">💳 Flouci / Carte</span>
-                  <span className="paywall-method-chip">💬 WhatsApp Direct</span>
-                  <span className="paywall-method-chip">🏦 Virement Bancaire</span>
-                </div>
-              </div>
-
-              {/* ── 3 Étapes Claires de Paiement (Tâche 2) ── */}
-              <div style={{ background: "#f8fafc", border: "1.5px solid #e2e8f0", borderRadius: "12px", padding: "0.85rem 1rem", marginBottom: "0.85rem" }}>
+              {/* ── 3 Étapes Claires de Paiement D17 en Arabe ── */}
+              <div style={{ background: "#f8fafc", border: "1.5px solid #e2e8f0", borderRadius: "12px", padding: "0.85rem 1rem", marginBottom: "0.75rem" }} dir="rtl">
                 <div style={{ fontWeight: 800, fontSize: "0.82rem", color: "#0f172a", marginBottom: "0.45rem", display: "flex", alignItems: "center", gap: "6px" }}>
-                  <span>📲 Comment activer votre CV en 3 étapes simples :</span>
+                  <span>📲 كيفاش تفعّل الـ CV متاعك في 3 خطوات ساهلة :</span>
                 </div>
-                <div style={{ fontSize: "0.77rem", color: "#334155", lineHeight: "1.55" }}>
-                  <div style={{ marginBottom: "3px" }}>
-                    <b>1.</b> Envoyez <b>{selectedPlan === "month" ? "12.900 DT" : "29.900 DT"}</b> par <b>D17 sur le numéro : 92 067 554</b> <i>(ou Flouci/Virement)</i>.
+                <div style={{ fontSize: "0.77rem", color: "#334155", lineHeight: "1.6" }}>
+                  <div style={{ marginBottom: "4px" }}>
+                    <b>1.</b> ابعث <b>{selectedPlan === "month" ? "12.900 دينار" : "29.900 دينار"}</b> عبر <b>D17 على الرقم : 92 067 554</b> <i>(أو Flouci / تحويل بنكي)</i>.
                   </div>
-                  <div style={{ marginBottom: "3px" }}>
-                    <b>2.</b> Envoyez la <b>capture d'écran du reçu</b> sur WhatsApp en 1 clic.
+                  <div style={{ marginBottom: "4px" }}>
+                    <b>2.</b> ابعث لقطة شاشة للوصل (Capture) على الواتساب بكليك وحدة على الزر الأخضر بالأسفل.
                   </div>
                   <div>
-                    <b>3.</b> Recevez votre <b>code officiel en moins de 2 minutes chrono</b> ✅
+                    <b>3.</b> يوصلك <b>كود التفعيل الرسمي في أقل من دقيقتين</b> ✅
                   </div>
                 </div>
               </div>
 
-              {/* Step 2: WhatsApp CTA */}
-              <div style={{ marginBottom: "0.7rem" }}>
+              {/* ── CTA WhatsApp Button (Direct Order & Receipt Sending) ── */}
+              <div style={{ marginBottom: "0.65rem" }}>
                 <a
                   href={`https://wa.me/21692067554?text=${encodeURIComponent(
                     selectedPlan === "month"
@@ -3603,7 +3594,7 @@ function Builder({
                 >
                   <MessageCircle size={18} />
                   <span>
-                    {`Commander (${selectedPlan === "month" ? "12.9 DT" : "29.9 DT"}) & Envoyer le reçu sur WhatsApp`}
+                    {`اطلب (${selectedPlan === "month" ? "12.9 دينار" : "29.9 دينار"}) وابعث الوصل على WhatsApp 🚀`}
                   </span>
                 </a>
               </div>
