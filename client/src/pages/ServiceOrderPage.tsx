@@ -49,14 +49,14 @@ const SERVICE_PACKS: ServicePack[] = [
     id: "essential",
     title: "الباقة الأساسية",
     badge: "سريعة واقتصادية",
-    price: 25,
-    originalPrice: 40,
+    price: 29,
+    originalPrice: 50,
     deliveryTime: "تسليم في 4 ساعات",
     features: [
       "1 سيرة ذاتية احترافية بصيغة PDF عالي الدقة A4",
-      "نموذج واحد من اختيارك (تونسي، كندي أو أوروبي)",
-      "لغة واحدة (فرنسية، إنجليزية أو عربية)",
-      "صياغة احترافية للمهام مع تدقيق لغوي وبشري كامل",
+      "نموذج واحد من اختيارك (تونسي، كندي ATS أو أوروبي)",
+      "لغة واحدة من اختيارك (فرنسية، إنجليزية أو عربية)",
+      "صياغة احترافية للمهام وتدقيق لغوي وبشري كامل",
       "متوافقة 100% مع أنظمة الفرز الآلي للشركات (ATS)",
       "تعديلات مجانية لمدة 48 ساعة بعد الاستلام",
     ],
@@ -64,34 +64,18 @@ const SERVICE_PACKS: ServicePack[] = [
   {
     id: "pro_vip",
     title: "باقة المحترفين VIP",
-    badge: "⭐ الأكثر طلباً (-50%)",
-    price: 39,
-    originalPrice: 75,
+    badge: "⭐ الأكثر طلباً (-45%)",
+    price: 49,
+    originalPrice: 90,
     deliveryTime: "تسليم ذو أولوية في ساعتين",
     popular: true,
     features: [
-      "2 سير ذاتية (مثال: نموذج تونسي كلاسيكي + نموذج كندي بلا صورة)",
+      "2 سير ذاتية (مثال: نموذج تونسي كلاسيكي + نموذج كندي ATS أو أوروبي)",
       "لغتان كاملتان (نسخة بالفرنسية + نسخة بالإنجليزية)",
       "صياغة قوية للمشاريع والإنجازات بلغة أرقام مقنعة للمشغلين",
       "تصميم حديث A4 جذاب ومطابق لمقاييس التوظيف الدولية",
       "تسليم سريع ذو أولوية قصوى على واتساب والبريد",
       "تعديلات غير محدودة حتى الرضا التام",
-    ],
-  },
-  {
-    id: "international",
-    title: "الباقة الشاملة للهجرة والعمل الدولي",
-    badge: "🇨🇦 كندا وأوروبا 🇪🇺",
-    price: 59,
-    originalPrice: 110,
-    deliveryTime: "تسليم في نفس اليوم",
-    features: [
-      "سيرة ذاتية كندية مطابقة تماماً لمعايير الهجرة والـ IRCC",
-      "سيرة ذاتية أوروبية Europass UE معتمدة للسفارات وعقود العمل",
-      "رسالة تحفيزية مخصصة وموجهة (Lettre de motivation percutante)",
-      "صياغة وتحسين نص بروفايل LinkedIn لجذب مسؤولي التوظيف",
-      "استشارة توجيهية خاصة لمقابلات العمل عبر الواتساب",
-      "دعم مستمر وتعديلات مجانية مفتوحة",
     ],
   },
 ];
@@ -377,22 +361,22 @@ export default function ServiceOrderPage() {
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl mx-auto">
               {SERVICE_PACKS.map((pack) => {
                 const isSelected = selectedPackId === pack.id;
                 return (
                   <div
                     key={pack.id}
                     onClick={() => setSelectedPackId(pack.id)}
-                    className={`relative rounded-2xl p-5 cursor-pointer transition-all duration-200 flex flex-col justify-between border-2 ${
+                    className={`relative rounded-3xl p-6 cursor-pointer transition-all duration-200 flex flex-col justify-between border-2 ${
                       isSelected
-                        ? "border-[#60735A] bg-[#F4F7F3] shadow-md ring-2 ring-[#60735A]/20"
-                        : "border-[#E2E8F0] bg-white hover:border-[#60735A]/40"
+                        ? "border-[#60735A] bg-[#F4F7F3] shadow-lg ring-2 ring-[#60735A]/20 transform scale-[1.02]"
+                        : "border-[#E2E8F0] bg-white hover:border-[#60735A]/40 hover:shadow-md"
                     }`}
                   >
                     {pack.badge && (
                       <div
-                        className={`absolute -top-3 right-4 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm ${
+                        className={`absolute -top-3.5 right-6 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm ${
                           pack.popular
                             ? "bg-[#D97706] text-white"
                             : "bg-[#60735A] text-white"
@@ -404,39 +388,39 @@ export default function ServiceOrderPage() {
 
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-bold text-base text-[#0F172A]">
+                        <h3 className="font-bold text-lg text-[#0F172A]">
                           {pack.title}
                         </h3>
                         <div
-                          className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
                             isSelected
                               ? "border-[#60735A] bg-[#60735A] text-white"
                               : "border-[#CBD5E1]"
                           }`}
                         >
-                          {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
+                          {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                         </div>
                       </div>
 
-                      <div className="flex items-baseline gap-1.5 my-3">
-                        <span className="text-3xl font-bold text-[#0F172A] font-serif">
+                      <div className="flex items-baseline gap-2 my-3">
+                        <span className="text-4xl font-bold text-[#0F172A] font-serif">
                           {pack.price}
                         </span>
-                        <span className="text-xs font-bold text-[#64748B]">دينار تونسي</span>
-                        <span className="text-xs text-[#94A3B8] line-through mr-1">
+                        <span className="text-sm font-bold text-[#64748B]">دينار تونسي</span>
+                        <span className="text-sm text-[#94A3B8] line-through mr-1">
                           {pack.originalPrice} DT
                         </span>
                       </div>
 
-                      <div className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#43523e] bg-[#EBF0E9] px-2 py-0.5 rounded-md mb-4">
-                        <Clock className="w-3 h-3" />
+                      <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#43523e] bg-[#EBF0E9] px-2.5 py-1 rounded-lg mb-5">
+                        <Clock className="w-3.5 h-3.5" />
                         <span>{pack.deliveryTime}</span>
                       </div>
 
-                      <ul className="space-y-2 text-xs text-[#475569] mb-4">
+                      <ul className="space-y-2.5 text-xs sm:text-sm text-[#475569] mb-6">
                         {pack.features.map((feat, idx) => (
-                          <li key={idx} className="flex items-start gap-1.5 leading-snug">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-[#16A34A] shrink-0 mt-0.5" />
+                          <li key={idx} className="flex items-start gap-2 leading-relaxed">
+                            <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0 mt-0.5" />
                             <span>{feat}</span>
                           </li>
                         ))}
@@ -444,10 +428,10 @@ export default function ServiceOrderPage() {
                     </div>
 
                     <div
-                      className={`text-center py-2 rounded-xl text-xs font-bold transition-colors ${
+                      className={`text-center py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all ${
                         isSelected
-                          ? "bg-[#60735A] text-white"
-                          : "bg-[#F1F5F9] text-[#475569]"
+                          ? "bg-[#60735A] text-white shadow-md shadow-[#60735A]/20"
+                          : "bg-[#F1F5F9] text-[#475569] hover:bg-[#E2E8F0]"
                       }`}
                     >
                       {isSelected ? "✓ تم اختيار هذه الباقة" : "اختيار هذه الباقة"}
@@ -574,11 +558,11 @@ export default function ServiceOrderPage() {
                 3
               </span>
               <h2 className="text-xl sm:text-2xl font-bold text-[#0F172A] font-serif">
-                مسارك المهني والهدف من الـ CV
+                مسارك المهني وتفاصيل سيرتك الذاتية
               </h2>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs sm:text-sm font-bold text-[#334155] mb-1.5">
@@ -596,21 +580,6 @@ export default function ServiceOrderPage() {
 
                 <div>
                   <label className="block text-xs sm:text-sm font-bold text-[#334155] mb-1.5">
-                    المستوى الدراسي / الشهادة
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="مثال: Licence Informatique, Master Finance, Bac+3, BTS..."
-                    value={formData.educationLevel}
-                    onChange={(e) => handleInputChange("educationLevel", e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#60735A]/30 focus:border-[#60735A] transition-all"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs sm:text-sm font-bold text-[#334155] mb-1.5">
                     الهدف الأساسي من السيرة الذاتية
                   </label>
                   <select
@@ -626,7 +595,9 @@ export default function ServiceOrderPage() {
                     <option value="reconversion">تغيير المسار المهني (Reconversion)</option>
                   </select>
                 </div>
+              </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs sm:text-sm font-bold text-[#334155] mb-1.5">
                     اللغة المفضلة للسيرة الذاتية
@@ -638,9 +609,22 @@ export default function ServiceOrderPage() {
                   >
                     <option value="fr">الفرنسية (Français — الأكثر طلباً بتونس)</option>
                     <option value="en">الإنجليزية (English — لكندا والشركات الدولية)</option>
-                    <option value="fr_en">نسختان: فرنسية + إنجليزية (مشمول في باقة Pro)</option>
+                    <option value="fr_en">نسختان: فرنسية + إنجليزية (مشمول في باقة VIP)</option>
                     <option value="ar">العربية (Arabe)</option>
                   </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs sm:text-sm font-bold text-[#334155] mb-1.5">
+                    المستوى الدراسي والشهادات
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="مثال: Licence Informatique, Master Finance, Bac+3, BTS..."
+                    value={formData.educationLevel}
+                    onChange={(e) => handleInputChange("educationLevel", e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#60735A]/30 focus:border-[#60735A] transition-all"
+                  />
                 </div>
               </div>
 
@@ -659,19 +643,25 @@ export default function ServiceOrderPage() {
                 </div>
               </div>
 
+              {/* LARGE CASE 1: Expériences professionnelles & Projets */}
               <div>
-                <label className="block text-xs sm:text-sm font-bold text-[#334155] mb-1.5">
-                  أبرز الخبرات والمهام السابقة أو مشاريع التخرج (نص حر)
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs sm:text-sm font-bold text-[#334155]">
+                    💼 تفاصيل الخبرات المهنية، المهام ومشاريع التخرج (مساحة واسعة لتفاصيلك)
+                  </label>
+                  <span className="text-[11px] text-[#60735A] font-bold bg-[#EBF0E9] px-2 py-0.5 rounded-md">
+                    اكتب بكل راحة وحرية
+                  </span>
+                </div>
                 <textarea
-                  rows={3}
-                  placeholder="اكتب باختصار الشركات أو المشاريع التي عملت عليها، أو الصق سيرتك الذاتية القديمة هنا إن وجدت..."
+                  rows={6}
+                  placeholder="اكتب هنا تفاصيل تجاربك المهنية، الشركات أو المحلات التي عملت بها، المدة الزمنية، وأبرز المهام التي قمت بها...&#10;&#10;مثال :&#10;• 2022 — 2024 : مسؤول مبيعات بشركة X (إدارة فريق، استقبال الحرفاء، تحقيق أهداف المبيعات)...&#10;• 2021 : تربص تخرج PFE بشركة Y (إعداد دراسة تقنية وتطوير المشروع)...&#10;&#10;💡 يمكنك أيضاً لصق نص سيرتك الذاتية القديمة كاملاً هنا."
                   value={formData.experiencesText}
                   onChange={(e) => handleInputChange("experiencesText", e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#60735A]/30 focus:border-[#60735A] transition-all resize-y"
+                  className="w-full px-4 py-3.5 bg-[#F8FAFC] border border-[#CBD5E1] rounded-2xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#60735A]/40 focus:border-[#60735A] transition-all resize-y min-h-[160px] leading-relaxed font-sans"
                 />
-                <p className="text-[11px] text-[#64748B] mt-1">
-                  💡 لا تقلق بشأن الصياغة أو الأخطاء؛ خبيرنا سيعيد كتابتها بطريقة احترافية مقنعة.
+                <p className="text-[11px] text-[#64748B] mt-1.5 flex items-center gap-1">
+                  💡 لا تقلق بشأن الصياغة أو الأخطاء؛ خبيرنا سيعيد كتابتها وتنسيقها بمصطلحات قوية ومقنعة للمشغلين.
                 </p>
               </div>
 
@@ -726,29 +716,31 @@ export default function ServiceOrderPage() {
                 </div>
               </div>
 
+              {/* LARGE CASE 2: Compétences, Outils & Logiciels */}
               <div>
                 <label className="block text-xs sm:text-sm font-bold text-[#334155] mb-1.5">
-                  المهارات الأساسية، البرمجيات واللغات التي تتقنها
+                  ⚡ المهارات التقنية، البرمجيات واللغات التي تتقنها
                 </label>
-                <input
-                  type="text"
-                  placeholder="مثال: Excel, Photoshop, JavaScript, التواصل, القيادة, Français courant..."
+                <textarea
+                  rows={3}
+                  placeholder="مثال :&#10;• البرمجيات والأدوات : Excel, Photoshop, CRM, AutoCAD, Python, Canva...&#10;• اللغات : الفرنسية (Courant), الإنجليزية (Intermédiaire)...&#10;• مهارات شخصية : القيادة، التفاوض، العمل الجماعي..."
                   value={formData.skillsText}
                   onChange={(e) => handleInputChange("skillsText", e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#60735A]/30 focus:border-[#60735A] transition-all"
+                  className="w-full px-4 py-3 bg-[#F8FAFC] border border-[#CBD5E1] rounded-2xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#60735A]/40 focus:border-[#60735A] transition-all resize-y min-h-[90px] leading-relaxed font-sans"
                 />
               </div>
 
+              {/* LARGE CASE 3: Remarques & Demandes spéciales */}
               <div>
                 <label className="block text-xs sm:text-sm font-bold text-[#334155] mb-1.5">
-                  ملاحظات أو رغبات خاصة (اختياري)
+                  📝 ملاحظات أو رغبات خاصة في التصميم والصياغة (اختياري)
                 </label>
-                <input
-                  type="text"
-                  placeholder="مثال: أريد التركيز على العمل عن بعد، أو تصميم بدون صورة، أو تسليم عاجل..."
+                <textarea
+                  rows={2}
+                  placeholder="مثال : أريد التركيز على العمل عن بعد، تصميم عصري بدون صورة، أو تسليم مستعجل للتقديم لوظيفة محددة..."
                   value={formData.notes}
                   onChange={(e) => handleInputChange("notes", e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#60735A]/30 focus:border-[#60735A] transition-all"
+                  className="w-full px-4 py-3 bg-[#F8FAFC] border border-[#CBD5E1] rounded-2xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#60735A]/40 focus:border-[#60735A] transition-all resize-y min-h-[75px] leading-relaxed font-sans"
                 />
               </div>
             </div>
