@@ -3609,7 +3609,7 @@ function Builder({
               </div>
 
               {/* 4 Trust Badges (Tâche 3) */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px", marginBottom: "0.85rem", fontSize: "0.72rem", color: "#475569", background: "#ffffff", border: "1px solid #e2e8f0", padding: "0.55rem 0.75rem", borderRadius: "10px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px", marginBottom: "0.65rem", fontSize: "0.72rem", color: "#475569", background: "#ffffff", border: "1px solid #e2e8f0", padding: "0.55rem 0.75rem", borderRadius: "10px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "4px", fontWeight: 600 }}>
                   <span className="text-amber-500">⚡</span> Réponse &lt; 2 min (7j/7)
                 </div>
@@ -3622,6 +3622,14 @@ function Builder({
                 <div style={{ display: "flex", alignItems: "center", gap: "4px", fontWeight: 600 }}>
                   <span className="text-purple-600">📄</span> PDF HD 300 DPI ATS
                 </div>
+              </div>
+
+              {/* Pivot B Service Link */}
+              <div style={{ marginBottom: "0.85rem", background: "#f4f7f3", border: "1px solid #d1ded0", borderRadius: "10px", padding: "0.6rem 0.8rem", textAlign: "center", fontSize: "0.75rem", color: "#2d3a2a" }} dir="rtl">
+                <span>💼 ماعندكش وقت باش تعمّر وتصمم ؟ </span>
+                <a href="/service" style={{ color: "#1b7a43", fontWeight: 800, textDecoration: "underline", marginRight: "4px" }}>
+                  اطلب خدمة الـ CV الجاهز من خبير التوظيف ➜
+                </a>
               </div>
 
               {/* Step 3: Enter Client Activation Code */}

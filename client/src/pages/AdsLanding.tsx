@@ -509,6 +509,31 @@ export default function AdsLanding() {
             </div>
           </div>
         </div>
+
+        {/* ── Done-For-You Service Banner (Pivot B) ── */}
+        <div className="mt-10 max-w-3xl mx-auto bg-gradient-to-l from-[#60735A] to-[#3E5040] text-white rounded-3xl p-6 sm:p-8 shadow-xl text-right relative overflow-hidden" dir="rtl">
+          <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-white text-xs font-bold mb-2">
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                <span>خدمة VIP خاصة : اصنعلي الـ CV متاعي</span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-bold font-serif mb-2 text-white">
+                ماعندكش وقت باش تعمّر وتصمم وحدك ؟
+              </h3>
+              <p className="text-xs sm:text-sm text-stone-200 leading-relaxed max-w-xl">
+                خبير توظيف يتولى كتابة وصياغة وتصميم سيرتك الذاتية من الصفر وتسليمك ملف الـ PDF عالي الدقة على الواتساب في أقل من ساعتين (ابتداءً من 25 دينار).
+              </p>
+            </div>
+
+            <Link href="/service">
+              <button className="shrink-0 bg-amber-500 hover:bg-amber-600 text-stone-950 font-bold text-sm sm:text-base px-6 py-3.5 rounded-2xl shadow-lg transition-all transform hover:scale-105 active:scale-95 flex items-center gap-2">
+                <span>اطلب خدمة الـ CV الجاهز</span>
+                <ArrowRight className="w-4 h-4 rotate-180" />
+              </button>
+            </Link>
+          </div>
+        </div>
       </section>
 
       {/* ── FAQ Section ── */}

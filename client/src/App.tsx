@@ -13,6 +13,7 @@ import Privacy from "@/pages/Privacy";
 import Terms from "@/pages/Terms";
 import AdsLanding from "@/pages/AdsLanding";
 import AdminDashboard from "@/pages/AdminDashboard";
+import ServiceOrderPage from "@/pages/ServiceOrderPage";
 
 function Router() {
   return (
@@ -22,6 +23,10 @@ function Router() {
       <Route path="/offre" component={AdsLanding} />
       <Route path="/promo" component={AdsLanding} />
       <Route path="/go" component={AdsLanding} />
+      <Route path="/service" component={ServiceOrderPage} />
+      <Route path="/commande" component={ServiceOrderPage} />
+      <Route path="/khadamat" component={ServiceOrderPage} />
+      <Route path="/pro-service" component={ServiceOrderPage} />
       <Route path="/politique-de-confidentialite" component={Privacy} />
       <Route path="/conditions-utilisation" component={Terms} />
       <Route path="/404" component={NotFound} />

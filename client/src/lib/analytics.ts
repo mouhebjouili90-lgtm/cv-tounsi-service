@@ -190,8 +190,79 @@ export function trackAIUsed(step: string) {
 }
 
 /** Page view tracking */
-export function trackPageView(pageName: string) {
-  trackGaEvent("page_view", { page_title: pageName });
-  trackFbEvent("PageView");
+/** User viewed the Done-For-You Service Page (Pivot B) */
+export function trackServiceOrderViewed() {
+  const eventId = generateEventId("view_service");
+  trackEvent("ViewContent", {
+    content_name: "Service CV Fait Pour Vous",
+    content_category: "DoneForYouService",
+    value: 25.0,
+    currency: "TND",
+  });
+  trackFbEvent("ViewContent", {
+    content_name: "Service CV Fait Pour Vous",
+    content_category: "DoneForYouService",
+    value: 25.0,
+    currency: "TND",
+  }, eventId);
+  sendServerCAPI("ViewContent", {
+    content_name: "Service CV Fait Pour Vous",
+    content_category: "DoneForYouService",
+    value: 25.0,
+    currency: "TND",
+  }, undefined, eventId);
 }
+
+/** User submitted a Done-For-You Service Order */
+export function trackServiceOrderSubmitted(options: {
+  packTitle: string;
+  amount: number;
+  fullName: string;
+  phone: string;
+  paymentMethod: string;
+}) {
+  const eventId = generateEventId("lead_service");
+  trackEvent("Lead", {
+    content_name: `Service Order: ${options.packTitle}`,
+    content_category: "DoneForYouService",
+    value: options.amount,
+    currency: "TND",
+    payment_method: options.paymentMethod,
+  });
+
+  trackFbEvent(
+    "Lead",
+    {
+      content_name: `Service Order: ${options.packTitle}`,
+      content_category: "DoneForYouService",
+      value: options.amount,
+      currency: "TND",
+    },
+    eventId
+  );
+
+  trackFbEvent(
+    "Contact",
+    {
+      content_name: `Service Order WhatsApp (${options.packTitle})`,
+      content_category: "DoneForYouService",
+      value: options.amount,
+      currency: "TND",
+    },
+    eventId
+  );
+
+  sendServerCAPI(
+    "Lead",
+    {
+      content_name: `Service Order: ${options.packTitle}`,
+      content_category: "DoneForYouService",
+      value: options.amount,
+      currency: "TND",
+    },
+    { fullName: options.fullName, phone: options.phone },
+    eventId
+  );
+}
+
 
