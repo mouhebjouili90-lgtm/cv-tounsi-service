@@ -3689,16 +3689,24 @@ function Builder({
                       type="button"
                       onClick={() => executeDownloadPdf(true)}
                       style={{
-                        background: "transparent",
-                        border: "none",
-                        color: "#64748b",
-                        fontSize: "0.7rem",
+                        background: "#f8fafc",
+                        border: "1.5px dashed #cbd5e1",
+                        color: "#334155",
+                        fontSize: "0.82rem",
+                        fontWeight: 700,
                         cursor: "pointer",
-                        textDecoration: "underline",
-                        padding: "2px",
+                        padding: "8px 14px",
+                        borderRadius: "10px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "6px",
+                        width: "100%",
+                        transition: "all 150ms ease",
                       }}
                     >
-                      📥 تحميل نسخة تجريبية مجانية (Démo)
+                      <Download size={15} style={{ color: "#60735a" }} />
+                      <span>📥 تحميل نسخة تجريبية مجانية (Démo للتقييم)</span>
                     </button>
                   </div>
                 </>
@@ -3769,70 +3777,99 @@ function Builder({
         </div>
       )}
 
-      {/* ── Post-Unlock Account Linking Modal (Approche A) ── */}
+      {/* ── Post-Unlock Account Linking Modal (Arabic & Super Simple) ── */}
       {showPostUnlockModal && (
         <div className="paywall-modal-backdrop" onClick={() => setShowPostUnlockModal(false)}>
-          <div className="post-unlock-modal-box" onClick={(e) => e.stopPropagation()}>
-            <div className={`post-unlock-header ${unlockedPlan === "year" ? "pro" : "student"}`}>
-              <div className={`post-unlock-badge-pill ${unlockedPlan === "year" ? "pro-badge" : "student-badge"}`}>
+          <div className="post-unlock-modal-box" onClick={(e) => e.stopPropagation()} dir="rtl" style={{ maxWidth: "460px", textAlign: "right" }}>
+            {/* Header with Celebration */}
+            <div
+              className={`post-unlock-header ${unlockedPlan === "year" ? "pro" : "student"}`}
+              style={{
+                background: "linear-gradient(135deg, #1f2f21, #2d4430)",
+                padding: "1.2rem 1.4rem",
+                textAlign: "center",
+                position: "relative",
+              }}
+            >
+              <button
+                type="button"
+                className="paywall-modal-close-btn"
+                onClick={() => setShowPostUnlockModal(false)}
+                title="إغلاق"
+                style={{ position: "absolute", top: "12px", left: "12px" }}
+              >
+                <X size={16} />
+              </button>
+
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  background: unlockedPlan === "year" ? "#fef3c7" : "#e0f2fe",
+                  color: unlockedPlan === "year" ? "#92400e" : "#0369a1",
+                  fontSize: "0.72rem",
+                  fontWeight: 800,
+                  padding: "4px 12px",
+                  borderRadius: "999px",
+                  marginBottom: "0.6rem",
+                }}
+              >
                 {unlockedPlan === "year" ? (
                   <>
-                    <Crown size={13} /> 👑 PASS 1 AN ACTIVÉ (29.900 TND) — VIP
+                    <Crown size={13} /> <span>👑 تم تفعيل Pass سنة VIP بنجاح</span>
                   </>
                 ) : (
                   <>
-                    <Sparkles size={13} /> ⭐ PASS 1 MOIS ACTIVÉ (12.900 TND)
+                    <Sparkles size={13} /> <span>⭐ تم تفعيل Pass شهر (30 يوم) بنجاح</span>
                   </>
                 )}
               </div>
-              <h3>
-                {unlockedPlan === "year"
-                  ? "🚀 Bienvenue dans votre Espace VIP 1 An !"
-                  : "🌟 Votre Pass 1 Mois est Activé en Haute Définition !"}
+
+              <h3 style={{ fontSize: "1.15rem", fontWeight: 800, color: "#ffffff", margin: "0 0 0.35rem" }}>
+                🎉 مبروك ! الـ CV متاعك تفعل بالـ HD
               </h3>
-              <p>
-                {unlockedPlan === "year"
-                  ? `Votre accès 1 an est actif jusqu'au ${subscriptionInfo.expiresAtFormatted} (365 jours) : 9 modèles internationaux, multi-CVs et IA sans limite.`
-                  : `Votre accès 1 mois est actif jusqu'au ${subscriptionInfo.expiresAtFormatted} (30 jours) : 9 modèles internationaux, multi-CVs et IA sans limite.`}
+
+              <p style={{ fontSize: "0.78rem", color: "#d1e7dd", margin: 0, lineHeight: 1.5 }}>
+                ملف الـ PDF الرسمي عالي الدقة (300 DPI) بدأ بالتحميل الآن وجاهز للطباعة والتقديم المباشر 🚀
               </p>
             </div>
 
-            <div className="post-unlock-body">
-              <div className="post-unlock-plan-summary pro-summary">
-                <div className="plan-summary-title">
-                  {unlockedPlan === "year" ? "👑 Vos Avantages 1 An Inclus :" : "⭐ Vos Avantages 1 Mois Inclus :"}
+            {/* Body */}
+            <div className="post-unlock-body" style={{ padding: "1.1rem 1.3rem" }}>
+              {/* 3 Simple reassurance checkmarks */}
+              <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "12px", padding: "0.75rem 1rem", marginBottom: "0.9rem" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "0.78rem", color: "#334155" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <Check size={16} style={{ color: "#16a34a", shrink: 0 }} />
+                    <span><b>نسخة صافية 100%</b> بجودة الطباعة الرسمية A4 بدقة 300 DPI</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <Check size={16} style={{ color: "#16a34a", shrink: 0 }} />
+                    <span><b>مطابقة لأنظمة التوظيف الدولية ATS</b> (كندا، فرنسا، أوروبا والخليج)</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <Check size={16} style={{ color: "#16a34a", shrink: 0 }} />
+                    <span><b>تعديلات وتحميلات مفتوحة</b> طيلة فترة الاشتراك متاعك</span>
+                  </div>
                 </div>
-                <ul className="plan-summary-list">
-                  <li>
-                    <Check size={14} style={{ color: "#16a34a" }} />
-                    <span><b>Création de CVs illimités</b> : Déclinez autant de versions de CV que souhaité</span>
-                  </li>
-                  <li>
-                    <Check size={14} style={{ color: "#16a34a" }} />
-                    <span><b>Bibliothèque intégrale (9 modèles)</b> : Exécutifs 2 col, Canadiens ATS & Europass UE</span>
-                  </li>
-                  <li>
-                    <Check size={14} style={{ color: "#16a34a" }} />
-                    <span><b>Intelligence Artificielle Illimitée</b> pour tous vos postes, accroches et compétences</span>
-                  </li>
-                  <li>
-                    <Check size={14} style={{ color: "#16a34a" }} />
-                    <span><b>Sauvegarde en ligne</b> synchronisée en temps réel sur PC, Mac et Téléphone</span>
-                  </li>
-                </ul>
               </div>
 
-              <div className="post-unlock-callout pro-callout" style={{ marginTop: "1rem" }}>
-                <strong>⚡ Sauvegardez votre CV en ligne :</strong>
-                <p>
-                  Créez votre compte en 10 secondes pour sauvegarder ce CV et le retrouver sur votre téléphone ou ordinateur à tout moment.
+              {/* Callout to save CV online (Keep it safe) */}
+              <div style={{ background: "#fefce8", border: "1px solid #fde047", borderRadius: "12px", padding: "0.75rem 1rem", marginBottom: "1rem", textAlign: "right" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: 800, fontSize: "0.82rem", color: "#854d0e", marginBottom: "3px" }}>
+                  <Cloud size={16} style={{ color: "#ca8a04" }} />
+                  <span>💡 تحب تحفظ الـ CV متاعك أونلاين باش ما يضيعش ؟</span>
+                </div>
+                <p style={{ fontSize: "0.74rem", color: "#713f12", margin: 0, lineHeight: 1.4 }}>
+                  اعمل حساب مجاني في 10 ثواني (بالإيميل وكلمة السر) باش ترجع تعدل على سيرتك الذاتية من التليفون أو البيسي في أي وقت.
                 </p>
               </div>
 
-              <div className="post-unlock-actions" style={{ marginTop: "1rem", display: "flex", flexDirection: "column", gap: "8px" }}>
+              {/* Actions */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 <button
                   type="button"
-                  className="post-unlock-email-btn"
                   onClick={() => {
                     setShowPostUnlockModal(false);
                     openAuthModal("register");
@@ -3843,37 +3880,37 @@ function Builder({
                     alignItems: "center",
                     justifyContent: "center",
                     gap: "8px",
-                    background: "#2d6a4f",
+                    background: "#25D366",
                     color: "#ffffff",
-                    fontWeight: 700,
-                    padding: "0.85rem 1.2rem",
+                    fontWeight: 800,
+                    padding: "0.82rem 1.2rem",
                     borderRadius: "12px",
-                    fontSize: "0.92rem",
-                    boxShadow: "0 2px 8px rgba(45,106,79,0.25)",
+                    fontSize: "0.9rem",
+                    boxShadow: "0 3px 12px rgba(37, 211, 102, 0.35)",
                     cursor: "pointer",
                     border: "none",
                   }}
                 >
-                  <Mail size={16} />
-                  <span>Créer mon compte avec Email & Mot de passe</span>
+                  <UserCheck size={18} />
+                  <span>احفظ سيرتك الذاتية بحساب مجاني (10 ثواني)</span>
                 </button>
 
                 <button
                   type="button"
-                  className="post-unlock-later-btn"
                   onClick={() => setShowPostUnlockModal(false)}
                   style={{
                     width: "100%",
                     background: "none",
                     border: "none",
-                    color: "var(--ink-soft)",
-                    fontSize: "0.8rem",
-                    padding: "0.4rem",
+                    color: "#64748b",
+                    fontSize: "0.78rem",
+                    padding: "6px",
                     cursor: "pointer",
                     textDecoration: "underline",
+                    textAlign: "center",
                   }}
                 >
-                  Plus tard (Accéder directement à mon CV débloqué)
+                  إغلاق ومتابعة استخدام الـ CV ➔
                 </button>
               </div>
             </div>
