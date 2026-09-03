@@ -1639,21 +1639,21 @@ function ScaledResumePreview({
       }}
     >
       {/* ── Zoom & Edit Toolbar ── */}
-      <div className="preview-toolbar-controls">
+      <div className="preview-toolbar-controls" dir="rtl">
         <div className="preview-toolbar-left">
           <span className="live-edit-indicator">
             <span className="live-edit-pulse" />
             <MousePointerClick size={14} />
-            <span><b>Aperçu Dynamique & Édition Directe</b></span>
+            <span><b>معاينة حية وتعديل مباشر</b></span>
           </span>
         </div>
 
-        <div className="zoom-buttons-group">
-          <button type="button" onClick={zoomOut} className="zoom-btn" title="Dézoomer (-15%)">
+        <div className="zoom-buttons-group" style={{ direction: "ltr" }}>
+          <button type="button" onClick={zoomOut} className="zoom-btn" title="تصغير (-15%)">
             <ZoomOut size={13} />
           </button>
           <span className="zoom-percentage-badge">{Math.round(currentScale * 100)}%</span>
-          <button type="button" onClick={zoomIn} className="zoom-btn" title="Zoomer (+15%)">
+          <button type="button" onClick={zoomIn} className="zoom-btn" title="تكبير (+15%)">
             <ZoomIn size={13} />
           </button>
 
@@ -1661,18 +1661,18 @@ function ScaledResumePreview({
             type="button"
             onClick={resetZoom}
             className={`zoom-preset-btn ${manualZoom === null ? "active" : ""}`}
-            title="Ajuster automatiquement"
+            title="ضبط تلقائي للمقاس"
           >
-            Ajuster
+            ضبط الحجم
           </button>
           
           <button
             type="button"
             onClick={() => setFixedZoom(manualZoom === 1.0 ? 0.85 : 1.0)}
             className={`zoom-preset-btn ${manualZoom === 1.0 ? "active" : ""}`}
-            title="Agrandir en taille réelle pour éditer directement les textes"
+            title="حجم 100% للتعديل المباشر"
           >
-            {isMobileMode ? (manualZoom === 1.0 ? "100% (Actif)" : "100% Édition") : "100%"}
+            {isMobileMode ? (manualZoom === 1.0 ? "100% (مفعل)" : "100% تعديل") : "100%"}
           </button>
           {!isMobileMode && (
             <button
@@ -1697,20 +1697,20 @@ function ScaledResumePreview({
       >
         {/* Anti-Screenshot Shield Overlay */}
         {!isUnlocked && isScreenProtected && (
-          <div className="screen-blur-guard-overlay">
+          <div className="screen-blur-guard-overlay" dir="rtl">
             <ShieldAlert size={40} color="#e1b0a6" />
-            <h4>🛡️ Aperçu Protégé — CV Tounsi</h4>
+            <h4>🛡️ معاينة محمية — CV Tounsi</h4>
             <p>
-              Les captures d'écran sont désactivées sur cette version d'aperçu.<br />
-              Obtenez votre CV officiel en PDF haute résolution A4.
+              خاصية لقطة الشاشة معطلة في هذه المعاينة.<br />
+              احصل على سيرتك الذاتية الرسمية الصافية بدقة عالية PDF A4.
             </p>
             <button
               type="button"
               className="button button-primary"
               onClick={onOpenPaywall}
-              style={{ fontSize: "0.78rem", padding: "0.5rem 1.1rem" }}
+              style={{ fontSize: "0.82rem", padding: "0.55rem 1.2rem", fontWeight: 800 }}
             >
-              Débloquer la version officielle HD
+              تفعيل وتحميل النسخة الرسمية HD 🚀
             </button>
           </div>
         )}
@@ -3347,17 +3347,17 @@ function Builder({
 
           {/* Paywall Protection Badge centered on the blurred PDF when not unlocked */}
           {!isUnlocked && (
-            <div className="pdf-paywall-badge-card">
+            <div className="pdf-paywall-badge-card" dir="rtl">
               <div className="pdf-paywall-icon">
                 <Lock size={26} />
               </div>
-              <h2>🔒 VERSION DÉMO PROTÉGÉE — CV TOUNSI</h2>
+              <h2>🔒 نسخة تجريبية محمية — CV TOUNSI</h2>
               <p>
-                Ce document est un extrait protégé de démonstration. Pour débloquer votre <b>CV complet en Haute Définition</b> (sans flou et sans filigrane) :
+                هذه نسخة أولية للمعاينة. لتفعيل وتحميل <b>سيرتك الذاتية الرسمية بالدقة العالية (HD)</b> بدون فلو وبدون علامة مائية :
               </p>
               
               <div className="pdf-paywall-box-highlight">
-                <div className="price-row">Tarifs Déblocage : 12.900 TND (Pass 1 Mois) · 29.900 TND (Pass 1 An)</div>
+                <div className="price-row">الأسعار الرسمية : 12.900 د (Pass شهر) · 29.900 د (Pass عام كامل VIP)</div>
                 <div style={{ pointerEvents: "auto", marginTop: "4px" }}>
                   <a
                     href={`https://wa.me/21692067554?text=${encodeURIComponent("نحب نفعّل CV Tounsi متاعي 🫒")}`}
@@ -3374,7 +3374,7 @@ function Builder({
                       cursor: "pointer",
                     }}
                   >
-                    <span>WhatsApp : +216 92 067 554 · D17 / Flouci / Virement</span>
+                    <span>واتساب : 554 067 92 · خلاص فوري عبر D17 أو Flouci</span>
                   </a>
                 </div>
               </div>
@@ -3402,12 +3402,12 @@ function Builder({
                     cursor: "pointer",
                   }}
                 >
-                  <span>👉 Acheter & Débloquer sur WhatsApp (+216 92 067 554)</span>
+                  <span>👉 اطلب كود التفعيل عبر WhatsApp (+216 92 067 554)</span>
                 </a>
               </div>
 
               <div className="pdf-paywall-instructions">
-                Cliquez sur le bouton ci-dessus pour recevoir instantanément votre code d'activation certifié.
+                اضغط على الزر الأخضر أعلاه لاستلام كود التفعيل الخاص بك في أقل من دقيقتين.
               </div>
             </div>
           )}
@@ -3936,7 +3936,7 @@ function Builder({
             {/* User Account / Save Button */}
             <button
               type="button"
-              className="button button-quiet"
+              className="button button-quiet builder-cloud-save-btn"
               onClick={handleSaveToCloud}
               disabled={isSavingCloud}
               title={user ? "حفظ التعديلات في حسابك السحابي" : "سجّل دخولك لحفظ سيرتك الذاتية أونلاين"}
@@ -4165,26 +4165,31 @@ function Builder({
            ════════════════════════════════════════════════════════════════════════ */
         <div className="native-mobile-builder">
           {/* Mobile Top Segmented Tabs: Formulaire vs Aperçu */}
-          <div className="mobile-view-tabs">
+          <div className="mobile-view-tabs" dir="rtl">
             <button
               type="button"
               className={`mobile-tab-btn ${mobileTab === "form" ? "active" : ""}`}
               onClick={() => setMobileTab("form")}
             >
-              <Edit3 size={14} /> تعمير المعلومات (مرحلة 0{step + 1})
+              <Edit3 size={14} /> <span>تعمير المعلومات (0{step + 1}/04)</span>
             </button>
             <button
               type="button"
               className={`mobile-tab-btn ${mobileTab === "preview" ? "active" : ""}`}
               onClick={() => setMobileTab("preview")}
             >
-              <Eye size={14} /> معاينة الـ CV مباشر
+              <Eye size={14} /> <span>معاينة الـ <bdi>CV</bdi> مباشرة</span>
             </button>
           </div>
 
           {/* Mobile 4-Step Pills */}
-          <div className="mobile-step-pills">
-            {steps.map((item, idx) => (
+          <div className="mobile-step-pills" dir="rtl">
+            {[
+              { shortLabel: "النموذج", num: "01" },
+              { shortLabel: "البيانات", num: "02" },
+              { shortLabel: "الخبرات", num: "03" },
+              { shortLabel: "التحميل", num: "04" },
+            ].map((stepItem, idx) => (
               <button
                 key={idx}
                 type="button"
@@ -4194,8 +4199,8 @@ function Builder({
                   setMobileTab("form");
                 }}
               >
-                <span className="mobile-step-pill-num">0{idx + 1}</span>
-                <span className="mobile-step-pill-title">{item.label}</span>
+                <span className="mobile-step-pill-num">{stepItem.num}</span>
+                <span className="mobile-step-pill-title">{stepItem.shortLabel}</span>
               </button>
             ))}
           </div>

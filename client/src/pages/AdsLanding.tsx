@@ -70,10 +70,10 @@ export default function AdsLanding() {
 
           <button
             onClick={() => handleStartNow("header_btn")}
-            className="inline-flex items-center gap-2 bg-[#60735A] hover:bg-[#4d5c48] text-white text-xs sm:text-sm font-bold px-4 sm:px-5 py-2.5 rounded-xl shadow-sm transition-all transform active:scale-95"
+            className="inline-flex items-center gap-1.5 sm:gap-2 bg-[#60735A] hover:bg-[#4d5c48] text-white text-xs sm:text-sm font-bold px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl shadow-sm transition-all transform active:scale-95 whitespace-nowrap shrink-0"
           >
             <span>اصنع الـ CV متاعك</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
         </div>
       </header>

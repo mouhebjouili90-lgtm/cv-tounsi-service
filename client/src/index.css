@@ -2482,13 +2482,16 @@ h1, h2, h3, p { margin: 0; }
   color: var(--olive-dark);
 }
 .mobile-step-pill-title {
-  font-size: 0.62rem;
-  font-weight: 600;
+  font-size: 0.68rem;
+  font-weight: 700;
   color: var(--ink);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 65px;
+}
+
+@media (max-width: 640px) {
+  .builder-cloud-save-btn {
+    display: none !important;
+  }
 }
 
 /* ── Mobile Form Panel ── */
