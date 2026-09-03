@@ -70,6 +70,7 @@ import {
   FolderOpen,
   LogOut,
   Save,
+  Copy,
 } from "lucide-react";
 
 const heroImage = "/manus-storage/cv-tounsi-hero-reference_82281e8d.jpg";
@@ -2182,9 +2183,15 @@ function Builder({
     prevUserRef.current = user;
   }, [user, isUnlocked, data, activeCvId, saveCvToCloud, setActiveCvId]);
   const [showPaywallModal, setShowPaywallModal] = useState(false);
+  const [paywallTab, setPaywallTab] = useState<"pay" | "code">("pay");
   const [selectedPlan, setSelectedPlan] = useState<"month" | "year">("year");
   const [isScreenProtected, setIsScreenProtected] = useState(false);
   const [clientCodeInput, setClientCodeInput] = useState("");
+
+  const copyD17 = () => {
+    navigator.clipboard.writeText("92067554");
+    toast.success("✅ تم نسخ رقم D17 (92 067 554) بنجاح !");
+  };
 
   const [isExporting, setIsExporting] = useState(false);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
@@ -3407,19 +3414,26 @@ function Builder({
         </div>
       </div>
 
-      {/* ── Paywall & Monetization Modal with Dual Pricing ── */}
+      {/* ── Paywall & Monetization Modal with Dual Pricing (Compact Mobile-First Zero-Scroll) ── */}
       {showPaywallModal && (
         <div className="paywall-modal-backdrop" onClick={() => setShowPaywallModal(false)}>
-          <div className="paywall-modal-box" onClick={(e) => e.stopPropagation()}>
-            <div className="paywall-modal-header" style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-              <img src="/icon.jpg" alt="CV Tounsi Logo" style={{ width: "42px", height: "42px", borderRadius: "10px", objectFit: "cover", flexShrink: 0, boxShadow: "0 4px 10px rgba(0,0,0,0.15)" }} />
-              <div style={{ flex: 1 }} dir="rtl">
-                <h3 style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a", margin: 0 }}>
-                  🔓 فعّل الـ CV متاعك بالـ Haute Définition
-                </h3>
-                <p style={{ fontSize: "0.75rem", color: "#64748b", margin: "2px 0 0" }}>
-                  ملف PDF A4 بدقة 300 DPI مطابق للمواصفات التونسية، الكندية والأوروبية ATS
-                </p>
+          <div className="paywall-modal-box compact-paywall-box" onClick={(e) => e.stopPropagation()}>
+            {/* Header */}
+            <div className="paywall-modal-header" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.85rem 1rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <img
+                  src="/icon.jpg"
+                  alt="CV Tounsi Logo"
+                  style={{ width: "36px", height: "36px", borderRadius: "8px", objectFit: "cover", flexShrink: 0, boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}
+                />
+                <div dir="rtl">
+                  <h3 style={{ fontSize: "0.98rem", fontWeight: 800, color: "#ffffff", margin: 0, lineHeight: 1.2 }}>
+                    🔓 فعّل وحمّل الـ CV متاعك بدقة HD
+                  </h3>
+                  <p style={{ fontSize: "0.7rem", color: "#c7d8c3", margin: "2px 0 0" }}>
+                    ملف PDF A4 عالي الدقة 300 DPI مطابق للـ ATS
+                  </p>
+                </div>
               </div>
               <button
                 type="button"
@@ -3431,267 +3445,325 @@ function Builder({
               </button>
             </div>
 
-            <div className="paywall-modal-body">
-              {/* ── Free Demo Download Bar ── */}
-              <div style={{ marginBottom: "0.85rem" }}>
+            {/* Modal Body */}
+            <div className="paywall-modal-body" style={{ padding: "0.85rem 1rem" }}>
+              {/* ── Tabs Selector: Pay vs Enter Code ── */}
+              <div className="paywall-tab-switcher" dir="rtl" style={{ display: "flex", gap: "6px", background: "#f1f5f9", padding: "4px", borderRadius: "10px", marginBottom: "0.75rem" }}>
                 <button
                   type="button"
-                  className="download-demo-btn"
-                  onClick={() => executeDownloadPdf(true)}
+                  onClick={() => setPaywallTab("pay")}
                   style={{
-                    background: "#fbf9f4",
-                    border: "1.5px dashed #c8beab",
-                    padding: "0.6rem 1rem",
+                    flex: 1,
+                    padding: "7px 10px",
+                    borderRadius: "8px",
+                    fontSize: "0.78rem",
+                    fontWeight: 700,
+                    border: "none",
+                    cursor: "pointer",
+                    transition: "all 150ms ease",
+                    background: paywallTab === "pay" ? "#ffffff" : "transparent",
+                    color: paywallTab === "pay" ? "#1e293b" : "#64748b",
+                    boxShadow: paywallTab === "pay" ? "0 2px 6px rgba(0,0,0,0.08)" : "none",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    gap: "8px",
-                    fontSize: "0.78rem",
-                    color: "var(--ink)",
-                    fontWeight: 700,
-                    borderRadius: "8px",
-                    width: "100%",
-                    cursor: "pointer",
-                    transition: "all 150ms ease",
+                    gap: "5px",
                   }}
                 >
-                  <Download size={15} style={{ color: "var(--olive-dark)" }} />
-                  <span>📥 تحميل نسخة تجريبية مجانية (نسخة Démo للتقييم)</span>
+                  <Zap size={14} style={{ color: "#d97706" }} />
+                  <span>تفعيل جديد (D17 / Flouci)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaywallTab("code")}
+                  style={{
+                    flex: 1,
+                    padding: "7px 10px",
+                    borderRadius: "8px",
+                    fontSize: "0.78rem",
+                    fontWeight: 700,
+                    border: "none",
+                    cursor: "pointer",
+                    transition: "all 150ms ease",
+                    background: paywallTab === "code" ? "#ffffff" : "transparent",
+                    color: paywallTab === "code" ? "#1e293b" : "#64748b",
+                    boxShadow: paywallTab === "code" ? "0 2px 6px rgba(0,0,0,0.08)" : "none",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "5px",
+                  }}
+                >
+                  <Key size={14} style={{ color: "#16a34a" }} />
+                  <span>عندي كود تفعيل</span>
                 </button>
               </div>
 
-              {/* ── Cloud Account Synchronization Banner ── */}
-              {!user ? (
-                <div className="paywall-account-banner guest" dir="rtl">
-                  <div className="paywall-account-banner-left">
-                    <div className="paywall-account-icon-wrap">
-                      <Cloud size={16} />
+              {paywallTab === "pay" ? (
+                <>
+                  {/* ── Compact Dual Pricing Cards (Horizontal Grid) ── */}
+                  <div className="compact-plans-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginBottom: "0.75rem" }}>
+                    {/* Month Pass */}
+                    <div
+                      onClick={() => setSelectedPlan("month")}
+                      style={{
+                        padding: "8px 10px",
+                        borderRadius: "10px",
+                        border: selectedPlan === "month" ? "2px solid #60735a" : "1.5px solid #e2e8f0",
+                        background: selectedPlan === "month" ? "#f4f7f3" : "#ffffff",
+                        cursor: "pointer",
+                        position: "relative",
+                        transition: "all 150ms ease",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <div>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "2px" }}>
+                          <span style={{ fontSize: "0.62rem", fontWeight: 800, background: "#e0f2fe", color: "#0369a1", padding: "1px 6px", borderRadius: "999px" }}>
+                            ⭐ 30 يوم
+                          </span>
+                          {selectedPlan === "month" && <Check size={14} style={{ color: "#60735a", strokeWidth: 3 }} />}
+                        </div>
+                        <div style={{ fontSize: "0.82rem", fontWeight: 800, color: "#0f172a" }}>Pass شهر</div>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "baseline", gap: "3px", marginTop: "4px" }}>
+                        <span style={{ fontSize: "1.25rem", fontWeight: 900, color: "#2d4430", lineHeight: 1 }}>12.900</span>
+                        <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#64748b" }}>دينار</span>
+                      </div>
                     </div>
-                    <div>
-                      <strong>حفظ الـ CV أونلاين على حسابك</strong>
-                      <p>سجّل دخولك باش ترجع تعدّل على الـ CV متاعك من الهاتف أو الحاسوب في أي وقت.</p>
+
+                    {/* Year Pass VIP */}
+                    <div
+                      onClick={() => setSelectedPlan("year")}
+                      style={{
+                        padding: "8px 10px",
+                        borderRadius: "10px",
+                        border: selectedPlan === "year" ? "2px solid #60735a" : "1.5px solid #e2e8f0",
+                        background: selectedPlan === "year" ? "#f4f7f3" : "#ffffff",
+                        cursor: "pointer",
+                        position: "relative",
+                        transition: "all 150ms ease",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <div>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "2px" }}>
+                          <span style={{ fontSize: "0.62rem", fontWeight: 800, background: "#fef3c7", color: "#92400e", padding: "1px 6px", borderRadius: "999px" }}>
+                            👑 VIP (-50%)
+                          </span>
+                          {selectedPlan === "year" && <Check size={14} style={{ color: "#60735a", strokeWidth: 3 }} />}
+                        </div>
+                        <div style={{ fontSize: "0.82rem", fontWeight: 800, color: "#0f172a" }}>Pass عام كامل VIP</div>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "baseline", gap: "3px", marginTop: "4px" }}>
+                        <span style={{ fontSize: "1.25rem", fontWeight: 900, color: "#2d4430", lineHeight: 1 }}>29.900</span>
+                        <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#64748b" }}>دينار</span>
+                        <span style={{ fontSize: "0.68rem", color: "#94a3b8", textDecoration: "line-through", marginRight: "2px" }}>59 DT</span>
+                      </div>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    className="paywall-account-btn"
-                    onClick={() => openAuthModal("login")}
+
+                  {/* ── D17 & Payment Direct Micro-Box ── */}
+                  <div
+                    style={{
+                      background: "#f8fafc",
+                      border: "1px solid #e2e8f0",
+                      borderRadius: "10px",
+                      padding: "8px 10px",
+                      marginBottom: "0.75rem",
+                    }}
+                    dir="rtl"
                   >
-                    تسجيل الدخول
-                  </button>
-                </div>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "4px", marginBottom: "3px" }}>
+                      <span style={{ fontSize: "0.78rem", fontWeight: 800, color: "#0f172a" }}>
+                        📲 خلاص فوري عبر D17 (أو Flouci / بنك) :
+                      </span>
+                      <button
+                        type="button"
+                        onClick={copyD17}
+                        style={{
+                          background: "#e2e8f0",
+                          border: "none",
+                          borderRadius: "6px",
+                          padding: "2px 7px",
+                          fontSize: "0.7rem",
+                          fontWeight: 700,
+                          color: "#1e293b",
+                          cursor: "pointer",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "3px",
+                        }}
+                      >
+                        <Copy size={11} />
+                        <span>نسخ الرقم : 92067554</span>
+                      </button>
+                    </div>
+                    <p style={{ fontSize: "0.72rem", color: "#475569", margin: 0, lineHeight: 1.4 }}>
+                      ابعث <b>{selectedPlan === "month" ? "12.900 د" : "29.900 د"}</b> على رقم D17، واضغط الزر الأخضر بالأسفل لإرسال الوصل واستلام كودك في أقل من دقيقتين ⚡.
+                    </p>
+                  </div>
+
+                  {/* ── Main Big Green CTA Button (WhatsApp) ── */}
+                  <div style={{ marginBottom: "0.75rem" }}>
+                    <a
+                      href={`https://wa.me/21692067554?text=${encodeURIComponent(
+                        selectedPlan === "month"
+                          ? "سلام، نحب نفعّل Pass شهر CV Tounsi (12.9 DT) 🫒"
+                          : "سلام، نحب نفعّل Pass سنة VIP CV Tounsi (29.9 DT) 👑"
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="whatsapp-action-btn"
+                      onClick={() => {
+                        trackWhatsAppClicked("ORDER", selectedPlan, data.fullName);
+                      }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "8px",
+                        background: "#25D366",
+                        color: "#ffffff",
+                        textDecoration: "none",
+                        fontWeight: 800,
+                        fontSize: "0.92rem",
+                        padding: "0.82rem 1.2rem",
+                        borderRadius: "12px",
+                        boxShadow: "0 4px 14px rgba(37, 211, 102, 0.4)",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <MessageCircle size={18} />
+                      <span>
+                        {`اطلب (${selectedPlan === "month" ? "12.9 د" : "29.9 د"}) وابعث الوصل على WhatsApp 🚀`}
+                      </span>
+                    </a>
+                  </div>
+
+                  {/* ── Micro Trust Badges (1 Line) ── */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "8px",
+                      flexWrap: "wrap",
+                      fontSize: "0.68rem",
+                      color: "#64748b",
+                      paddingTop: "6px",
+                      borderTop: "1px solid #f1f5f9",
+                      marginBottom: "0.6rem",
+                    }}
+                  >
+                    <span>⚡ كود في أقل من 2 د</span>
+                    <span>•</span>
+                    <span>🔒 +2500 CV مقبولة</span>
+                    <span>•</span>
+                    <span>💯 ضمان 100% أو استرجاع</span>
+                  </div>
+
+                  {/* ── Secondary Links (Pivot B + Free Demo) ── */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: "5px", textAlign: "center" }} dir="rtl">
+                    <a
+                      href="/service"
+                      style={{
+                        fontSize: "0.72rem",
+                        color: "#166534",
+                        fontWeight: 700,
+                        textDecoration: "none",
+                        background: "#f0fdf4",
+                        padding: "5px 8px",
+                        borderRadius: "8px",
+                        border: "1px solid #bbf7d0",
+                      }}
+                    >
+                      💼 ماعندكش وقت باش تصنع وحدك ؟ اطلب CV جاهز من خبير التوظيف ➜
+                    </a>
+                    
+                    <button
+                      type="button"
+                      onClick={() => executeDownloadPdf(true)}
+                      style={{
+                        background: "transparent",
+                        border: "none",
+                        color: "#64748b",
+                        fontSize: "0.7rem",
+                        cursor: "pointer",
+                        textDecoration: "underline",
+                        padding: "2px",
+                      }}
+                    >
+                      📥 تحميل نسخة تجريبية مجانية (Démo)
+                    </button>
+                  </div>
+                </>
               ) : (
-                <div className="paywall-account-banner logged-in" dir="rtl">
-                  <div className="paywall-account-banner-left">
-                    <div className="paywall-account-icon-wrap active">
-                      <UserCheck size={16} />
+                /* ── Code Input Tab (Clean & Focused) ── */
+                <div style={{ padding: "0.5rem 0" }} dir="rtl">
+                  <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+                    <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: "#e8f5e9", color: "#2e7d32", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 8px" }}>
+                      <Key size={20} />
                     </div>
-                    <div>
-                      <strong>حساب متصل : {user.name || user.email}</strong>
-                      <p>عملية التفعيل والـ CVs متاعك باش تتحفظ أوتوماتيكياً على حسابك الشخصي.</p>
-                    </div>
+                    <h4 style={{ fontSize: "0.95rem", fontWeight: 800, color: "#0f172a", margin: "0 0 4px" }}>
+                      أدخل كود التفعيل الخاص بك
+                    </h4>
+                    <p style={{ fontSize: "0.74rem", color: "#64748b", margin: 0 }}>
+                      اكتب الكود الذي وصلك على الواتساب لتحميل نسختك الصافية فوراً
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleUnlockWithClientCode} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                    <input
+                      type="text"
+                      className="client-unlock-input"
+                      placeholder="مثال: CV-TOUNSI-XXXX"
+                      value={clientCodeInput}
+                      onChange={(e) => setClientCodeInput(e.target.value)}
+                      autoFocus
+                      style={{
+                        textAlign: "center",
+                        fontSize: "0.95rem",
+                        fontWeight: 700,
+                        letterSpacing: "1px",
+                        padding: "10px",
+                        borderRadius: "10px",
+                        border: "1.5px solid #60735a",
+                      }}
+                    />
+                    <button
+                      type="submit"
+                      style={{
+                        background: "#25D366",
+                        color: "#ffffff",
+                        border: "none",
+                        borderRadius: "10px",
+                        padding: "12px",
+                        fontSize: "0.9rem",
+                        fontWeight: 800,
+                        cursor: "pointer",
+                        boxShadow: "0 4px 12px rgba(37, 211, 102, 0.35)",
+                      }}
+                    >
+                      تفعيل وتحميل الـ PDF عالي الدقة (HD)
+                    </button>
+                  </form>
+
+                  <div style={{ textAlign: "center", marginTop: "1rem" }}>
+                    <button
+                      type="button"
+                      onClick={() => setPaywallTab("pay")}
+                      style={{ background: "transparent", border: "none", color: "#166534", fontSize: "0.74rem", fontWeight: 700, cursor: "pointer", textDecoration: "underline" }}
+                    >
+                      ما زال ما عندكش كود ؟ اطلب كودك عبر D17 من هنا ➜
+                    </button>
                   </div>
                 </div>
               )}
-
-              {/* ── Dual Pricing Plan Selector ── */}
-              <div style={{ marginBottom: "0.5rem" }} dir="rtl">
-                <span style={{ display: "block", fontSize: "0.76rem", fontWeight: 800, color: "var(--ink)", marginBottom: "0.45rem" }}>
-                  1️⃣ اختار الباقة المناسبة ليك :
-                </span>
-                <div className="paywall-plans-grid" style={{ direction: "ltr" }}>
-                  {/* Option 1: Pass 1 Mois */}
-                  <div
-                    className={`paywall-plan-card ${selectedPlan === "month" ? "selected" : ""}`}
-                    onClick={() => setSelectedPlan("month")}
-                  >
-                    <div>
-                      <span className="paywall-plan-tag tag-student">⭐ دخول لمدة شهر (30 يوم)</span>
-                      <div className="paywall-plan-title">Pass شهر</div>
-                      <div className="paywall-plan-sub">استعمال كامل وغير محدود طيلة 30 يوم</div>
-                      <div className="paywall-price-wrap">
-                        <span className="paywall-price-main">12.900</span>
-                        <span className="paywall-price-unit">دينار</span>
-                      </div>
-                    </div>
-                    <ul className="paywall-features-list">
-                      <li><Check size={12} /> <strong>Tous les 9 modèles</strong> (Tunisie, Canada, UE)</li>
-                      <li><Check size={12} /> <strong>CVs illimités</strong> en Haute Définition (300 DPI)</li>
-                      <li><Check size={12} /> <strong>IA Gemini Flash</strong> illimitée</li>
-                      <li><Check size={12} /> <strong>Sauvegarde en ligne</strong> (PC & Mobile)</li>
-                    </ul>
-                  </div>
-
-                  {/* Option 2: Pass 1 An */}
-                  <div
-                    className={`paywall-plan-card ${selectedPlan === "year" ? "selected" : ""}`}
-                    onClick={() => setSelectedPlan("year")}
-                  >
-                    <div>
-                      <span className="paywall-plan-tag tag-pro">
-                        👑 أفضل عرض · تخفيض 80%
-                      </span>
-                      <div className="paywall-plan-title">
-                        Pass سنة VIP
-                      </div>
-                      <div className="paywall-plan-sub">
-                        استعمال كامل لمدة سنة كاملة (12 شهر)
-                      </div>
-                      <div className="paywall-price-wrap">
-                        <span className="paywall-price-main">29.900</span>
-                        <span className="paywall-price-unit">دينار</span>
-                        <span className="paywall-price-struck">59 DT</span>
-                      </div>
-                    </div>
-                    <ul className="paywall-features-list">
-                      <li><Check size={12} /> <strong>Tous les 9 modèles</strong> (Tunisie, Canada, UE)</li>
-                      <li><Check size={12} /> <strong>CVs illimités</strong> en Haute Définition (300 DPI)</li>
-                      <li><Check size={12} /> <strong>IA Gemini Flash</strong> illimitée pendant 1 an</li>
-                      <li><Check size={12} /> <strong>Sauvegarde en ligne & Support VIP</strong> 1 an</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              {/* ── 3 Étapes Claires de Paiement D17 en Arabe ── */}
-              <div style={{ background: "#f8fafc", border: "1.5px solid #e2e8f0", borderRadius: "12px", padding: "0.85rem 1rem", marginBottom: "0.75rem" }} dir="rtl">
-                <div style={{ fontWeight: 800, fontSize: "0.82rem", color: "#0f172a", marginBottom: "0.45rem", display: "flex", alignItems: "center", gap: "6px" }}>
-                  <span>📲 كيفاش تفعّل الـ CV متاعك في 3 خطوات ساهلة :</span>
-                </div>
-                <div style={{ fontSize: "0.77rem", color: "#334155", lineHeight: "1.6" }}>
-                  <div style={{ marginBottom: "4px" }}>
-                    <b>1.</b> ابعث <b>{selectedPlan === "month" ? "12.900 دينار" : "29.900 دينار"}</b> عبر <b>D17 على الرقم : 92 067 554</b> <i>(أو Flouci / تحويل بنكي)</i>.
-                  </div>
-                  <div style={{ marginBottom: "4px" }}>
-                    <b>2.</b> ابعث لقطة شاشة للوصل (Capture) على الواتساب بكليك وحدة على الزر الأخضر بالأسفل.
-                  </div>
-                  <div>
-                    <b>3.</b> يوصلك <b>كود التفعيل الرسمي في أقل من دقيقتين</b> ✅
-                  </div>
-                </div>
-              </div>
-
-              {/* ── CTA WhatsApp Button (Direct Order & Receipt Sending) ── */}
-              <div style={{ marginBottom: "0.65rem" }}>
-                <a
-                  href={`https://wa.me/21692067554?text=${encodeURIComponent(
-                    selectedPlan === "month"
-                      ? "نحب نفعّل Pass شهر CV Tounsi (12.9 DT) 🫒"
-                      : "نحب نفعّل Pass سنة VIP CV Tounsi (29.9 DT) 👑"
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="whatsapp-action-btn"
-                  onClick={() => {
-                    trackWhatsAppClicked("ORDER", selectedPlan, data.fullName);
-                  }}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "9px",
-                    background: "#25D366",
-                    color: "#ffffff",
-                    textDecoration: "none",
-                    fontWeight: 800,
-                    fontSize: "0.95rem",
-                    padding: "0.85rem 1.4rem",
-                    borderRadius: "12px",
-                    boxShadow: "0 4px 14px rgba(37, 211, 102, 0.4)",
-                    cursor: "pointer",
-                  }}
-                >
-                  <MessageCircle size={18} />
-                  <span>
-                    {`اطلب (${selectedPlan === "month" ? "12.9 دينار" : "29.9 دينار"}) وابعث الوصل على WhatsApp 🚀`}
-                  </span>
-                </a>
-              </div>
-
-              {/* 4 Trust Badges (Tâche 3) */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px", marginBottom: "0.65rem", fontSize: "0.72rem", color: "#475569", background: "#ffffff", border: "1px solid #e2e8f0", padding: "0.55rem 0.75rem", borderRadius: "10px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "4px", fontWeight: 600 }}>
-                  <span className="text-amber-500">⚡</span> Réponse &lt; 2 min (7j/7)
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "4px", fontWeight: 600 }}>
-                  <span className="text-emerald-600">🔒</span> +2 500 CVs activés · ⭐ 4.9/5
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "4px", fontWeight: 600 }}>
-                  <span className="text-blue-600">💯</span> 100% Satisfait ou Remboursé
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "4px", fontWeight: 600 }}>
-                  <span className="text-purple-600">📄</span> PDF HD 300 DPI ATS
-                </div>
-              </div>
-
-              {/* Pivot B Service Link */}
-              <div style={{ marginBottom: "0.85rem", background: "#f4f7f3", border: "1px solid #d1ded0", borderRadius: "10px", padding: "0.6rem 0.8rem", textAlign: "center", fontSize: "0.75rem", color: "#2d3a2a" }} dir="rtl">
-                <span>💼 ماعندكش وقت باش تعمّر وتصمم ؟ </span>
-                <a href="/service" style={{ color: "#1b7a43", fontWeight: 800, textDecoration: "underline", marginRight: "4px" }}>
-                  اطلب خدمة الـ CV الجاهز من خبير التوظيف ➜
-                </a>
-              </div>
-
-              {/* Step 3: Enter Client Activation Code */}
-              <div className="client-unlock-box">
-                <div className="client-unlock-title">
-                  <Key size={14} /> 3. Vous avez reçu votre code ? Entrez-le ici :
-                </div>
-                <p className="client-unlock-desc">
-                  Saisissez votre code d'activation pour débloquer immédiatement votre CV en Haute Définition.
-                </p>
-
-                <form onSubmit={handleUnlockWithClientCode} className="client-unlock-form">
-                  <input
-                    type="text"
-                    className="client-unlock-input"
-                    placeholder="Entrez votre code d'activation ici..."
-                    value={clientCodeInput}
-                    onChange={(e) => setClientCodeInput(e.target.value)}
-                    autoFocus
-                  />
-                  <button type="submit" className="client-unlock-btn">
-                    Activer & Télécharger HD
-                  </button>
-                </form>
-              </div>
-
-              {/* ── Trust & Psychological Reassurance Guarantee Box (Point 3) ── */}
-              <div className="paywall-guarantee-box">
-                <div className="paywall-guarantee-title">
-                  <ShieldCheck size={14} /> Garanties de Confiance & Sécurité 2026 :
-                </div>
-                <div className="paywall-guarantee-grid">
-                  <div className="paywall-guarantee-item">
-                    <ShieldCheck size={14} />
-                    <div>
-                      <strong>Garantie Satisfait ou Remboursé</strong>
-                      <span>Remboursement intégral sous 24h sur simple demande si non-conforme.</span>
-                    </div>
-                  </div>
-                  <div className="paywall-guarantee-item">
-                    <Check size={14} />
-                    <div>
-                      <strong>Conformité ATS Internationale</strong>
-                      <span>100% lisible par les logiciels recruteurs (Canada, France, UE, Golfe, Tunisie).</span>
-                    </div>
-                  </div>
-                  <div className="paywall-guarantee-item">
-                    <Lock size={14} />
-                    <div>
-                      <strong>Paiement Unique Sans Surprise</strong>
-                      <span>Aucun abonnement caché ni prélèvement automatique futur.</span>
-                    </div>
-                  </div>
-                  <div className="paywall-guarantee-item">
-                    <MessageCircle size={14} />
-                    <div>
-                      <strong>Assistance Dédiée 7j/7</strong>
-                      <span>Accompagnement et aide personnalisée sur WhatsApp par un conseiller.</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>

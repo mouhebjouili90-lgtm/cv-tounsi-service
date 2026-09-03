@@ -887,10 +887,10 @@ h1, h2, h3, p { margin: 0; }
 
 .paywall-modal-box {
   background: #ffffff;
-  border-radius: 14px;
+  border-radius: 16px;
   width: 100%;
-  max-width: 560px;
-  max-height: 92vh;
+  max-width: 480px;
+  max-height: 94vh;
   box-shadow: 0 24px 55px rgba(0, 0, 0, 0.35);
   border: 1.5px solid var(--line);
   overflow-y: auto;
@@ -898,12 +898,22 @@ h1, h2, h3, p { margin: 0; }
   animation: scaleUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+@media (max-width: 480px) {
+  .paywall-modal-backdrop {
+    padding: 8px;
+  }
+  .paywall-modal-box {
+    max-height: 96vh;
+    border-radius: 14px;
+  }
+}
+
 .paywall-modal-header {
   background: linear-gradient(135deg, #1f2f21, #304230);
   color: #ffffff;
-  padding: 1.2rem 1.4rem;
+  padding: 0.85rem 1.1rem;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   position: sticky;
   top: 0;
@@ -911,14 +921,14 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .paywall-modal-header h3 {
-  font-size: 1.12rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: #ffffff;
-  margin: 0 0 0.2rem;
+  margin: 0 0 0.15rem;
 }
 
 .paywall-modal-header p {
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   color: #c7d8c3;
   margin: 0;
 }
@@ -942,20 +952,15 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .paywall-modal-body {
-  padding: 1.2rem 1.4rem;
+  padding: 0.85rem 1.1rem;
 }
 
 /* ── Dual Pricing Plan Grid (Étudiant vs Pro) ── */
 .paywall-plans-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 1rem;
-}
-@media (max-width: 480px) {
-  .paywall-plans-grid {
-    grid-template-columns: 1fr;
-  }
+  gap: 8px;
+  margin-bottom: 0.75rem;
 }
 
 .paywall-plan-card {
