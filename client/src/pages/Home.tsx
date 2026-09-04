@@ -22,6 +22,7 @@ import { Link } from "wouter";
 import { toast } from "sonner";
 import { useAuth, type SavedCvItem } from "@/contexts/AuthContext";
 import { UserSavedCvsModal } from "@/components/auth/UserSavedCvsModal";
+import { OnboardingGuideModal } from "@/components/OnboardingGuideModal";
 import { generateSuggestedCode, getSubscriptionStatus } from "@/lib/activation";
 import {
   ArrowLeft,
@@ -71,6 +72,7 @@ import {
   LogOut,
   Save,
   Copy,
+  HelpCircle,
 } from "lucide-react";
 
 const heroImage = "/manus-storage/cv-tounsi-hero-reference_82281e8d.jpg";
@@ -2082,6 +2084,31 @@ function Builder({
   const { user, openAuthModal, loginDemoGoogle, saveCvToCloud, savedCvs } = useAuth();
   const [isSavingCloud, setIsSavingCloud] = useState(false);
   const [showPostUnlockModal, setShowPostUnlockModal] = useState(false);
+  const [showOnboardingGuide, setShowOnboardingGuide] = useState(() => {
+    if (typeof window !== "undefined") {
+      const alreadySeen = localStorage.getItem("cv_tounsi_onboarding_guide_seen");
+      if (alreadySeen === "true") return false;
+
+      const search = window.location.search;
+      const isAdOrStart =
+        search.includes("start=true") ||
+        search.includes("ref=offre") ||
+        search.includes("ref=meta") ||
+        search.includes("utm_source") ||
+        search.includes("fbclid");
+
+      return isAdOrStart;
+    }
+    return false;
+  });
+
+  const handleCloseOnboardingGuide = () => {
+    setShowOnboardingGuide(false);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("cv_tounsi_onboarding_guide_seen", "true");
+    }
+  };
+
   const [step, setStep] = useState<BuilderStep>(() => {
     if (typeof window !== "undefined") {
       const search = window.location.search;
@@ -3971,6 +3998,12 @@ function Builder({
         </div>
       )}
 
+      {/* ── Interactive Arabic Onboarding Guide Modal ── */}
+      <OnboardingGuideModal
+        isOpen={showOnboardingGuide}
+        onClose={handleCloseOnboardingGuide}
+      />
+
       {/* ── Sticky Top Bar with Device Switcher (PC / Mobile Parallel Modes) ── */}
       <div className="builder-topbar">
         <div className="builder-topbar-inner">
@@ -3986,6 +4019,18 @@ function Builder({
           </div>
 
           <div className="builder-topbar-actions">
+            {/* Guide Button */}
+            <button
+              type="button"
+              className="button button-quiet"
+              onClick={() => setShowOnboardingGuide(true)}
+              title="دليل استخدام المنصة في 3 خطوات"
+              style={{ display: "inline-flex", alignItems: "center", gap: "5px", fontSize: "0.78rem" }}
+            >
+              <HelpCircle size={14} className="text-amber-600" />
+              <span>دليل المنصة 💡</span>
+            </button>
+
             {/* User Account / Save Button */}
             <button
               type="button"
@@ -4256,6 +4301,21 @@ function Builder({
                 <span className="mobile-step-pill-title">{stepItem.shortLabel}</span>
               </button>
             ))}
+          </div>
+
+          {/* Mobile Quick Helper / Guide Trigger Banner */}
+          <div className="flex items-center justify-between px-3.5 py-1.5 mx-3 mb-2.5 rounded-xl bg-white/90 border border-[#E2E8F0] shadow-xs text-xs" dir="rtl">
+            <span className="flex items-center gap-1.5 text-[11px] text-[#334155] font-medium">
+              <Sparkles size={13} className="text-[#60735A]" />
+              <span>3 خطوات لإتمام سيرتك الذاتية</span>
+            </span>
+            <button
+              type="button"
+              onClick={() => setShowOnboardingGuide(true)}
+              className="text-[#60735A] font-bold hover:underline flex items-center gap-1 text-[11px] bg-[#EBF0E9] px-2 py-0.5 rounded-lg active:scale-95 transition-all"
+            >
+              <span>دليل المنصة 💡</span>
+            </button>
           </div>
 
           {/* Mobile Tab 1: Formulaire */}
