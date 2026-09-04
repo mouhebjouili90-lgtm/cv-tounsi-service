@@ -41,7 +41,11 @@ export default function AdsLanding() {
       content_name: "CTA Clicked",
       content_category: source,
     });
-    setLocation("/?start=true&ref=offre");
+    if (typeof window !== "undefined") {
+      localStorage.setItem("cv_tounsi_builder_step", "0");
+      localStorage.setItem("cv_tounsi_in_builder", "true");
+    }
+    setLocation("/?start=true&ref=offre&step=0");
   };
 
   const toggleFaq = (index: number) => {

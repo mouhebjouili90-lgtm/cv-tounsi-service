@@ -2069,6 +2069,7 @@ function Builder({
   activeCvId,
   setActiveCvId,
   onOpenSavedCvs,
+  initialStep = 0,
 }: {
   data: CvData;
   setData: React.Dispatch<React.SetStateAction<CvData>>;
@@ -2076,19 +2077,45 @@ function Builder({
   activeCvId?: number | null;
   setActiveCvId?: (id: number | null) => void;
   onOpenSavedCvs?: () => void;
+  initialStep?: BuilderStep;
 }) {
   const { user, openAuthModal, loginDemoGoogle, saveCvToCloud, savedCvs } = useAuth();
   const [isSavingCloud, setIsSavingCloud] = useState(false);
   const [showPostUnlockModal, setShowPostUnlockModal] = useState(false);
   const [step, setStep] = useState<BuilderStep>(() => {
     if (typeof window !== "undefined") {
+      const search = window.location.search;
+      const isAdOrStart =
+        search.includes("start=true") ||
+        search.includes("ref=offre") ||
+        search.includes("ref=meta") ||
+        search.includes("utm_source") ||
+        search.includes("fbclid");
+
+      // Traffic coming from Meta Ads or explicit start MUST always land on Step 1 (01. النموذج)
+      if (isAdOrStart) {
+        localStorage.setItem("cv_tounsi_builder_step", "0");
+        return 0;
+      }
+
+      // Check explicit step param (e.g. ?step=0 or ?step=2)
+      const urlParams = new URLSearchParams(search);
+      const urlStep = urlParams.get("step");
+      if (urlStep !== null) {
+        const num = Number(urlStep);
+        if (num >= 0 && num <= 3) {
+          localStorage.setItem("cv_tounsi_builder_step", num.toString());
+          return num as BuilderStep;
+        }
+      }
+
       const saved = localStorage.getItem("cv_tounsi_builder_step");
       if (saved !== null) {
         const num = Number(saved);
         if (num >= 0 && num <= 3) return num as BuilderStep;
       }
     }
-    return 0;
+    return initialStep;
   });
 
   useEffect(() => {
@@ -2096,6 +2123,32 @@ function Builder({
       localStorage.setItem("cv_tounsi_builder_step", step.toString());
     }
   }, [step]);
+
+  // Ensure ad visitors and fresh starts land on Step 1 ("01. النموذج") and mobileTab is "form"
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const search = window.location.search;
+      const isAdOrStart =
+        search.includes("start=true") ||
+        search.includes("ref=offre") ||
+        search.includes("ref=meta") ||
+        search.includes("utm_source") ||
+        search.includes("fbclid");
+
+      if (isAdOrStart) {
+        setStep(0);
+        setMobileTab("form");
+        localStorage.setItem("cv_tounsi_builder_step", "0");
+
+        // Clean up start/ad params so subsequent page refreshes keep the user's active step
+        try {
+          window.history.replaceState({}, document.title, "/?builder=true");
+        } catch {
+          // ignore
+        }
+      }
+    }
+  }, []);
 
   const [isMobileScreen, setIsMobileScreen] = useState(() =>
     typeof window !== "undefined" ? window.innerWidth <= 1024 : false
@@ -4292,6 +4345,7 @@ const DRAFT_STORAGE_KEY = "cv_tounsi_live_draft_v3";
 /* ─── Main Page ─── */
 export default function Home() {
   const { user, openAuthModal, logout, savedCvs } = useAuth();
+  const [builderKey, setBuilderKey] = useState(0);
   const [isBuilder, setIsBuilder] = useState(() => {
     if (typeof window !== "undefined") {
       const search = window.location.search;
@@ -4299,8 +4353,11 @@ export default function Home() {
         search.includes("start=true") ||
         search.includes("builder=true") ||
         search.includes("ref=offre") ||
-        search.includes("utm_source")
+        search.includes("ref=meta") ||
+        search.includes("utm_source") ||
+        search.includes("fbclid")
       ) {
+        localStorage.setItem("cv_tounsi_builder_step", "0");
         return true;
       }
       return localStorage.getItem("cv_tounsi_in_builder") === "true";
@@ -4345,12 +4402,24 @@ export default function Home() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const search = window.location.search;
-      if (
+      const isAdOrStart =
         search.includes("start=true") ||
         search.includes("builder=true") ||
         search.includes("ref=offre") ||
-        search.includes("utm_source")
-      ) {
+        search.includes("ref=meta") ||
+        search.includes("utm_source") ||
+        search.includes("fbclid");
+
+      if (isAdOrStart) {
+        if (
+          search.includes("start=true") ||
+          search.includes("ref=offre") ||
+          search.includes("ref=meta") ||
+          search.includes("utm_source") ||
+          search.includes("fbclid")
+        ) {
+          localStorage.setItem("cv_tounsi_builder_step", "0");
+        }
         if (!isBuilder) {
           setIsBuilder(true);
           trackBuilderStarted(data.template, data.language);
@@ -4360,8 +4429,12 @@ export default function Home() {
     }
   }, [isBuilder]);
 
-  const startBuilder = () => {
+  const startBuilder = (targetStep: BuilderStep = 0) => {
     trackBuilderStarted(data.template, data.language);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("cv_tounsi_builder_step", targetStep.toString());
+    }
+    setBuilderKey((k) => k + 1);
     setIsBuilder(true);
     setMobileNav(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -4375,6 +4448,7 @@ export default function Home() {
       if (savedCv.isUnlocked && typeof window !== "undefined") {
         localStorage.setItem("cv_tounsi_student_unlocked_cv_id", String(savedCv.id));
       }
+      setBuilderKey((k) => k + 1);
       setIsBuilder(true);
       toast.success(`CV "${savedCv.title}" chargé dans l'éditeur.`);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -4386,7 +4460,6 @@ export default function Home() {
   const handleNewCv = () => {
     setData(blankCvData);
     setActiveCvId(null);
-    setIsBuilder(true);
     if (typeof window !== "undefined") {
       localStorage.removeItem(DRAFT_STORAGE_KEY);
       localStorage.setItem("cv_tounsi_builder_step", "0");
@@ -4395,6 +4468,8 @@ export default function Home() {
         localStorage.setItem("cv_tounsi_student_unlocked_cv_id", "previous_draft_used");
       }
     }
+    setBuilderKey((k) => k + 1);
+    setIsBuilder(true);
     toast.info("Nouveau CV vierge initialisé.");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -4488,7 +4563,7 @@ export default function Home() {
                 </button>
               )}
 
-              <button className="header-cta" onClick={startBuilder}>
+              <button className="header-cta" onClick={() => startBuilder(0)}>
                 Créer mon CV <ArrowLeft size={15} />
               </button>
               <button
@@ -4506,15 +4581,17 @@ export default function Home() {
       <div id="top">
         {isBuilder ? (
           <Builder
+            key={builderKey}
             data={data}
             setData={setData}
             onBack={() => setIsBuilder(false)}
             activeCvId={activeCvId}
             setActiveCvId={setActiveCvId}
             onOpenSavedCvs={() => setIsSavedCvsOpen(true)}
+            initialStep={0}
           />
         ) : (
-          <Landing onStart={startBuilder} />
+          <Landing onStart={() => startBuilder(0)} />
         )}
       </div>
 
