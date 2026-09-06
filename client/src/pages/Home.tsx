@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import { useAuth, type SavedCvItem } from "@/contexts/AuthContext";
 import { UserSavedCvsModal } from "@/components/auth/UserSavedCvsModal";
 import { OnboardingGuideModal } from "@/components/OnboardingGuideModal";
+import { CvScannerModal } from "@/components/CvScannerModal";
 import { generateSuggestedCode, getSubscriptionStatus } from "@/lib/activation";
 import {
   ArrowLeft,
@@ -73,6 +74,7 @@ import {
   Save,
   Copy,
   HelpCircle,
+  UploadCloud,
 } from "lucide-react";
 
 const heroImage = "/manus-storage/cv-tounsi-hero-reference_82281e8d.jpg";
@@ -2109,6 +2111,42 @@ function Builder({
     }
   };
 
+  const [showScannerModal, setShowScannerModal] = useState(false);
+
+  const handleApplyScannedCv = (extractedData: Partial<CvData>) => {
+    setData((prev) => {
+      const merged: CvData = {
+        ...prev,
+        ...extractedData,
+        fullName: extractedData.fullName || prev.fullName,
+        targetRole: extractedData.targetRole || prev.targetRole,
+        city: extractedData.city || prev.city,
+        email: extractedData.email || prev.email,
+        phone: extractedData.phone || prev.phone,
+        profileSummary: extractedData.profileSummary || prev.profileSummary,
+        experiences:
+          extractedData.experiences && extractedData.experiences.length > 0
+            ? extractedData.experiences
+            : prev.experiences,
+        educations:
+          extractedData.educations && extractedData.educations.length > 0
+            ? extractedData.educations
+            : prev.educations,
+        skills: extractedData.skills || prev.skills,
+        languagesList: extractedData.languagesList || prev.languagesList,
+        profileType: extractedData.profileType || prev.profileType,
+        template: extractedData.template || prev.template,
+        language: extractedData.language || prev.language,
+      };
+      return merged;
+    });
+
+    // Passer à l'étape suivante pour vérifier les expériences et informations extraites
+    setStep(1);
+    setMobileTab("form");
+    toast.success("تم نقل وتنسيق بيانات سيرتك الذاتية في النموذج الجديد بنجاح!");
+  };
+
   const [step, setStep] = useState<BuilderStep>(() => {
     if (typeof window !== "undefined") {
       const search = window.location.search;
@@ -2843,6 +2881,40 @@ function Builder({
           <p className="panel-lead" dir="rtl" style={{ textAlign: "right" }}>
             اختر من بين 9 نماذج معتمدة ومطابقة للمعايير الدولية (كندا، أوروبا وتونس)، مع تحديد وضعيتك ولغة الـ CV.
           </p>
+
+          {/* ── AI CV Scanner & Rating Promo Card ── */}
+          <div
+            className="mb-5 p-3.5 sm:p-4 rounded-2xl border-2 border-[#60735A]/30 bg-gradient-to-l from-[#EBF0E9]/85 via-[#FAFBF9] to-white shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3.5"
+            dir="rtl"
+          >
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <div className="w-11 h-11 rounded-xl bg-[#60735A] text-white flex items-center justify-center shrink-0 shadow-sm">
+                <Sparkles size={22} />
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5 mb-1">
+                  <span className="text-[10px] sm:text-[11px] font-extrabold text-[#1B4332] bg-[#D8F3DC] px-2 py-0.5 rounded-full">
+                    ⚡ ميزة حصرية بالذكاء الاصطناعي
+                  </span>
+                  <strong className="text-xs sm:text-sm font-bold text-[#0F172A]">
+                    عندك CV قديم؟ افحصه واكتشف النوتة متاعو
+                  </strong>
+                </div>
+                <p className="text-[11.5px] text-[#475569] leading-relaxed">
+                  ارفع ملفك (PDF / Word / صورة) لاكتشاف نقاط الضعف ونقل جميع بياناتك وتجاربك آلياً للقالب الجديد في ثوانٍ!
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowScannerModal(true)}
+              className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#60735A] hover:bg-[#4d5c48] active:scale-95 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 whitespace-nowrap transition-all"
+            >
+              <UploadCloud size={16} />
+              <span>ارفع الـ CV وافحصه مجاناً 📄</span>
+            </button>
+          </div>
 
           {/* ── Profile Type Selector (Experienced vs Student) ── */}
           <div className="panel-kicker" dir="rtl" style={{ textAlign: "right", marginTop: "1rem" }}>وضعيتك المهنية / البروفايل</div>
@@ -4004,6 +4076,13 @@ function Builder({
         onClose={handleCloseOnboardingGuide}
       />
 
+      {/* ── AI CV Scanner & ATS Rating Modal ── */}
+      <CvScannerModal
+        isOpen={showScannerModal}
+        onClose={() => setShowScannerModal(false)}
+        onApplyCvData={handleApplyScannedCv}
+      />
+
       {/* ── Sticky Top Bar with Device Switcher (PC / Mobile Parallel Modes) ── */}
       <div className="builder-topbar">
         <div className="builder-topbar-inner">
@@ -4019,6 +4098,18 @@ function Builder({
           </div>
 
           <div className="builder-topbar-actions">
+            {/* CV Scanner Button */}
+            <button
+              type="button"
+              className="button button-quiet"
+              onClick={() => setShowScannerModal(true)}
+              title="فحص وتقييم سيرة ذاتية قديمة بالذكاء الاصطناعي"
+              style={{ display: "inline-flex", alignItems: "center", gap: "5px", fontSize: "0.78rem" }}
+            >
+              <UploadCloud size={14} className="text-emerald-700" />
+              <span>فحص CV 📄</span>
+            </button>
+
             {/* Guide Button */}
             <button
               type="button"
@@ -4304,18 +4395,27 @@ function Builder({
           </div>
 
           {/* Mobile Quick Helper / Guide Trigger Banner */}
-          <div className="flex items-center justify-between px-3.5 py-1.5 mx-3 mb-2.5 rounded-xl bg-white/90 border border-[#E2E8F0] shadow-xs text-xs" dir="rtl">
+          <div className="flex items-center justify-between px-3 py-1.5 mx-3 mb-2.5 rounded-xl bg-white/90 border border-[#E2E8F0] shadow-xs text-xs" dir="rtl">
             <span className="flex items-center gap-1.5 text-[11px] text-[#334155] font-medium">
               <Sparkles size={13} className="text-[#60735A]" />
               <span>3 خطوات لإتمام سيرتك الذاتية</span>
             </span>
-            <button
-              type="button"
-              onClick={() => setShowOnboardingGuide(true)}
-              className="text-[#60735A] font-bold hover:underline flex items-center gap-1 text-[11px] bg-[#EBF0E9] px-2 py-0.5 rounded-lg active:scale-95 transition-all"
-            >
-              <span>دليل المنصة 💡</span>
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setShowScannerModal(true)}
+                className="text-emerald-800 font-bold hover:underline flex items-center gap-1 text-[11px] bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-lg active:scale-95 transition-all"
+              >
+                <span>فحص CV 📄</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowOnboardingGuide(true)}
+                className="text-[#60735A] font-bold hover:underline flex items-center gap-1 text-[11px] bg-[#EBF0E9] px-2 py-0.5 rounded-lg active:scale-95 transition-all"
+              >
+                <span>دليل 💡</span>
+              </button>
+            </div>
           </div>
 
           {/* Mobile Tab 1: Formulaire */}
