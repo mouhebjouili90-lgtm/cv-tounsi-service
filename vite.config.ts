@@ -268,6 +268,50 @@ function vitePluginAi(): Plugin {
           }
         });
       });
+
+      // POST /api/ai/parse-and-rate-cv — AI Multimodal CV Scanner, ATS Rating & Auto-Extractor
+      server.middlewares.use("/api/ai/parse-and-rate-cv", async (req, res, next) => {
+        if (req.method !== "POST") return next();
+
+        // Rate limit check
+        const clientIp = getClientIp(req);
+        const token = req.headers["x-activation-token"]?.toString();
+        const isPremium = token ? verifyActivationToken(token).valid : false;
+
+        if (isRateLimited(clientIp, isPremium)) {
+          res.writeHead(429, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({
+            error: "Limite d'analyses IA par heure atteinte. Veuillez patienter ou débloquez votre CV.",
+            retryAfterMs: RATE_LIMIT_WINDOW_MS,
+            limit: isPremium ? RATE_LIMIT_PREMIUM_MAX : RATE_LIMIT_FREE_MAX,
+          }));
+          return;
+        }
+
+        let bodyStr = "";
+        req.on("data", (chunk) => {
+          bodyStr += chunk.toString();
+        });
+
+        req.on("end", async () => {
+          try {
+            const body = JSON.parse(bodyStr);
+            const scanResult = await processCvScan({
+              fileBase64: body.fileBase64,
+              mimeType: body.mimeType,
+              rawText: body.rawText,
+              fileName: body.fileName,
+            });
+
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify(scanResult));
+          } catch (error: any) {
+            console.error("[Vite AI Middleware] CV Scanner Error:", error?.message);
+            res.writeHead(500, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ error: error?.message || "Erreur lors de l'analyse du CV par IA." }));
+          }
+        });
+      });
     },
   };
 }
@@ -275,6 +319,7 @@ function vitePluginAi(): Plugin {
 // =============================================================================
 // Server-side Activation Code Validation & Admin Plugin
 // =============================================================================
+import { processCvScan } from "./server/cv-scanner-service";
 import {
   validateActivationCode,
   generateActivationToken,

@@ -27,10 +27,13 @@ import {
   createUserInDb,
 } from "../server/db.js";
 
+import { processCvScan } from "../server/cv-scanner-service.js";
+
 dotenv.config();
 
 const app = express();
-app.use(express.json({ limit: "2mb" }));
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
 // Rate Limiter — In-memory per-IP tracking for AI endpoint
 // Rapport SaaS Tâche 1.5 : Maximum 5 améliorations par IP par heure (Gratuit) / 50 par heure (Payant)
@@ -137,6 +140,18 @@ app.post("/api/ai/generate", checkRateLimit, async (req: Request, res: Response)
   } catch (error: any) {
     console.error("[Vercel Serverless] AI Error:", error?.message);
     res.status(500).json({ error: error?.message || "Internal error" });
+  }
+});
+
+// ── AI Multimodal CV Scanner, ATS Rating & Auto-Extractor ──
+app.post("/api/ai/parse-and-rate-cv", checkRateLimit, async (req: Request, res: Response) => {
+  try {
+    const { fileBase64, mimeType, rawText, fileName } = req.body;
+    const result = await processCvScan({ fileBase64, mimeType, rawText, fileName });
+    res.json(result);
+  } catch (error: any) {
+    console.error("[Vercel Serverless] CV Scanner Error:", error?.message);
+    res.status(500).json({ error: error?.message || "Erreur lors de l'analyse du CV par IA." });
   }
 });
 

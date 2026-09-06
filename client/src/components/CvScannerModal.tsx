@@ -134,7 +134,7 @@ export function CvScannerModal({ isOpen, onClose, onApplyCvData }: CvScannerModa
             {modalStep === "result" && "نتيجة تقييم الـ CV بالذكاء الاصطناعي"}
           </h2>
           <p className="text-xs text-[#64748B] mt-0.5">
-            {modalStep === "upload" && "نوتة ATS فورية + كشف نقاط الضعف ونقل آلي للقالب الجديد في ثوانٍ"}
+            {modalStep === "upload" && " ATS فورية + كشف نقاط الضعف ونقل آلي للقالب الجديد في ثوانٍ"}
             {modalStep === "scanning" && "انتظر بضع ثوانٍ بينما يحلل خبير الذكاء الاصطناعي ملفك"}
             {modalStep === "result" && "اكتشف نقاط القوة وملاحظات التحسين وانقل بياناتك إلى القالب الجديد"}
           </p>
@@ -163,11 +163,10 @@ export function CvScannerModal({ isOpen, onClose, onApplyCvData }: CvScannerModa
               />
 
               <div
-                className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-3 ${
-                  isDragging
+                className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-3 ${isDragging
                     ? "border-[#60735A] bg-[#EBF0E9]/50 scale-[0.99]"
                     : "border-slate-300 hover:border-[#60735A] hover:bg-slate-50/70"
-                }`}
+                  }`}
                 onDragOver={(e) => {
                   e.preventDefault();
                   setIsDragging(true);
@@ -241,11 +240,10 @@ export function CvScannerModal({ isOpen, onClose, onApplyCvData }: CvScannerModa
               {/* Dynamic 3 Phases List */}
               <div className="w-full max-w-sm space-y-2.5 text-right">
                 <div
-                  className={`p-3 rounded-xl border transition-all flex items-center gap-3 text-xs font-semibold ${
-                    scanPhase >= 1
+                  className={`p-3 rounded-xl border transition-all flex items-center gap-3 text-xs font-semibold ${scanPhase >= 1
                       ? "bg-[#EBF0E9] border-[#60735A]/30 text-[#2D3A2A]"
                       : "bg-slate-50 border-slate-200 text-slate-400"
-                  }`}
+                    }`}
                 >
                   <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center shrink-0 shadow-xs">
                     {scanPhase > 1 ? <Check size={14} className="text-emerald-600" /> : "1"}
@@ -254,11 +252,10 @@ export function CvScannerModal({ isOpen, onClose, onApplyCvData }: CvScannerModa
                 </div>
 
                 <div
-                  className={`p-3 rounded-xl border transition-all flex items-center gap-3 text-xs font-semibold ${
-                    scanPhase >= 2
+                  className={`p-3 rounded-xl border transition-all flex items-center gap-3 text-xs font-semibold ${scanPhase >= 2
                       ? "bg-[#FEF3C7] border-[#D97706]/30 text-[#92400E]"
                       : "bg-slate-50 border-slate-200 text-slate-400"
-                  }`}
+                    }`}
                 >
                   <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center shrink-0 shadow-xs">
                     {scanPhase > 2 ? <Check size={14} className="text-emerald-600" /> : "2"}
@@ -267,11 +264,10 @@ export function CvScannerModal({ isOpen, onClose, onApplyCvData }: CvScannerModa
                 </div>
 
                 <div
-                  className={`p-3 rounded-xl border transition-all flex items-center gap-3 text-xs font-semibold ${
-                    scanPhase >= 3
+                  className={`p-3 rounded-xl border transition-all flex items-center gap-3 text-xs font-semibold ${scanPhase >= 3
                       ? "bg-[#E0F2FE] border-[#0284C7]/30 text-[#0369A1]"
                       : "bg-slate-50 border-slate-200 text-slate-400"
-                  }`}
+                    }`}
                 >
                   <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center shrink-0 shadow-xs">
                     <RefreshCw size={12} className="animate-spin text-[#0284C7]" />
@@ -292,13 +288,12 @@ export function CvScannerModal({ isOpen, onClose, onApplyCvData }: CvScannerModa
                 <div className="flex items-center gap-3.5">
                   {/* Rating Circle Badge */}
                   <div
-                    className={`w-16 h-16 rounded-2xl flex flex-col items-center justify-center shrink-0 font-bold shadow-sm ${
-                      scanResult.rating >= 75
+                    className={`w-16 h-16 rounded-2xl flex flex-col items-center justify-center shrink-0 font-bold shadow-sm ${scanResult.rating >= 75
                         ? "bg-emerald-100 text-emerald-800 border-2 border-emerald-300"
                         : scanResult.rating >= 50
-                        ? "bg-amber-100 text-amber-800 border-2 border-amber-300"
-                        : "bg-red-100 text-red-800 border-2 border-red-300"
-                    }`}
+                          ? "bg-amber-100 text-amber-800 border-2 border-amber-300"
+                          : "bg-red-100 text-red-800 border-2 border-red-300"
+                      }`}
                   >
                     <span className="text-xl leading-none">{scanResult.rating}</span>
                     <span className="text-[10px] uppercase font-semibold">من 100</span>
@@ -310,8 +305,8 @@ export function CvScannerModal({ isOpen, onClose, onApplyCvData }: CvScannerModa
                         {scanResult.rating >= 75
                           ? "سيرة ذاتية جيدة جداً 🌟"
                           : scanResult.rating >= 50
-                          ? "سيرة ذاتية متوسطة، قابلة لتطوير ملحوظ ⚠️"
-                          : "سيرة ذاتية ضعيفة، تتطلب إعادة هيكلة فورية 🚨"}
+                            ? "سيرة ذاتية متوسطة، قابلة لتطوير ملحوظ ⚠️"
+                            : "سيرة ذاتية ضعيفة، تتطلب إعادة هيكلة فورية 🚨"}
                       </span>
                     </div>
                     <div className="text-[11px] text-[#475569] leading-snug">
