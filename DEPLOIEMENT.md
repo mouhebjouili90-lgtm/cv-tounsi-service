@@ -10,7 +10,7 @@ Sur votre plateforme d'hébergement, ajoutez ces 2 variables d'environnement ind
 
 | Variable | Description | Exemple de Valeur |
 |:---|:---|:---|
-| `GEMINI_API_KEY` | Clé API Google Gemini (serveur uniquement) | `AQ.Ab8RN6JppqNkX6rg1...` |
+| `GEMINI_API_KEY` | Clé API Google Gemini (serveur uniquement — copiez la clé intégrale depuis votre fichier `.env` local) | `[Copiez la clé exacte depuis votre .env local]` |
 | `ACTIVATION_SECRET` | Clé secrète de signature des tokens HMAC | `votre_phrase_secrete_tres_longue_2026` |
 | `META_CAPI_TOKEN` | Token d'accès Meta Conversions API (Events Manager) | `EAAG...` |
 | `META_PIXEL_ID` | ID du Pixel Meta (par défaut `1409240591423153`) | `1409240591423153` |

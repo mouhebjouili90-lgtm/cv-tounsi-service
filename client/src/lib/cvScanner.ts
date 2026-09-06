@@ -16,7 +16,7 @@ export interface CvScanResult {
   extractedCv: Partial<CvData>;
 }
 
-const MAX_FILE_SIZE_BYTES = 4.5 * 1024 * 1024; // 4.5 MB
+const MAX_FILE_SIZE_BYTES = 8.5 * 1024 * 1024; // 8.5 MB
 
 const ALLOWED_MIME_TYPES = [
   "application/pdf",
@@ -53,7 +53,7 @@ export function validateCvFile(file: File): { valid: boolean; error?: string } {
     const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
     return {
       valid: false,
-      error: `حجم الملف (${sizeMb} ميغابايت) يتجاوز الحد المسموح به (4.5 ميغابايت). الرجاء ضغط الملف أو اختيار ملف أصغر.`,
+      error: `حجم الملف (${sizeMb} ميغابايت) يتجاوز الحد المسموح به (8.5 ميغابايت). الرجاء اختيار ملف أصغر.`,
     };
   }
 

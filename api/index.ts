@@ -89,10 +89,16 @@ function checkRateLimit(req: Request, res: Response, next: NextFunction) {
 
 // ── Health Check Endpoint ──
 app.get("/api/health", (_req, res) => {
+  const rawKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
+  const cleanKey = rawKey.trim().replace(/^["']|["']$/g, "").replace(/^Bearer\s+/i, "").trim();
   res.json({
     status: "ok",
     service: "CV Tounsi SaaS (Serverless)",
     timestamp: new Date().toISOString(),
+    geminiConfigured: !!cleanKey,
+    geminiKeyPrefix: cleanKey ? cleanKey.substring(0, 10) + "..." : "none",
+    geminiKeyLength: cleanKey.length,
+    isExpectedFullLength: cleanKey.length === 56,
   });
 });
 
