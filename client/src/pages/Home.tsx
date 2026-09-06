@@ -2088,10 +2088,15 @@ function Builder({
   const [showPostUnlockModal, setShowPostUnlockModal] = useState(false);
   const [showOnboardingGuide, setShowOnboardingGuide] = useState(() => {
     if (typeof window !== "undefined") {
+      const search = window.location.search;
+      // If the link directly requests scanner, skip onboarding guide
+      if (search.includes("scan=true") || search.includes("scanner=true")) {
+        return false;
+      }
+
       const alreadySeen = localStorage.getItem("cv_tounsi_onboarding_guide_seen");
       if (alreadySeen === "true") return false;
 
-      const search = window.location.search;
       const isAdOrStart =
         search.includes("start=true") ||
         search.includes("ref=offre") ||
@@ -2111,7 +2116,13 @@ function Builder({
     }
   };
 
-  const [showScannerModal, setShowScannerModal] = useState(false);
+  const [showScannerModal, setShowScannerModal] = useState(() => {
+    if (typeof window !== "undefined") {
+      const search = window.location.search;
+      return search.includes("scan=true") || search.includes("scanner=true");
+    }
+    return false;
+  });
 
   const handleApplyScannedCv = (extractedData: Partial<CvData>) => {
     setData((prev) => {
@@ -4074,6 +4085,10 @@ function Builder({
       <OnboardingGuideModal
         isOpen={showOnboardingGuide}
         onClose={handleCloseOnboardingGuide}
+        onOpenScanner={() => {
+          handleCloseOnboardingGuide();
+          setShowScannerModal(true);
+        }}
       />
 
       {/* ── AI CV Scanner & ATS Rating Modal ── */}
