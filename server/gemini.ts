@@ -13,17 +13,18 @@ export async function callGemini({
   systemInstruction?: string;
   responseSchema?: Record<string, any>;
 }): Promise<string> {
-  const apiKey =
+  const rawKey =
     process.env.GEMINI_API_KEY ||
     process.env.GOOGLE_API_KEY ||
-    process.env.VITE_GEMINI_API_KEY;
+    process.env.VITE_GEMINI_API_KEY || "";
+  const apiKey = rawKey.trim().replace(/^["']|["']$/g, "").replace(/^Bearer\s+/i, "").trim();
 
   if (!apiKey) {
     throw new Error("GEMINI_API_KEY not configured in environment");
   }
 
   const startTime = Date.now();
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${FASTEST_MODEL}:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${FASTEST_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`;
 
   const payload: any = {
     contents: [
@@ -53,6 +54,7 @@ export async function callGemini({
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "x-goog-api-key": apiKey,
     },
     body: JSON.stringify(payload),
   });

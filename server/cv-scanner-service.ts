@@ -23,11 +23,18 @@ export interface CvScanOutput {
   extractedCv: Record<string, any>;
 }
 
-const CANDIDATE_MODELS = ["gemini-3.6-flash", "gemini-3.5-flash", "gemini-3.7-flash"];
+const CANDIDATE_MODELS = [
+  "gemini-3.6-flash",
+  "gemini-3.5-flash",
+  "gemini-3.7-flash",
+  "gemini-2.5-flash",
+  "gemini-1.5-flash",
+];
 
 export async function processCvScan(params: ProcessCvScanParams): Promise<CvScanOutput> {
   const { fileBase64, mimeType, rawText } = params;
-  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  const rawKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
+  const apiKey = rawKey.trim().replace(/^["']|["']$/g, "").replace(/^Bearer\s+/i, "").trim();
 
   if (!apiKey) {
     throw new Error("Service IA non configuré sur le serveur (clé GEMINI_API_KEY manquante).");
@@ -148,10 +155,13 @@ Réponds UNIQUEMENT avec un JSON strict sans balises markdown au format suivant 
   try {
     for (const model of CANDIDATE_MODELS) {
       try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
         const geminiRes = await fetch(url, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": apiKey,
+          },
           body: JSON.stringify(payload),
           signal: controller.signal,
         });
@@ -159,7 +169,11 @@ Réponds UNIQUEMENT avec un JSON strict sans balises markdown au format suivant 
         if (!geminiRes.ok) {
           const errText = await geminiRes.text();
           console.warn(`[CV Scanner Service] Model ${model} status ${geminiRes.status}:`, errText);
-          lastError = `Erreur Gemini (${geminiRes.status}): ${errText}`;
+          if (geminiRes.status === 401) {
+            lastError = `خطأ مصادقة مع Google Gemini (401). تأكد من صحة وصلاحية مفتاح GEMINI_API_KEY على السيرفر.`;
+          } else {
+            lastError = `Erreur Gemini (${geminiRes.status}): ${errText}`;
+          }
           continue;
         }
 

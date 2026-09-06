@@ -218,9 +218,10 @@ function vitePluginAi(): Plugin {
         req.on("end", async () => {
           try {
             const { prompt, systemInstruction } = JSON.parse(bodyStr);
-            const apiKey =
+            const rawKey =
               process.env.GEMINI_API_KEY ||
-              process.env.GOOGLE_API_KEY;
+              process.env.GOOGLE_API_KEY || "";
+            const apiKey = rawKey.trim().replace(/^["']|["']$/g, "").replace(/^Bearer\s+/i, "").trim();
 
             if (!apiKey) {
               console.error("[Vite AI Middleware] No API key configured in environment");
@@ -229,7 +230,7 @@ function vitePluginAi(): Plugin {
               return;
             }
 
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
             const payload: any = {
               contents: [{ role: "user", parts: [{ text: prompt }] }],
               generationConfig: { temperature: 0.2, maxOutputTokens: 800 },
@@ -243,7 +244,10 @@ function vitePluginAi(): Plugin {
 
             const geminiRes = await fetch(url, {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
+              headers: {
+                "Content-Type": "application/json",
+                "x-goog-api-key": apiKey,
+              },
               body: JSON.stringify(payload),
               signal: controller.signal,
             });

@@ -100,14 +100,15 @@ app.get("/api/health", (_req, res) => {
 app.post("/api/ai/generate", checkRateLimit, async (req: Request, res: Response) => {
   try {
     const { prompt, systemInstruction } = req.body;
-    const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+    const rawKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
+    const apiKey = rawKey.trim().replace(/^["']|["']$/g, "").replace(/^Bearer\s+/i, "").trim();
 
     if (!apiKey) {
       res.status(500).json({ error: "AI service not configured on server" });
       return;
     }
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
     const payload: any = {
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: { temperature: 0.2, maxOutputTokens: 800 },
@@ -121,7 +122,10 @@ app.post("/api/ai/generate", checkRateLimit, async (req: Request, res: Response)
 
     const geminiRes = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": apiKey,
+      },
       body: JSON.stringify(payload),
       signal: controller.signal,
     });
