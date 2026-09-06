@@ -11,6 +11,8 @@ import {
   Award,
   ShieldCheck,
   Check,
+  Briefcase,
+  Globe,
 } from "lucide-react";
 import { scanAndRateCv, type CvScanResult } from "@/lib/cvScanner";
 import type { CvData } from "@/pages/Home";
@@ -28,6 +30,7 @@ export function CvScannerModal({ isOpen, onClose, onApplyCvData }: CvScannerModa
   const [isDragging, setIsDragging] = useState(false);
   const [scanResult, setScanResult] = useState<CvScanResult | null>(null);
   const [scanPhase, setScanPhase] = useState<1 | 2 | 3>(1);
+  const [targetTemplate, setTargetTemplate] = useState<"professional_executive" | "canadian_classic" | "europass_classic">("professional_executive");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -39,6 +42,7 @@ export function CvScannerModal({ isOpen, onClose, onApplyCvData }: CvScannerModa
       setScanResult(null);
       setErrorMsg(null);
       setScanPhase(1);
+      setTargetTemplate("professional_executive");
     }
   }, [isOpen]);
 
@@ -81,8 +85,16 @@ export function CvScannerModal({ isOpen, onClose, onApplyCvData }: CvScannerModa
     try {
       const result = await scanAndRateCv(file);
       setScanResult(result);
+      if (result.recommendedTemplate) {
+        setTargetTemplate(result.recommendedTemplate);
+      } else if (result.extractedCv?.template) {
+        const t = result.extractedCv.template;
+        if (t.includes("canad") || t.includes("ats")) setTargetTemplate("canadian_classic");
+        else if (t.includes("euro")) setTargetTemplate("europass_classic");
+        else setTargetTemplate("professional_executive");
+      }
       setModalStep("result");
-      toast.success("تم تحليل سيرتك الذاتية واستخراج البيانات بنجاح!");
+      toast.success("تم تحليل سيرتك الذاتية ومطابقتها مع كافة النماذج بنجاح!");
     } catch (err: any) {
       console.error("[CvScannerModal] Scan error:", err);
       setErrorMsg(err?.message || "حدث خطأ أثناء فحص السيرة الذاتية. تأكد من صحة الملف وحاول مجدداً.");
@@ -93,7 +105,10 @@ export function CvScannerModal({ isOpen, onClose, onApplyCvData }: CvScannerModa
 
   const handleApply = () => {
     if (!scanResult?.extractedCv) return;
-    onApplyCvData(scanResult.extractedCv);
+    onApplyCvData({
+      ...scanResult.extractedCv,
+      template: targetTemplate,
+    });
     onClose();
   };
 
@@ -284,35 +299,177 @@ export function CvScannerModal({ isOpen, onClose, onApplyCvData }: CvScannerModa
           {modalStep === "result" && scanResult && (
             <div className="space-y-4">
               {/* Score Header Card */}
-              <div className="p-4 rounded-2xl bg-gradient-to-r from-[#FAFBF9] to-[#F1F5F9] border border-[#E2E8F0] flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-[#FAFBF9] via-[#F8FAFC] to-[#F1F5F9] border border-[#E2E8F0] space-y-3">
                 <div className="flex items-center gap-3.5">
                   {/* Rating Circle Badge */}
                   <div
-                    className={`w-16 h-16 rounded-2xl flex flex-col items-center justify-center shrink-0 font-bold shadow-sm ${scanResult.rating >= 75
+                    className={`w-16 h-16 rounded-2xl flex flex-col items-center justify-center shrink-0 font-bold shadow-sm ${
+                      scanResult.rating >= 75
                         ? "bg-emerald-100 text-emerald-800 border-2 border-emerald-300"
                         : scanResult.rating >= 50
                           ? "bg-amber-100 text-amber-800 border-2 border-amber-300"
                           : "bg-red-100 text-red-800 border-2 border-red-300"
-                      }`}
+                    }`}
                   >
                     <span className="text-xl leading-none">{scanResult.rating}</span>
                     <span className="text-[10px] uppercase font-semibold">من 100</span>
                   </div>
 
-                  <div>
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 mb-1">
                       <span className="text-xs font-bold text-[#0F172A]">
                         {scanResult.rating >= 75
-                          ? "سيرة ذاتية جيدة جداً 🌟"
+                          ? "سيرة ذاتية قوية وممتازة 🌟"
                           : scanResult.rating >= 50
-                            ? "سيرة ذاتية متوسطة، قابلة لتطوير ملحوظ ⚠️"
-                            : "سيرة ذاتية ضعيفة، تتطلب إعادة هيكلة فورية 🚨"}
+                            ? "سيرة ذاتية متوسطة، قابلة للارتقاء الفوري ⚡"
+                            : "سيرة ذاتية تحتاج إلى إعادة هيكلة وتحسين 🚨"}
                       </span>
                     </div>
-                    <div className="text-[11px] text-[#475569] leading-snug">
-                      توافق ATS : <strong>{scanResult.atsScore}%</strong> · {scanResult.feedback.summary}
-                    </div>
+                    <p className="text-[11.5px] text-[#475569] leading-snug">
+                      {scanResult.feedback.summary}
+                    </p>
                   </div>
+                </div>
+
+                {/* 3 Market Fit Pills */}
+                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#E2E8F0]">
+                  <div className="p-2 rounded-xl bg-white border border-slate-200/80 text-center shadow-2xs">
+                    <span className="text-[10px] text-slate-500 block mb-0.5">💼 احترافي (تونس والخليج)</span>
+                    <strong className="text-xs font-bold text-[#2D3A2A]">
+                      {scanResult.marketFit?.professional ?? 85}%
+                    </strong>
+                  </div>
+                  <div className="p-2 rounded-xl bg-white border border-slate-200/80 text-center shadow-2xs">
+                    <span className="text-[10px] text-slate-500 block mb-0.5">🍁 كندي (روبوتات ATS)</span>
+                    <strong className="text-xs font-bold text-[#2D3A2A]">
+                      {scanResult.marketFit?.canadian ?? scanResult.atsScore}%
+                    </strong>
+                  </div>
+                  <div className="p-2 rounded-xl bg-white border border-slate-200/80 text-center shadow-2xs">
+                    <span className="text-[10px] text-slate-500 block mb-0.5">🇪🇺 أوروبي (Europass)</span>
+                    <strong className="text-xs font-bold text-[#2D3A2A]">
+                      {scanResult.marketFit?.europass ?? 80}%
+                    </strong>
+                  </div>
+                </div>
+              </div>
+
+              {/* ══════════════════════════════════════════════
+                  INTERACTIVE TEMPLATE SELECTOR (3 STANDARDS)
+                 ══════════════════════════════════════════════ */}
+              <div className="pt-1">
+                <div className="flex items-center justify-between mb-2 px-1">
+                  <span className="text-xs font-bold text-[#0F172A] flex items-center gap-1.5">
+                    <Sparkles size={14} className="text-[#60735A]" />
+                    <span>اختر القالب لنقل وتنسيق بياناتك فوراً :</span>
+                  </span>
+                  <span className="text-[10.5px] text-[#64748B] font-medium">
+                    (انقر للاختيار)
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  {/* Card 1: Professional Executive */}
+                  <button
+                    type="button"
+                    onClick={() => setTargetTemplate("professional_executive")}
+                    className={`relative p-3 rounded-2xl border text-right transition-all cursor-pointer flex flex-col justify-between ${
+                      targetTemplate === "professional_executive"
+                        ? "border-2 border-[#60735A] bg-[#F4F7F3] shadow-xs"
+                        : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60"
+                    }`}
+                  >
+                    {scanResult.recommendedTemplate === "professional_executive" && (
+                      <span className="absolute -top-2 left-2 px-2 py-0.5 rounded-full bg-[#60735A] text-white text-[9px] font-bold shadow-xs">
+                        موصى به لملفك 🎯
+                      </span>
+                    )}
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-lg">💼</span>
+                        <span className="text-[10px] font-bold text-[#60735A] bg-[#EBF0E9] px-1.5 py-0.5 rounded-md">
+                          {scanResult.marketFit?.professional ?? 85}% ملاءمة
+                        </span>
+                      </div>
+                      <h4 className="text-xs font-bold text-[#0F172A] mb-0.5">
+                        احترافي تنفيذي
+                      </h4>
+                      <p className="text-[10.5px] text-[#64748B] leading-tight">
+                        تونس، الخليج والشركات الخاصة (عمودين وبار جانبي)
+                      </p>
+                    </div>
+                    <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-end text-[10.5px] font-semibold text-[#60735A]">
+                      {targetTemplate === "professional_executive" ? "✓ تم الاختيار" : "اختيار هذا القالب"}
+                    </div>
+                  </button>
+
+                  {/* Card 2: Canadian Classic ATS */}
+                  <button
+                    type="button"
+                    onClick={() => setTargetTemplate("canadian_classic")}
+                    className={`relative p-3 rounded-2xl border text-right transition-all cursor-pointer flex flex-col justify-between ${
+                      targetTemplate === "canadian_classic"
+                        ? "border-2 border-[#60735A] bg-[#F4F7F3] shadow-xs"
+                        : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60"
+                    }`}
+                  >
+                    {scanResult.recommendedTemplate === "canadian_classic" && (
+                      <span className="absolute -top-2 left-2 px-2 py-0.5 rounded-full bg-[#60735A] text-white text-[9px] font-bold shadow-xs">
+                        موصى به لملفك 🎯
+                      </span>
+                    )}
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-lg">🍁</span>
+                        <span className="text-[10px] font-bold text-[#60735A] bg-[#EBF0E9] px-1.5 py-0.5 rounded-md">
+                          {scanResult.marketFit?.canadian ?? scanResult.atsScore}% ملاءمة
+                        </span>
+                      </div>
+                      <h4 className="text-xs font-bold text-[#0F172A] mb-0.5">
+                        كندي معتمد ATS
+                      </h4>
+                      <p className="text-[10.5px] text-[#64748B] leading-tight">
+                        كندا، كيبيك وأمريكا (عمود واحد متوافق مع الروبوتات)
+                      </p>
+                    </div>
+                    <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-end text-[10.5px] font-semibold text-[#60735A]">
+                      {targetTemplate === "canadian_classic" ? "✓ تم الاختيار" : "اختيار هذا القالب"}
+                    </div>
+                  </button>
+
+                  {/* Card 3: Europass Classic */}
+                  <button
+                    type="button"
+                    onClick={() => setTargetTemplate("europass_classic")}
+                    className={`relative p-3 rounded-2xl border text-right transition-all cursor-pointer flex flex-col justify-between ${
+                      targetTemplate === "europass_classic"
+                        ? "border-2 border-[#60735A] bg-[#F4F7F3] shadow-xs"
+                        : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60"
+                    }`}
+                  >
+                    {scanResult.recommendedTemplate === "europass_classic" && (
+                      <span className="absolute -top-2 left-2 px-2 py-0.5 rounded-full bg-[#60735A] text-white text-[9px] font-bold shadow-xs">
+                        موصى به لملفك 🎯
+                      </span>
+                    )}
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-lg">🇪🇺</span>
+                        <span className="text-[10px] font-bold text-[#60735A] bg-[#EBF0E9] px-1.5 py-0.5 rounded-md">
+                          {scanResult.marketFit?.europass ?? 80}% ملاءمة
+                        </span>
+                      </div>
+                      <h4 className="text-xs font-bold text-[#0F172A] mb-0.5">
+                        أوروبي Europass
+                      </h4>
+                      <p className="text-[10.5px] text-[#64748B] leading-tight">
+                        فرنسا، ألمانيا ودول الاتحاد الأوروبي (المعايير الرسمية)
+                      </p>
+                    </div>
+                    <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-end text-[10.5px] font-semibold text-[#60735A]">
+                      {targetTemplate === "europass_classic" ? "✓ تم الاختيار" : "اختيار هذا القالب"}
+                    </div>
+                  </button>
                 </div>
               </div>
 
@@ -369,16 +526,24 @@ export function CvScannerModal({ isOpen, onClose, onApplyCvData }: CvScannerModa
               <button
                 type="button"
                 onClick={handleApply}
-                className="w-full py-3 px-5 rounded-xl bg-[#60735A] hover:bg-[#4d5c48] active:scale-[0.98] text-white font-bold text-sm shadow-md shadow-[#60735A]/20 transition-all flex items-center justify-center gap-2"
+                className="w-full py-3 px-5 rounded-xl bg-[#60735A] hover:bg-[#4d5c48] active:scale-[0.98] text-white font-bold text-xs sm:text-sm shadow-md shadow-[#60735A]/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span>🚀 صب البيانات في الـ CV الجديد وعدّل عليه</span>
+                <span>
+                  🚀 صب البيانات في{" "}
+                  {targetTemplate === "canadian_classic"
+                    ? "النموذج الكندي ATS"
+                    : targetTemplate === "europass_classic"
+                      ? "النموذج الأوروبي Europass"
+                      : "النموذج الاحترافي التنفيذي"}{" "}
+                  وعدّل عليه
+                </span>
                 <ArrowLeft size={16} />
               </button>
 
               <button
                 type="button"
                 onClick={() => setModalStep("upload")}
-                className="w-full py-1.5 text-xs text-[#64748B] hover:text-[#0F172A] font-semibold text-center transition-colors"
+                className="w-full py-1.5 text-xs text-[#64748B] hover:text-[#0F172A] font-semibold text-center transition-colors cursor-pointer"
               >
                 فحص ملف سيرة ذاتية آخر 🔄
               </button>
@@ -387,7 +552,7 @@ export function CvScannerModal({ isOpen, onClose, onApplyCvData }: CvScannerModa
             <button
               type="button"
               onClick={onClose}
-              className="w-full py-2 text-xs text-[#64748B] hover:text-[#0F172A] font-semibold text-center transition-colors"
+              className="w-full py-2 text-xs text-[#64748B] hover:text-[#0F172A] font-semibold text-center transition-colors cursor-pointer"
             >
               إلغاء والمتابعة في تعمير النموذج يدوياً ✕
             </button>

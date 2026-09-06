@@ -10,6 +10,12 @@ export interface ProcessCvScanParams {
   fileName?: string;
 }
 
+export interface MarketFitScores {
+  professional: number; // Score d'adéquation Tunisie / Golfe / Privé (0-100)
+  canadian: number;     // Score d'adéquation Canada / ATS (0-100)
+  europass: number;     // Score d'adéquation Europe / UE (0-100)
+}
+
 export interface CvScanFeedback {
   strengths: string[];
   weaknesses: string[];
@@ -19,6 +25,8 @@ export interface CvScanFeedback {
 export interface CvScanOutput {
   rating: number;
   atsScore: number;
+  marketFit: MarketFitScores;
+  recommendedTemplate: "professional_executive" | "canadian_classic" | "europass_classic";
   feedback: CvScanFeedback;
   extractedCv: Record<string, any>;
 }
@@ -55,7 +63,6 @@ export async function processCvScan(params: ProcessCvScanParams): Promise<CvScan
 
   // Pour DOCX/DOC si envoyé en mime binaire générique sans support multimodal direct de Gemini,
   // Gemini gère nativement application/pdf, image/jpeg, image/png, image/webp, text/plain.
-  // Si le mime est Word (.docx), nous le spécifions comme application/pdf ou nous informons
   if (detectedMime.includes("word") || detectedMime.includes("officedocument")) {
     detectedMime = "application/pdf";
   }
@@ -76,31 +83,45 @@ export async function processCvScan(params: ProcessCvScanParams): Promise<CvScan
   }
 
   parts.push({
-    text: `En tant qu'auditeur ATS international et expert en recrutement RH (Tunisie, Canada, Europe) :
-1. Analyse minutieusement ce CV.
-2. Attribue une note globale de qualité sur 100 ('rating', entre 35 et 95) et un score de conformité aux filtres ATS sur 100 ('atsScore').
-3. Identifie 2 à 3 points forts concrets ('strengths') et 2 à 3 axes d'amélioration critiques ('weaknesses') rédigés en arabe clair et professionnel.
-4. Rédige un diagnostic synthétique de 1 à 2 phrases en arabe ('summary').
-5. Extrais et normalise avec soin toutes les données du candidat pour les mapper exactement au schéma de données demandé ci-dessous.
-   - Améliore le résumé professionnel ('profileSummary') pour qu'il soit accrocheur et percutant.
-   - Corrige les petites fautes d'orthographe ou de formulation dans les descriptions d'expériences.
-   - Identifie si le candidat est plutôt 'experienced' ou 'student'.
-   - Recommande le template le plus adapté parmi: 'canadian_classic', 'canadian_modern', 'europass_classic', 'professional_executive', 'professional_modern'.
+    text: `Tu es un Directeur de Recrutement RH International et Auditeur Expert de CV.
+Notre plateforme propose 3 grands standards officiels de CV :
+1. Standard Professionnel Exécutif ('professional_executive') : Idéal pour les entreprises en Tunisie, le Golfe, les multinationales et le secteur privé (structure 2 colonnes soignée, compétences valorisées, présentation moderne).
+2. Standard Canadien ATS ('canadian_classic') : Format nord-américain 1 colonne épuré, optimisé 100% pour les robots ATS (Taleo, Workday), sans photo, anti-discrimination.
+3. Standard Européen Europass ('europass_classic') : Format officiel reconnu dans toute l'Union Européenne (France, Allemagne, Italie, Belgique, bourses et recherche).
+
+Mission d'analyse :
+1. Analyse minutieusement le CV fourni.
+2. Note globale de qualité sur 100 ('rating', entre 40 et 95) basée sur la clarté, l'impact et la complétude.
+3. Score de conformité ATS sur 100 ('atsScore', entre 35 et 95) basé sur la lisibilité par les algorithmes de filtrage.
+4. Évalue l'adéquation ('marketFit', sur 100) pour CHACUN des 3 marchés :
+   - 'professional' : pertinence pour le marché local tunisien, pays du Golfe et entreprises privées.
+   - 'canadian' : pertinence pour l'immigration et l'emploi au Canada / États-Unis.
+   - 'europass' : pertinence pour l'Union Européenne (France, UE, stages, mobilité).
+5. Recommande le modèle le plus adapté ('recommendedTemplate') parmi : 'professional_executive', 'canadian_classic', 'europass_classic'.
+6. Rédige 2 à 3 points forts ('strengths') et 2 à 3 points à corriger ('weaknesses') en arabe professionnel clair et encourageant.
+7. Rédige un diagnostic synthétique de 1 à 2 phrases en arabe ('summary') qui conseille objectivement le candidat.
+8. Extrais et normalise avec soin toutes les données du candidat pour les mapper au schéma ci-dessous (améliore le 'profileSummary' et corrige les fautes).
 
 Réponds UNIQUEMENT avec un JSON strict sans balises markdown au format suivant :
 {
-  "rating": 65,
-  "atsScore": 58,
+  "rating": 76,
+  "atsScore": 68,
+  "marketFit": {
+    "professional": 84,
+    "canadian": 68,
+    "europass": 78
+  },
+  "recommendedTemplate": "professional_executive",
   "feedback": {
     "strengths": [
-      "مسار دراسي وأكاديمي واضح ومكتمل",
-      "معلومات الاتصال واضحة ومباشرة"
+      "مسار أكاديمي ومهني واضح ومنظم",
+      "وضوح معلومات الاتصال والمسمى الوظيفي"
     ],
     "weaknesses": [
-      "غياب الكلمات المفتاحية الأساسية لمطابقة روبوتات ATS",
-      "نقص في الأرقام والإنجازات الملموسة في التجارب المهنية"
+      "نقص في الأرقام والإنجازات القابلة للقياس داخل التجارب",
+      "الحاجة إلى تحسين الكلمات المفتاحية لزيادة قوة الملف أمام لجان التوظيف"
     ],
-    "summary": "سيرة ذاتية واعدة وقابلة للتطوير بشكل كبير عند استخدام النموذج الكندي المعتمد."
+    "summary": "سيرة ذاتية واعدة تمتلك مقومات قوية، ومن شأن نقلها لنموذج احترافي تنفيذي أو أوروبي مضاعفة فرصك في القبول."
   },
   "extractedCv": {
     "profileType": "experienced",
@@ -109,7 +130,7 @@ Réponds UNIQUEMENT avec un JSON strict sans balises markdown au format suivant 
     "city": "Ville, Pays",
     "email": "email@example.com",
     "phone": "+216 XX XXX XXX",
-    "profileSummary": "Résumé professionnel percutant...",
+    "profileSummary": "Résumé professionnel percutant rédigé par l'IA...",
     "experiences": [
       {
         "id": "exp-1",
@@ -117,7 +138,7 @@ Réponds UNIQUEMENT avec un JSON strict sans balises markdown au format suivant 
         "company": "Entreprise",
         "dates": "2022 - Présent",
         "location": "Tunis, Tunisie",
-        "description": "Missions et réalisations..."
+        "description": "Missions et réalisations mesurables..."
       }
     ],
     "educations": [
@@ -132,7 +153,7 @@ Réponds UNIQUEMENT avec un JSON strict sans balises markdown au format suivant 
     "skills": "Compétence 1, Compétence 2, Compétence 3",
     "languagesList": "Français (Courant), Arabe (Maternelle), Anglais (Intermédiaire)",
     "language": "fr",
-    "template": "canadian_classic"
+    "template": "professional_executive"
   }
 }`,
   });
@@ -222,6 +243,39 @@ Réponds UNIQUEMENT avec un JSON strict sans balises markdown au format suivant 
       year: edu.year || "",
       location: edu.location || "",
     }));
+  }
+
+  // Normaliser marketFit si absent ou partiel
+  const baseRating = typeof jsonResult.rating === "number" ? jsonResult.rating : 70;
+  const baseAts = typeof jsonResult.atsScore === "number" ? jsonResult.atsScore : 65;
+
+  if (!jsonResult.marketFit || typeof jsonResult.marketFit !== "object") {
+    jsonResult.marketFit = {
+      professional: Math.min(95, Math.max(45, baseRating + 5)),
+      canadian: Math.min(95, Math.max(35, baseAts)),
+      europass: Math.min(95, Math.max(40, Math.round((baseRating + baseAts) / 2))),
+    };
+  } else {
+    jsonResult.marketFit = {
+      professional: typeof jsonResult.marketFit.professional === "number" ? jsonResult.marketFit.professional : Math.min(95, Math.max(45, baseRating + 5)),
+      canadian: typeof jsonResult.marketFit.canadian === "number" ? jsonResult.marketFit.canadian : Math.min(95, Math.max(35, baseAts)),
+      europass: typeof jsonResult.marketFit.europass === "number" ? jsonResult.marketFit.europass : Math.min(95, Math.max(40, Math.round((baseRating + baseAts) / 2))),
+    };
+  }
+
+  // Normaliser recommendedTemplate
+  let rec = jsonResult.recommendedTemplate || jsonResult.extractedCv?.template || "professional_executive";
+  if (typeof rec === "string") {
+    if (rec.includes("canad") || rec.includes("ats")) rec = "canadian_classic";
+    else if (rec.includes("euro")) rec = "europass_classic";
+    else rec = "professional_executive";
+  } else {
+    rec = "professional_executive";
+  }
+  jsonResult.recommendedTemplate = rec;
+
+  if (jsonResult.extractedCv) {
+    jsonResult.extractedCv.template = rec;
   }
 
   return jsonResult as CvScanOutput;

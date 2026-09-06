@@ -3,6 +3,12 @@
  */
 import type { CvData } from "@/pages/Home";
 
+export interface MarketFitScores {
+  professional: number; // Score d'adéquation Tunisie / Golfe / Privé (0-100)
+  canadian: number;     // Score d'adéquation Canada / ATS (0-100)
+  europass: number;     // Score d'adéquation Europe / UE (0-100)
+}
+
 export interface CvScanFeedback {
   strengths: string[];
   weaknesses: string[];
@@ -12,6 +18,8 @@ export interface CvScanFeedback {
 export interface CvScanResult {
   rating: number;
   atsScore: number;
+  marketFit?: MarketFitScores;
+  recommendedTemplate?: "professional_executive" | "canadian_classic" | "europass_classic";
   feedback: CvScanFeedback;
   extractedCv: Partial<CvData>;
 }
