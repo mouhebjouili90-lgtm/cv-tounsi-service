@@ -28,6 +28,16 @@ export default function AdsLanding() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const search = window.location.search || "";
+      if (!search.includes("view=sales")) {
+        const params = new URLSearchParams(search);
+        params.set("start", "true");
+        params.set("ref", "offre");
+        window.location.replace("/?" + params.toString());
+        return;
+      }
+    }
     // Track Landing Page View for Meta Ads
     trackEvent("ViewContent", {
       content_name: "Ads Landing Page Offer",

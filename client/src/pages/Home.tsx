@@ -2065,6 +2065,34 @@ function Landing({ onStart }: { onStart: () => void }) {
   );
 }
 
+export function checkIsMetaAdOrStart(): boolean {
+  if (typeof window === "undefined") return false;
+  const search = window.location.search || "";
+  const referrer = document.referrer || "";
+  const ua = navigator.userAgent || "";
+
+  return (
+    search.includes("start=true") ||
+    search.includes("ref=offre") ||
+    search.includes("ref=meta") ||
+    search.includes("ref=fb") ||
+    search.includes("utm_source") ||
+    search.includes("utm_medium") ||
+    search.includes("utm_campaign") ||
+    search.includes("fbclid") ||
+    search.includes("fbadid") ||
+    search.includes("fb_") ||
+    search.includes("ad=true") ||
+    search.includes("meta=true") ||
+    referrer.includes("facebook.com") ||
+    referrer.includes("instagram.com") ||
+    referrer.includes("fb.com") ||
+    ua.includes("FBAN") ||
+    ua.includes("FBAV") ||
+    ua.includes("Instagram")
+  );
+}
+
 /* ─── Builder (Step-by-Step with Student vs Experienced Profile Differentiation) ─── */
 function Builder({
   data,
@@ -2094,20 +2122,32 @@ function Builder({
         return false;
       }
 
+      // Si l'utilisateur vient d'une pub Meta ou d'un lien sponsorisé :
+      // On AFFICHE TOUJOURS la modale d'accueil (on ignore alreadySeen pour ne jamais bloquer le client ou les prospects)
+      if (checkIsMetaAdOrStart()) {
+        return true;
+      }
+
       const alreadySeen = localStorage.getItem("cv_tounsi_onboarding_guide_seen");
       if (alreadySeen === "true") return false;
 
-      const isAdOrStart =
-        search.includes("start=true") ||
-        search.includes("ref=offre") ||
-        search.includes("ref=meta") ||
-        search.includes("utm_source") ||
-        search.includes("fbclid");
-
-      return isAdOrStart;
+      return true;
     }
     return false;
   });
+
+  // Ensure guide is shown when arriving from Meta Ads
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const search = window.location.search;
+      if (search.includes("scan=true") || search.includes("scanner=true")) {
+        return;
+      }
+      if (checkIsMetaAdOrStart()) {
+        setShowOnboardingGuide(true);
+      }
+    }
+  }, []);
 
   const handleCloseOnboardingGuide = () => {
     setShowOnboardingGuide(false);
@@ -2160,20 +2200,13 @@ function Builder({
 
   const [step, setStep] = useState<BuilderStep>(() => {
     if (typeof window !== "undefined") {
-      const search = window.location.search;
-      const isAdOrStart =
-        search.includes("start=true") ||
-        search.includes("ref=offre") ||
-        search.includes("ref=meta") ||
-        search.includes("utm_source") ||
-        search.includes("fbclid");
-
-      // Traffic coming from Meta Ads or explicit start MUST always land on Step 1 (01. النموذج)
-      if (isAdOrStart) {
+      // Traffic coming from Meta Ads or explicit start MUST always land on Step 0 (01. النموذج)
+      if (checkIsMetaAdOrStart()) {
         localStorage.setItem("cv_tounsi_builder_step", "0");
         return 0;
       }
 
+      const search = window.location.search;
       // Check explicit step param (e.g. ?step=0 or ?step=2)
       const urlParams = new URLSearchParams(search);
       const urlStep = urlParams.get("step");
@@ -2200,28 +2233,13 @@ function Builder({
     }
   }, [step]);
 
-  // Ensure ad visitors and fresh starts land on Step 1 ("01. النموذج") and mobileTab is "form"
+  // Ensure ad visitors and fresh starts land on Step 0 ("01. النموذج") and mobileTab is "form"
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const search = window.location.search;
-      const isAdOrStart =
-        search.includes("start=true") ||
-        search.includes("ref=offre") ||
-        search.includes("ref=meta") ||
-        search.includes("utm_source") ||
-        search.includes("fbclid");
-
-      if (isAdOrStart) {
+      if (checkIsMetaAdOrStart()) {
         setStep(0);
         setMobileTab("form");
         localStorage.setItem("cv_tounsi_builder_step", "0");
-
-        // Clean up start/ad params so subsequent page refreshes keep the user's active step
-        try {
-          window.history.replaceState({}, document.title, "/?builder=true");
-        } catch {
-          // ignore
-        }
       }
     }
   }, []);
@@ -4523,15 +4541,7 @@ export default function Home() {
   const [builderKey, setBuilderKey] = useState(0);
   const [isBuilder, setIsBuilder] = useState(() => {
     if (typeof window !== "undefined") {
-      const search = window.location.search;
-      if (
-        search.includes("start=true") ||
-        search.includes("builder=true") ||
-        search.includes("ref=offre") ||
-        search.includes("ref=meta") ||
-        search.includes("utm_source") ||
-        search.includes("fbclid")
-      ) {
+      if (checkIsMetaAdOrStart()) {
         localStorage.setItem("cv_tounsi_builder_step", "0");
         return true;
       }
@@ -4573,28 +4583,11 @@ export default function Home() {
     }
   }, [data]);
 
-  // Auto-persist builder view mode and handle direct URL launch (Tâche 8)
+  // Auto-persist builder view mode and handle direct Meta Ads / URL launch
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const search = window.location.search;
-      const isAdOrStart =
-        search.includes("start=true") ||
-        search.includes("builder=true") ||
-        search.includes("ref=offre") ||
-        search.includes("ref=meta") ||
-        search.includes("utm_source") ||
-        search.includes("fbclid");
-
-      if (isAdOrStart) {
-        if (
-          search.includes("start=true") ||
-          search.includes("ref=offre") ||
-          search.includes("ref=meta") ||
-          search.includes("utm_source") ||
-          search.includes("fbclid")
-        ) {
-          localStorage.setItem("cv_tounsi_builder_step", "0");
-        }
+      if (checkIsMetaAdOrStart()) {
+        localStorage.setItem("cv_tounsi_builder_step", "0");
         if (!isBuilder) {
           setIsBuilder(true);
           trackBuilderStarted(data.template, data.language);

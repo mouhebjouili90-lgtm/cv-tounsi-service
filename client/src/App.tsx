@@ -15,14 +15,26 @@ import AdsLanding from "@/pages/AdsLanding";
 import AdminDashboard from "@/pages/AdminDashboard";
 import ServiceOrderPage from "@/pages/ServiceOrderPage";
 
+function RedirectToOffreBuilder() {
+  if (typeof window !== "undefined") {
+    const search = window.location.search || "";
+    const params = new URLSearchParams(search);
+    params.set("start", "true");
+    params.set("ref", "offre");
+    window.location.replace("/?" + params.toString());
+  }
+  return null;
+}
+
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/admin" component={AdminDashboard} />
-      <Route path="/offre" component={AdsLanding} />
-      <Route path="/promo" component={AdsLanding} />
-      <Route path="/go" component={AdsLanding} />
+      <Route path="/offre" component={RedirectToOffreBuilder} />
+      <Route path="/promo" component={RedirectToOffreBuilder} />
+      <Route path="/go" component={RedirectToOffreBuilder} />
+      <Route path="/offre-landing" component={AdsLanding} />
       <Route path="/service" component={ServiceOrderPage} />
       <Route path="/commande" component={ServiceOrderPage} />
       <Route path="/khadamat" component={ServiceOrderPage} />
