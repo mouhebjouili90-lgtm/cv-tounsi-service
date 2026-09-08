@@ -215,6 +215,24 @@ export function CvScannerModal({ isOpen, onClose, onApplyCvData }: CvScannerModa
                 </span>
               </div>
 
+              {/* Quick Demo Test Trigger */}
+              <div className="text-center pt-0.5">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const demoCvText = `Mohamed Ben Ali\nIngénieur Logiciel Full-Stack & Cloud\nEmail: mohamed.benali@gmail.com\nTéléphone: +216 98 123 456\nTunis, Tunisie\n\nRésumé Professionnel:\nIngénieur logiciel avec 4 ans d'expérience dans le développement d'applications web scalables (React, Node.js, TypeScript) et architectures Cloud (AWS, Docker). Passionné par la performance et la qualité du code.\n\nExpériences Professionnelles:\n1. Senior Full-Stack Developer — Tech Solutions Tunisia (2022 - Présent)\n- Développement d'une plateforme SaaS B2B (+50 000 utilisateurs actifs).\n- Optimisation SQL et cache Redis (-40% temps de chargement).\n- Encadrement d'une équipe de 3 développeurs.\n\n2. Web Developer — Digital Agency Sousse (2020 - 2022)\n- Conception de dashboards interactifs avec React et Node.js.\n- Intégration de passerelles de paiement sécurisées (Konnect, Flouci).\n\nFormations et Diplômes:\n- Diplôme National d'Ingénieur en Informatique — INSAT Tunis (2015 - 2020)\n\nCompétences Techniques:\nReact, TypeScript, Node.js, PostgreSQL, Docker, AWS, Git, CI/CD\n\nLangues:\nArabe (Maternelle), Français (Courant - C1), Anglais (Courant - C1)`;
+                    const blob = new Blob([demoCvText], { type: "text/plain" });
+                    const file = new File([blob], "Mohamed_Ben_Ali_CV.txt", { type: "text/plain" });
+                    processFile(file);
+                  }}
+                  className="w-full inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer"
+                >
+                  <Sparkles size={14} className="text-amber-600 shrink-0" />
+                  <span>⚡ ليس لديك ملف جاهز الآن؟ اضغط لتجربة الفحص بنموذج حي</span>
+                </button>
+              </div>
+
               {/* Guarantees Box */}
               <div className="grid grid-cols-2 gap-2.5 pt-1">
                 <div className="flex items-center gap-2 p-2.5 rounded-xl bg-[#F8FAFC] border border-slate-200/80 text-xs text-slate-700">
