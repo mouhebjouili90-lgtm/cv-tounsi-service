@@ -78,19 +78,21 @@ export async function improveProfileWithGemini({
   const rawSummary = (currentSummary || "").trim();
   const rawRole = (targetRole || "").trim();
   const isStudent = profileType === "student";
+  const lang = language || "fr";
 
-  // Déterminer le domaine réel saisi par le candidat
   let domain = rawSummary.length > 0 && rawSummary.length < 80 
     ? rawSummary 
-    : (rawRole || (isStudent ? "Étudiant / Futur Diplômé" : "Professionnel"));
+    : (rawRole || (isStudent ? "Étudiant / Débutant" : "Professionnel"));
+
+  const targetLangLabel = langNames[lang] || "français";
 
   const systemInstruction = isStudent
-    ? `Tu es un coach carrière expert pour étudiants et débutants. Rédige UNIQUEMENT un paragraphe d'accroche de 2 à 3 phrases percutantes en ${langNames[language] || "français"} pour un profil étudiant / débutant dans le domaine "${domain}". Valorise la formation, la curiosité, l'adaptabilité et la motivation. Interdiction de mettre des titres, des puces, des guillemets ou des alternatives. Réponds UNIQUEMENT avec le texte final du CV.`
-    : `Tu es un expert RH de direction. Rédige UNIQUEMENT un paragraphe d'accroche professionnelle de 2 à 3 phrases percutantes en ${langNames[language] || "français"} pour un profil dans le domaine/poste "${domain}". Valorise l'expertise, les résultats, la rigueur et la valeur ajoutée métier. Interdiction de mettre des titres, des puces, des guillemets ou des alternatives. Réponds UNIQUEMENT avec le texte final du CV.`;
+    ? `Tu es un expert RH et coach carrière. Rédige UNIQUEMENT un paragraphe d'accroche fluide de 2 à 3 phrases percutantes en ${targetLangLabel} pour un profil étudiant ou débutant dans le domaine "${domain}". Met en valeur l'enthousiasme, la rigueur, les bases académiques et le potentiel. Aucun titre, aucun guillemet, aucun préfixe. Rends UNIQUEMENT le texte final.`
+    : `Tu es un expert en recrutement international. Rédige UNIQUEMENT un paragraphe d'accroche professionnelle de 2 à 3 phrases percutantes en ${targetLangLabel} pour un profil dans le domaine "${domain}". Met en valeur la compétence métier, les résultats et la valeur ajoutée. Aucun titre, aucun guillemet, aucun préfixe. Rends UNIQUEMENT le texte final.`;
 
   const userPrompt = rawSummary.length > 0
-    ? `Rédige l'accroche de CV pour ce profil : "${rawSummary}". Intitulé ou domaine : "${domain}".`
-    : `Rédige l'accroche de CV pour un profil ciblant le domaine : "${domain}".`;
+    ? `Améliore et professionnalise cette accroche de CV en ${targetLangLabel} pour le poste/domaine "${domain}" : "${rawSummary}". Réponds uniquement avec le texte final en ${targetLangLabel}.`
+    : `Rédige une accroche professionnelle percutante en ${targetLangLabel} pour un candidat visant le poste ou domaine "${domain}".`;
 
   try {
     const res = await fetchGeminiWithTimeout(userPrompt, systemInstruction);
@@ -99,8 +101,23 @@ export async function improveProfileWithGemini({
     console.warn("[Gemini Client] Utilisation du moteur sémantique local de secours:", err);
   }
 
-  // Fallback dynamique
-  const role = domain || "votre spécialité";
+  // Fallbacks multilingues de haute qualité
+  const role = domain || (lang === "ar" ? "المجال المهني" : lang === "en" ? "your field" : "votre spécialité");
+  if (lang === "ar") {
+    if (isStudent) {
+      return `طالب متميز وشغوف في مجال ${role}، يمتلك قاعدة أكاديمية متينة ورغبة صادقة في التطور والتعلم السريع. أتميز بالانضباط وروح المبادرة والقدرة على الاندماج في فرق العمل. أبحث عن فرصة تدريبية أو أول تجربة مهنية لتطبيق مهاراتي وتقديم قيمة مضافة حقيقية لمؤسستكم.`;
+    }
+    return `محترف متمرس ومسؤول في مجال ${role}، أجمع بين التمكن العملي والرؤية الموجهة نحو تحقيق النتائج الملموسة. أتمتع بخبرة مؤكدة في إدارة المهام بكفاءة والتنسيق مع فرق العمل لتحقيق الأهداف. معروف بدقة الأداء والاستقلالية والحرص المستمر على التميز والجودة.`;
+  }
+
+  if (lang === "en") {
+    if (isStudent) {
+      return `Motivated and ambitious student in ${role}, equipped with a solid academic foundation and strong analytical skills. Eager to contribute fresh perspectives, learn quickly, and collaborate within a dynamic team. Actively seeking an internship or entry-level opportunity to deliver immediate value.`;
+    }
+    return `Dedicated and results-driven professional specialized in ${role}, with a proven track record of optimizing workflows and delivering measurable outcomes. Known for problem-solving agility, cross-functional collaboration, and an unwavering commitment to operational excellence.`;
+  }
+
+  // Français (défaut)
   if (isStudent) {
     return `Étudiant(e) motivé(e) et rigoureux(se) dans le domaine de ${role}, doté(e) d'une solide formation académique et d'un vif esprit d'analyse. Passionné(e) par les projets innovants et les nouvelles technologies, je fais preuve d'une grande adaptabilité et d'un sens aigu du travail en équipe. En recherche active d'une opportunité (stage / premier emploi) pour mettre mon dynamisme et mes compétences au service de vos objectifs.`;
   }
@@ -124,17 +141,19 @@ export async function improveExperienceWithGemini({
   profileType?: ProfileType;
 }): Promise<string> {
   const isStudent = profileType === "student";
-  const userRole = role || targetRole || (isStudent ? "Projet Académique / Stage" : "Poste Professionnel");
-  const userCompany = company || (isStudent ? "Université / Organisme" : "Entreprise");
+  const lang = language || "fr";
+  const userRole = role || targetRole || (lang === "ar" ? "المنصب المهني" : lang === "en" ? "Professional Role" : "Poste Professionnel");
+  const userCompany = company || (lang === "ar" ? "المؤسسة / الشركة" : lang === "en" ? "Company / Organization" : "Entreprise");
   const userDesc = (description || "").trim();
+  const targetLangLabel = langNames[lang] || "français";
 
   const systemInstruction = isStudent
-    ? `Tu es un spécialiste de l'insertion professionnelle des étudiants. Rédige UNIQUEMENT 3 à 4 puces concises d'impact en ${langNames[language] || "français"} pour un projet académique ou stage. Chaque puce commence obligatoirement par •. Met en valeur les technologies, la méthodologie et les livrables. Aucun titre, aucun autre texte.`
-    : `Tu es un spécialiste RH et recrutement ATS. Rédige UNIQUEMENT 3 à 4 puces professionnelles d'impact chiffrées et concrètes en ${langNames[language] || "français"}. Chaque puce commence obligatoirement par •. Aucun titre, aucun autre texte.`;
+    ? `Tu es un spécialiste de l'insertion professionnelle des étudiants. Rédige UNIQUEMENT 3 à 4 puces concises d'impact en ${targetLangLabel} pour un projet académique ou stage. Chaque puce commence obligatoirement par •. Met en valeur les technologies, la méthodologie et les livrables. Aucun titre, aucun autre texte.`
+    : `Tu es un spécialiste RH et recrutement ATS. Rédige UNIQUEMENT 3 à 4 puces professionnelles d'impact en ${targetLangLabel} (réalisations concrètes, missions clés, méthode). Chaque puce commence obligatoirement par •. Aucun titre, aucun autre texte.`;
 
   const userPrompt = userDesc && userDesc.length > 5
-    ? `Poste : "${userRole}" chez "${userCompany}". Détails / Notes fournies : \n${userDesc}\nRédige 3 à 4 puces professionnelles commençant par •.`
-    : `Poste : "${userRole}" chez "${userCompany}". Propose 3 à 4 réalisations et missions clés concrètes pour ce poste, commençant chacune par •.`;
+    ? `Poste : "${userRole}" chez "${userCompany}". Détails fournis : \n${userDesc}\nRédige 3 à 4 puces professionnelles en ${targetLangLabel} commençant chacune par •.`
+    : `Poste : "${userRole}" chez "${userCompany}". Propose 3 à 4 réalisations et missions clés concrètes pour ce poste en ${targetLangLabel}, commençant chacune par •.`;
 
   try {
     const res = await fetchGeminiWithTimeout(userPrompt, systemInstruction);
@@ -157,6 +176,39 @@ export async function improveExperienceWithGemini({
       .join("\n");
   }
 
+  if (lang === "ar") {
+    if (isStudent) {
+      return [
+        `• تخطيط وتنفيذ المشروع الأكاديمي بنجاح في إطار ${userCompany}.`,
+        `• تطبيق أحدث التقنيات والمنهجيات العلمية المكتسبة لتحقيق المتطلبات المحددة.`,
+        `• العمل ضمن فريق جماعي، الالتزام بالآجال المحددة وتقديم العروض والمخرجات بجودة عالية.`,
+      ].join("\n");
+    }
+    return [
+      `• إدارة وتنسيق المهام والمشاريع الموكلة لمنصب ${userRole} لدى ${userCompany}.`,
+      `• تحسين أساليب العمل ورفع الكفاءة التشغيلية لضمان تحقيق المستهدفات بدقة.`,
+      `• متابعة مؤشرات الأداء وتطبيق أفضل الممارسات المعتمدة في المجال.`,
+      `• التواصل المستمر مع مختلف الأقسام لضمان سلاسة سير العمل ورضا العملاء.`,
+    ].join("\n");
+  }
+
+  if (lang === "en") {
+    if (isStudent) {
+      return [
+        `• Successfully designed and implemented core project requirements at ${userCompany}.`,
+        `• Applied modern methodologies and technical tools relevant to ${userRole}.`,
+        `• Collaborated effectively within a multidisciplinary team and delivered milestones on schedule.`,
+      ].join("\n");
+    }
+    return [
+      `• Led key operations and executed critical responsibilities as ${userRole} at ${userCompany}.`,
+      `• Streamlined internal workflows and implemented best practices to enhance overall team productivity.`,
+      `• Monitored KPIs and ensured high standards of quality and timely project completion.`,
+      `• Collaborated cross-functionally with stakeholders to align deliverables with organizational objectives.`,
+    ].join("\n");
+  }
+
+  // Français (défaut)
   if (isStudent) {
     return [
       `• Conception, développement et soutenance du projet dans le cadre de ${userCompany}.`,
@@ -185,70 +237,69 @@ export async function improveSkillsWithGemini({
   currentSkills?: string;
   profileType?: ProfileType;
 }): Promise<string> {
-  const isStudent = profileType === "student";
+  const role = (targetRole || "").trim() || "Général";
   const userSkills = (currentSkills || "").trim();
-  const domain = targetRole || (userSkills.length > 0 && userSkills.length < 60 ? userSkills : (isStudent ? "Étudiant / Débutant" : "Professionnel"));
+  const lang = language || "fr";
+  const targetLangLabel = langNames[lang] || "français";
 
-  const systemInstruction = `Tu es un recruteur expert en recrutement. Donne UNIQUEMENT une liste de 8 à 10 compétences clés (hard skills, logiciels, méthodologies, soft skills) adaptées au domaine "${domain}" en ${langNames[language] || "français"}, séparées par des points médians · . Aucun titre, aucun guillemet, aucun autre texte.`;
+  const systemInstruction = `Tu es un recruteur expert. Propose une liste de 6 à 8 compétences incontournables (techniques et humaines) en ${targetLangLabel} pour le poste ou domaine "${role}". Les compétences doivent être séparées obligatoirement par des virgules (,). Aucun titre, aucun numéro, aucun point de puce. Réponds UNIQUEMENT par la liste des compétences séparées par des virgules.`;
 
   const userPrompt = userSkills && userSkills.length > 3
-    ? `Domaine / Métier : "${domain}". Compétences actuelles : "${userSkills}". Propose 8 à 10 compétences clés pertinentes et modernes séparées par · .`
-    : `Domaine / Métier visé : "${domain}". Propose 8 à 10 compétences clés incontournables séparées par · .`;
+    ? `Poste : "${role}". Compétences actuelles : "${userSkills}". Complète et sélectionne les 6 à 8 meilleures compétences en ${targetLangLabel} séparées par des virgules.`
+    : `Poste ciblé : "${role}". Propose les 6 à 8 meilleures compétences professionnelles en ${targetLangLabel} séparées par des virgules.`;
 
   try {
     const res = await fetchGeminiWithTimeout(userPrompt, systemInstruction);
-    if (res && res.length > 15) {
+    if (res && res.length > 10) {
       return res
-        .replace(/\n+/g, " · ")
-        .replace(/^[-*•]\s*/gm, "")
-        .replace(/\s*·\s*/g, " · ")
+        .replace(/^[•\-\*\d\.\s]+/gm, "")
+        .replace(/\n+/g, ", ")
+        .replace(/,\s*,/g, ",")
         .trim();
     }
   } catch (err) {
     console.warn("[Gemini Client] Fallback compétences:", err);
   }
 
-  if (isStudent) {
-    return `Capacité d'apprentissage rapide · Travail en équipe & Agilité · Pack Office & Outils collaboratifs · Résolution de problèmes · Rigueur & Sens du détail · Communication écrite & orale · Gestion du temps · Esprit d'initiative`;
+  if (lang === "ar") {
+    return "إدارة المشاريع, التخطيط الاستراتيجي, حل المشكلات, العمل الجماعي, التواصل الفعال, إدارة الوقت, تحليل البيانات, المرونة والتكيف";
   }
-
-  return `Gestion de projet · Analyse stratégique & Résolution de problèmes · Outils métiers spécialisés · Travail en équipe & Leadership · Communication professionnelle · Rigueur & Autonomie · Optimisation des processus`;
+  if (lang === "en") {
+    return "Project Management, Strategic Planning, Problem Solving, Cross-Functional Collaboration, Communication, Time Management, Data Analysis, Adaptability";
+  }
+  return "Gestion de projet, Rigueur & Organisation, Travail en équipe, Résolution de problèmes, Communication professionnelle, Esprit d'analyse, Gestion du temps, Adaptabilité";
 }
 
-/* ── 4. Étape 3 : Suggestion et Formatage des Langues ── */
+/* ── 4. Étape 4 : Normalisation des Langues ── */
 export async function improveLanguagesWithGemini({
   language,
-  targetRole,
   currentLanguages,
-  profileType = "experienced",
 }: {
   language: string;
-  targetRole: string;
   currentLanguages?: string;
-  profileType?: ProfileType;
 }): Promise<string> {
   const userLangs = (currentLanguages || "").trim();
-  const langTarget = langNames[language] || "français";
+  const lang = language || "fr";
+  const targetLangLabel = langNames[lang] || "français";
 
-  const systemInstruction = `Tu es un spécialiste RH. Rédige UNIQUEMENT une liste de 3 à 4 langues professionnelles avec niveaux de maîtrise normalisés (ex: Maternelle, Bilingue / C2, Courant / C1, Intermédiaire / B2) rédigées en ${langTarget}, séparées par des points médians · . Aucun titre, aucune puce, aucun autre texte.`;
-
+  const systemInstruction = `Tu es un expert RH. Normalise la liste des langues du candidat pour un CV en ${targetLangLabel} avec des niveaux standardisés (ex: Maternelle / Courant / Intermédiaire). Sépare chaque langue par " · ". Rends UNIQUEMENT la ligne finale sans aucun autre texte.`;
   const userPrompt = userLangs && userLangs.length > 2
-    ? `Formate et optimise ces langues pour un CV professionnel : "${userLangs}". Langue du CV : ${langTarget}.`
-    : `Donne les 3 ou 4 langues professionnelles courantes pour un profil ${profileType === "student" ? "étudiant / jeune diplômé" : "professionnel"} (Arabe, Français, Anglais, etc.) avec leurs niveaux respectifs en ${langTarget}.`;
+    ? `Normalise ces langues pour un CV en ${targetLangLabel} : "${userLangs}".`
+    : `Propose les 3 ou 4 langues courantes pour un professionnel tunisien pour un CV en ${targetLangLabel}.`;
 
   try {
     const res = await fetchGeminiWithTimeout(userPrompt, systemInstruction);
-    if (res && res.length > 10) {
-      return res
-        .replace(/\n+/g, " · ")
-        .replace(/^[-*•]\s*/gm, "")
-        .replace(/\s*·\s*/g, " · ")
-        .trim();
-    }
+    if (res && res.length > 10) return res.replace(/\n+/g, " · ").trim();
   } catch (err) {
     console.warn("[Gemini Client] Fallback langues:", err);
   }
 
+  if (lang === "ar") {
+    return "العربية (اللغة الأم) · الفرنسية (مستوى متقدم / C1) · الإنجليزية (مستوى مهني / B2)";
+  }
+  if (lang === "en") {
+    return "Arabic (Native) · French (Fluent / C2) · English (Professional / C1) · German (Conversational / B1)";
+  }
   return "Arabe (Langue maternelle) · Français (Bilingue / C2) · Anglais (Courant / C1) · Allemand (Notions / B1)";
 }
 
@@ -285,4 +336,40 @@ export async function improveFullCvWithGemini({
     experienceBullets,
     skills,
   };
+}
+
+/* ── 6. Traduction Intégrale Instantanée du CV (Arabe ⇄ Français ⇄ Anglais) ── */
+export async function translateFullCvWithGemini({
+  cvData,
+  targetLanguage,
+}: {
+  cvData: any;
+  targetLanguage: "ar" | "fr" | "en";
+}): Promise<any> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  try {
+    const token = typeof window !== "undefined" ? localStorage.getItem("cv_tounsi_client_token") : null;
+    if (token) {
+      headers["x-activation-token"] = token;
+    }
+  } catch {
+    // ignore
+  }
+
+  const response = await fetch("/api/ai/translate-cv", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ cvData, targetLanguage }),
+  });
+
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    throw new Error(errData.error || `Erreur de traduction (${response.status})`);
+  }
+
+  const data = await response.json();
+  if (!data.translatedCv) {
+    throw new Error("Traduction non reçue du serveur.");
+  }
+  return data.translatedCv;
 }

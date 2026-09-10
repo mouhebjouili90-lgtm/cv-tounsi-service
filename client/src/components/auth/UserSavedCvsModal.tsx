@@ -21,6 +21,7 @@ export function UserSavedCvsModal({ isOpen, onClose, onLoadCv, onNewCv, onUpgrad
   const { user, savedCvs, isLoadingCvs, deleteCvFromCloud } = useAuth();
   const isYearUser = user?.role === "year" || user?.role === "pro" || unlockedPlan === "year" || unlockedPlan === "pro";
   const isMonthUser = (user?.role === "month" || user?.role === "student" || unlockedPlan === "month" || unlockedPlan === "student") && !isYearUser;
+  const isProUser = isYearUser;
 
   const subInfo = getSubscriptionStatus(
     isYearUser || isMonthUser,

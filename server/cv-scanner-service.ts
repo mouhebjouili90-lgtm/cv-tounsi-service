@@ -100,7 +100,13 @@ Mission d'analyse :
 5. Recommande le modèle le plus adapté ('recommendedTemplate') parmi : 'professional_executive', 'canadian_classic', 'europass_classic'.
 6. Rédige 2 à 3 points forts ('strengths') et 2 à 3 points à corriger ('weaknesses') en arabe professionnel clair et encourageant.
 7. Rédige un diagnostic synthétique de 1 à 2 phrases en arabe ('summary') qui conseille objectivement le candidat.
-8. Extrais et normalise avec soin toutes les données du candidat pour les mapper au schéma ci-dessous (améliore le 'profileSummary' et corrige les fautes).
+8. Enrichissement et équilibrage visuel A4 (CRUCIAL : Éviter les espaces vides) :
+   - Les templates (notamment le modèle Professionnel à 2 colonnes) nécessitent une densité suffisante pour remplir harmonieusement une page A4.
+   - 'profileSummary' : Rédige une véritable accroche professionnelle de 3 à 4 phrases valorisant l'expertise, les résultats et la valeur ajoutée du candidat dans son domaine cible.
+   - 'experiences' : Pour CHAQUE expérience, ne laisse JAMAIS une simple ligne vide. Rédige 2 à 4 puces concises d'impact (réalisations chiffrées, missions clés, outils utilisés, méthodes) basées sur ce qui est mentionné ou inhérent au poste.
+   - 'skills' : Génère une liste riche de 6 à 10 compétences clés (hard skills techniques et soft skills relationnelles) indispensables pour le métier ciblé, séparées par des virgules.
+   - 'languagesList' : Renseigne les langues du candidat (ex: Arabe, Français, Anglais avec niveaux de maîtrise).
+9. Langue du CV extrait ('language') : Détecte la langue principale du CV d'origine ('fr', 'en' ou 'ar') et conserve fidèlement cette langue pour toutes les données extraites et enrichies.
 
 Réponds UNIQUEMENT avec un JSON strict sans balises markdown au format suivant :
 {
@@ -223,16 +229,28 @@ Réponds UNIQUEMENT avec un JSON strict sans balises markdown au format suivant 
     throw new Error(lastError || "Impossible d'extraire les données du CV.");
   }
 
-  // Normaliser les IDs si absents
   if (jsonResult.extractedCv?.experiences && Array.isArray(jsonResult.extractedCv.experiences)) {
-    jsonResult.extractedCv.experiences = jsonResult.extractedCv.experiences.map((exp: any, idx: number) => ({
-      id: exp.id || `exp-${idx + 1}`,
-      role: exp.role || "",
-      company: exp.company || "",
-      dates: exp.dates || "",
-      location: exp.location || "",
-      description: exp.description || "",
-    }));
+    jsonResult.extractedCv.experiences = jsonResult.extractedCv.experiences.map((exp: any, idx: number) => {
+      let desc = exp.description || "";
+      if (desc.trim().length < 15 && (exp.role || jsonResult.extractedCv?.targetRole)) {
+        const title = exp.role || jsonResult.extractedCv?.targetRole || "Poste";
+        const isAr = jsonResult.extractedCv?.language === "ar";
+        const isEn = jsonResult.extractedCv?.language === "en";
+        desc = isAr
+          ? `• إنجاز وتطوير المهام الموكلة بنجاح في إطار ${exp.company || "العمل"}\n• تطبيق أفضل الممارسات المهنية وتحقيق الأهداف المحددة\n• التنسيق مع الفريق ومتابعة مؤشرات الجودة والأداء`
+          : isEn
+          ? `• Successfully executed key responsibilities and projects for ${title}\n• Applied industry best practices and collaborated with cross-functional teams\n• Monitored performance metrics and delivered high quality results`
+          : `• Prise en charge des missions clés et réalisation des objectifs pour le poste de ${title}\n• Application des meilleures pratiques du secteur et travail en équipe collaborative\n• Suivi des indicateurs de performance et garantie de la qualité des livrables`;
+      }
+      return {
+        id: exp.id || `exp-${idx + 1}`,
+        role: exp.role || "",
+        company: exp.company || "",
+        dates: exp.dates || "",
+        location: exp.location || "",
+        description: desc,
+      };
+    });
   }
 
   if (jsonResult.extractedCv?.educations && Array.isArray(jsonResult.extractedCv.educations)) {
@@ -276,6 +294,25 @@ Réponds UNIQUEMENT avec un JSON strict sans balises markdown au format suivant 
 
   if (jsonResult.extractedCv) {
     jsonResult.extractedCv.template = rec;
+    const role = jsonResult.extractedCv.targetRole || "Professionnel";
+    const isAr = jsonResult.extractedCv.language === "ar";
+    const isEn = jsonResult.extractedCv.language === "en";
+
+    if (!jsonResult.extractedCv.profileSummary || jsonResult.extractedCv.profileSummary.trim().length < 30) {
+      jsonResult.extractedCv.profileSummary = isAr
+        ? `محترف ومتحمس يتمتع بكفاءة عالية في مجال ${role}، مع التزام كامل بتحقيق الأهداف وتطوير الأداء. يمتلك خبرة عملية في إدارة المهام وحل المشكلات والعمل الجماعي، ويسعى لتقديم قيمة مضافة حقيقية ضمن بيئة عمل احترافية.`
+        : isEn
+        ? `Dedicated and results-driven professional specialized in ${role}. Proven track record of delivering high-quality outcomes, solving complex challenges, and collaborating effectively in diverse team environments. Committed to operational excellence and continuous professional growth.`
+        : `Professionnel engagé et rigoureux spécialisé en ${role}. Doté d'une solide expertise opérationnelle, d'une grande capacité d'adaptation et d'un sens aigu du résultat. Reconnu pour mon esprit d'équipe, mon autonomie et ma volonté continue de créer de la valeur au sein de projets ambitieux.`;
+    }
+
+    if (!jsonResult.extractedCv.skills || jsonResult.extractedCv.skills.trim().length < 10) {
+      jsonResult.extractedCv.skills = isAr
+        ? "التخطيط الاستراتيجي, إدارة المشاريع, العمل الجماعي, حل المشكلات, التواصل الفعال, إدارة الوقت"
+        : isEn
+        ? "Strategic Planning, Project Management, Team Leadership, Problem Solving, Communication, Time Management"
+        : "Gestion de projet, Communication professionnelle, Travail en équipe, Résolution de problèmes, Rigueur & Organisation, Adaptabilité";
+    }
   }
 
   return jsonResult as CvScanOutput;

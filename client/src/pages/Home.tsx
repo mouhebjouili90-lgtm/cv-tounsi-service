@@ -8,6 +8,7 @@ import {
   improveSkillsWithGemini,
   improveLanguagesWithGemini,
   improveFullCvWithGemini,
+  translateFullCvWithGemini,
   type ProfileType,
 } from "@/lib/gemini";
 import {
@@ -2753,6 +2754,53 @@ function Builder({
     toast.success(`+ ${langToAdd} ajouté !`);
   };
 
+  /* ── 1-Click Instant AI Full CV Translation ── */
+  const [isTranslating, setIsTranslating] = useState(false);
+
+  const handleTranslateCv = async (targetLang: "ar" | "fr" | "en") => {
+    if (data.language === targetLang) {
+      toast.info("السيرة الذاتية بهذه اللغة بالفعل.");
+      return;
+    }
+
+    const langNamesLabel: Record<string, string> = {
+      ar: "العربية",
+      fr: "الفرنسية",
+      en: "الإنجليزية",
+    };
+
+    setIsTranslating(true);
+    trackAIUsed("FullCVTranslation");
+    toast.info(`جاري ترجمة كامل السيرة الذاتية إلى ${langNamesLabel[targetLang] || targetLang} بالذكاء الاصطناعي...`);
+
+    try {
+      const translated = await translateFullCvWithGemini({
+        cvData: data,
+        targetLanguage: targetLang,
+      });
+
+      if (translated) {
+        setData((prev) => ({
+          ...prev,
+          ...translated,
+          language: targetLang,
+          fullName: translated.fullName || prev.fullName,
+          email: translated.email || prev.email,
+          phone: translated.phone || prev.phone,
+          city: translated.city || prev.city,
+          experiences: translated.experiences && translated.experiences.length > 0 ? translated.experiences : prev.experiences,
+          educations: translated.educations && translated.educations.length > 0 ? translated.educations : prev.educations,
+        }));
+        toast.success(`تمت ترجمة كامل السيرة الذاتية إلى ${langNamesLabel[targetLang] || targetLang} بنجاح! 🎉`);
+      }
+    } catch (err: any) {
+      console.error("[Translation Error]", err);
+      toast.error(err?.message || "فشلت عملية الترجمة. يرجى المحاولة لاحقاً.");
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
   /* ── Global Copy Optimization with AI ── */
   const improveCopy = async () => {
     setIsGlobalLoading(true);
@@ -2849,6 +2897,15 @@ function Builder({
         // Fallback for resilient offline export if token is present
       }
 
+      // Configuration optimale de direction et police pour les exports arabes
+      if (data.language === "ar") {
+        printElement.dir = "rtl";
+        printElement.style.fontFamily = "'IBM Plex Sans Arabic', 'Tajawal', 'Cairo', sans-serif";
+      } else {
+        printElement.dir = "ltr";
+        printElement.style.fontFamily = "";
+      }
+
       const blob = await createPdfBlob(
         html2pdf() as unknown as PdfWorkerLike,
         printElement,
@@ -2860,7 +2917,7 @@ function Builder({
             scale: 2,
             useCORS: true,
             logging: false,
-            letterRendering: true,
+            letterRendering: false, // DÉSACTIVÉ : Évite de briser les ligatures arabes (supprime le dédoublement et le flou)
             backgroundColor: "#ffffff",
             windowWidth: 794,
             scrollY: 0,
@@ -3078,6 +3135,44 @@ function Builder({
                   <small>{languageLabels[lang].native} · Traduction auto des rubriques</small>
                 </button>
               ))}
+            </div>
+
+            {/* ── AI Instant Full Translation Card ── */}
+            <div
+              className="mt-3.5 p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/70 text-right flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xs"
+              dir="rtl"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-[#60735A] text-white flex items-center justify-center shrink-0 shadow-xs">
+                  <Languages size={18} />
+                </div>
+                <div>
+                  <strong className="text-xs font-bold text-[#1F2937] block">
+                    🌐 ترجمة محتوى السيرة الذاتية كاملاً بالذكاء الاصطناعي
+                  </strong>
+                  <span className="text-[11px] text-[#475569]">
+                    ترجمة احترافية فورية (التجارب، المؤهلات والمهارات) إلى اللغة المستهدفة بنقرة واحدة :
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1.5 shrink-0 w-full sm:w-auto justify-end">
+                {(["ar", "fr", "en"] as const).map((targetLang) => (
+                  <button
+                    key={targetLang}
+                    type="button"
+                    disabled={isTranslating || data.language === targetLang}
+                    onClick={() => handleTranslateCv(targetLang)}
+                    className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
+                      data.language === targetLang
+                        ? "bg-[#60735A]/20 text-[#60735A] opacity-60 cursor-not-allowed"
+                        : "bg-white text-[#2D3A2A] border border-[#60735A]/30 hover:bg-[#EBF0E9] shadow-2xs cursor-pointer active:scale-95"
+                    }`}
+                  >
+                    <span>{targetLang === "ar" ? "🇹🇳 العربية" : targetLang === "fr" ? "🇫🇷 الفرنسية" : "🇬🇧 الإنجليزية"}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -3301,23 +3396,49 @@ function Builder({
               : "فصّل تكوينك الجامعي وشهاداتك، عزّز مهاراتك بالذكاء الاصطناعي وحمّل سيرتك الذاتية المعتمدة."}
           </p>
 
-          {/* ── AI Harmonization Banner ── */}
+          {/* ── AI Harmonization & Instant Translation Banner ── */}
           <div className="ai-step-banner" dir="rtl" style={{ marginBottom: "1.6rem" }}>
             <div className="ai-step-banner-icon">
-              <WandSparkles size={20} />
+              <Sparkles size={22} />
             </div>
             <div className="ai-step-banner-text" style={{ textAlign: "right" }}>
-              <strong>تنسيق شامل وتحسين بالذكاء الاصطناعي</strong>
-              <p>تنسيق أوتوماتيكي لكل النصوص، الكلمات المفتاحية وأسلوب الصياغة بما يناسب بروفايلك {isStudent ? "الطلابي" : "المهني"}.</p>
+              <strong>تحسين وترجمة شاملة بالذكاء الاصطناعي</strong>
+              <p>ترجمة فورية لمحتوى الـ CV كاملاً بين اللغات أو تنسيق أوتوماتيكي لكل النصوص والكلمات المفتاحية.</p>
             </div>
-            <button
-              type="button"
-              className="button ai-button"
-              onClick={improveCopy}
-              disabled={isGlobalLoading}
-            >
-              {isGlobalLoading ? "جاري التنسيق..." : "✨ تنسيق كامل الـ CV (IA)"}
-            </button>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", alignItems: "center" }}>
+              {(["ar", "fr", "en"] as const).map((lang) => (
+                <button
+                  key={lang}
+                  type="button"
+                  disabled={isTranslating || data.language === lang}
+                  onClick={() => handleTranslateCv(lang)}
+                  className="button"
+                  style={{
+                    padding: "6px 10px",
+                    fontSize: "0.74rem",
+                    fontWeight: 700,
+                    background: data.language === lang ? "rgba(255,255,255,0.2)" : "#ffffff",
+                    color: data.language === lang ? "rgba(255,255,255,0.7)" : "#1B4332",
+                    border: "none",
+                    borderRadius: "8px",
+                    cursor: data.language === lang ? "default" : "pointer",
+                  }}
+                  title={`ترجمة كامل السيرة الذاتية إلى ${lang === "ar" ? "العربية" : lang === "fr" ? "الفرنسية" : "الإنجليزية"}`}
+                >
+                  🌐 {lang === "ar" ? "العربية" : lang === "fr" ? "الفرنسية" : "الإنجليزية"}
+                </button>
+              ))}
+
+              <button
+                type="button"
+                className="button ai-button"
+                onClick={improveCopy}
+                disabled={isGlobalLoading || isTranslating}
+                style={{ padding: "6px 12px", fontSize: "0.74rem" }}
+              >
+                {isGlobalLoading ? "جاري التنسيق..." : "✨ تنسيق شامل (IA)"}
+              </button>
+            </div>
           </div>
 
           {/* ── Formations & Diplômes ── */}

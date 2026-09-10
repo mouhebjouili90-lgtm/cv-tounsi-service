@@ -143,6 +143,86 @@ async function startServer() {
     }
   });
 
+  // ── AI Full CV Translator (Arabic ⇄ French ⇄ English) ──
+  app.post("/api/ai/translate-cv", checkRateLimit, async (req: Request, res: Response) => {
+    try {
+      const { cvData, targetLanguage } = req.body;
+      const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+
+      if (!apiKey) {
+        res.status(500).json({ error: "AI service not configured on server" });
+        return;
+      }
+
+      if (!cvData || !targetLanguage) {
+        res.status(400).json({ error: "cvData and targetLanguage are required" });
+        return;
+      }
+
+      const langMap: Record<string, string> = {
+        ar: "Arabe professionnel (اللغة العربية الفصحى المهنية)",
+        fr: "Français professionnel international",
+        en: "Professional English (ATS optimized)",
+      };
+      const targetLangName = langMap[targetLanguage] || targetLanguage;
+
+      const systemInstruction = `Tu es un traducteur et expert RH international chevronné.
+Ta mission est de traduire avec la plus haute fidélité professionnelle et terminologique les données d'un CV vers la langue cible : ${targetLangName}.
+Règles impératives :
+1. Conserve STRICTEMENT à l'identique : le nom complet ('fullName'), l'adresse email ('email'), le téléphone ('phone'), les dates ('dates', 'year'), les identifiants ('id').
+2. Traduis avec élégance et précision métier :
+   - 'targetRole' (Intitulé du poste selon la terminologie RH officielle du marché cible)
+   - 'profileSummary' (Accroche percutante et naturelle)
+   - 'experiences' : 'role', 'description' (formule chaque puce d'expérience avec des verbes d'action percutants dans la langue cible)
+   - 'educations' : 'degree', 'school' (traduis ou adapte les intitulés de diplômes de façon compréhensible)
+   - 'skills' (traduis les compétences et soft skills)
+   - 'languagesList' (traduis les libellés de langues et niveaux)
+   - 'city' (ex: تونس ➔ Tunis / Paris ➔ باريس)
+3. 'language' doit être fixé à "${targetLanguage}".
+4. Réponds UNIQUEMENT par un JSON valide sans balises markdown au même format que les données fournies.`;
+
+      const prompt = `Voici les données du CV à traduire vers ${targetLangName} :\n${JSON.stringify(cvData)}`;
+
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+      const payload: any = {
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        systemInstruction: { parts: [{ text: systemInstruction }] },
+        generationConfig: {
+          responseMimeType: "application/json",
+          temperature: 0.1,
+          maxOutputTokens: 4000,
+        },
+      };
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 20000);
+
+      const geminiRes = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+
+      if (!geminiRes.ok) {
+        const err = await geminiRes.text();
+        console.error("[Translation Server] Gemini status:", geminiRes.status, err);
+        res.status(geminiRes.status).json({ error: err });
+        return;
+      }
+
+      const data = await geminiRes.json();
+      const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      const cleaned = rawText.replace(/```json/gi, "").replace(/```/g, "").trim();
+      const translatedCv = JSON.parse(cleaned);
+      res.json({ translatedCv });
+    } catch (error: any) {
+      console.error("[Translation Server] Error:", error?.message);
+      res.status(500).json({ error: error?.message || "Erreur de traduction du CV par IA." });
+    }
+  });
+
   // ── Activation Code Validation & Meta CAPI Purchase Dispatch ──
   app.post("/api/validate-code", async (req: Request, res: Response) => {
     try {

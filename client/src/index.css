@@ -1,5 +1,4 @@
-/* CV Tounsi — ورق الزيتون: خلفية عاجية، زيتوني تونسي، قرمزي محدود، وعمق ورقي تحريري. */
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -1969,6 +1968,61 @@ h1, h2, h3, p { margin: 0; }
 .prof-exp-dates { font-size: 10.5px; font-weight: 600; color: #6b7280; background: #eef4ec; padding: 2px 8px; border-radius: 999px; }
 .prof-bullets-list { margin: 4px 0 0 0; padding-left: 14px; font-size: 11.5px; line-height: 1.55; color: #374151; }
 .prof-bullet-item { margin-bottom: 3px; }
+
+/* ── Specific RTL Styles for Arabic CVs (Fixes Alignment, Borders, Bullets & Fonts) ── */
+[dir="rtl"] .prof-name,
+[dir="rtl"] .prof-role,
+[dir="rtl"] .prof-side-title,
+[dir="rtl"] .prof-section-heading {
+  font-family: 'IBM Plex Sans Arabic', 'Tajawal', 'Cairo', sans-serif !important;
+  letter-spacing: normal !important;
+}
+
+[dir="rtl"] .prof-sidebar {
+  border-right: none;
+  border-left: 1px solid #e2ebe0;
+}
+
+[dir="rtl"] .prof-timeline {
+  border-left: none;
+  border-right: 2px solid #d4ded0;
+  margin-left: 0;
+  margin-right: 6px;
+  padding-left: 0;
+  padding-right: 18px;
+}
+
+[dir="rtl"] .prof-timeline-marker {
+  left: auto;
+  right: -24px;
+}
+
+[dir="rtl"] .prof-exp-company {
+  margin-left: 0;
+  margin-right: 6px;
+}
+
+[dir="rtl"] .prof-bullets-list {
+  padding-left: 0;
+  padding-right: 14px;
+}
+
+[dir="rtl"].resume-canadian-layout,
+[dir="rtl"] .resume-canadian-layout {
+  font-family: 'IBM Plex Sans Arabic', 'Tajawal', 'Cairo', sans-serif !important;
+  text-align: right;
+}
+
+[dir="rtl"].resume-europass-layout,
+[dir="rtl"] .resume-europass-layout {
+  font-family: 'IBM Plex Sans Arabic', 'Tajawal', 'Cairo', sans-serif !important;
+  text-align: right;
+}
+
+[dir="rtl"] .can-bullet-item::before {
+  margin-right: 0;
+  margin-left: 6px;
+}
 
 /* ═══════════════════════════════════════════════════════════════════════════
    2. TEMPLATE CANADIEN / ATS (Single-Column Strict ATS Format)
