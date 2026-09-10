@@ -62,16 +62,40 @@ export async function sendServerCAPI(
   return finalEventId;
 }
 
-/* ── Meta Pixel Events (with optional eventID for deduplication) ── */
+/* ── Meta Pixel Standard Events Set ── */
+const META_STANDARD_EVENTS = new Set([
+  "PageView",
+  "ViewContent",
+  "Search",
+  "AddToCart",
+  "AddToWishlist",
+  "InitiateCheckout",
+  "AddPaymentInfo",
+  "Purchase",
+  "Lead",
+  "CompleteRegistration",
+  "Contact",
+  "CustomizeProduct",
+  "Donate",
+  "FindLocation",
+  "Schedule",
+  "StartTrial",
+  "SubmitApplication",
+  "Subscribe",
+]);
+
+/* ── Meta Pixel Events (Standard vs Custom with eventID for deduplication) ── */
 function trackFbEvent(eventName: string, params?: EventParams, eventId?: string) {
   try {
     if (typeof window !== "undefined" && window.fbq) {
+      const isStandard = META_STANDARD_EVENTS.has(eventName);
+      const method = isStandard ? "track" : "trackCustom";
       if (eventId) {
-        window.fbq("track", eventName, params || {}, { eventID: eventId });
+        window.fbq(method, eventName, params || {}, { eventID: eventId });
       } else if (params) {
-        window.fbq("track", eventName, params);
+        window.fbq(method, eventName, params);
       } else {
-        window.fbq("track", eventName);
+        window.fbq(method, eventName);
       }
     }
   } catch {
@@ -174,14 +198,82 @@ export function trackCodeActivated(options: {
   });
 }
 
-/** User downloaded the PDF */
+/** User downloaded the PDF (Differentiates between Demo and Unlocked HD) */
 export function trackPDFDownloaded(template: string, isUnlocked: boolean) {
   const eventId = generateEventId("pdf_download");
-  trackEvent("PDFDownloaded", { template, is_unlocked: isUnlocked });
+  const downloadType = isUnlocked ? "hd_official" : "demo_watermark";
+
+  trackEvent("PDFDownloaded", {
+    template,
+    is_unlocked: isUnlocked,
+    download_type: downloadType,
+  });
+
   if (isUnlocked) {
-    trackFbEvent("Lead", { content_name: "PDF HD Download", content_category: template }, eventId);
-    sendServerCAPI("Lead", { content_name: "PDF HD Download", content_category: template }, undefined, eventId);
+    trackFbEvent(
+      "Lead",
+      {
+        content_name: "PDF HD Download (Débloqué)",
+        content_category: template,
+        value: 12.9,
+        currency: "TND",
+      },
+      eventId
+    );
+    sendServerCAPI(
+      "Lead",
+      {
+        content_name: "PDF HD Download (Débloqué)",
+        content_category: template,
+        value: 12.9,
+        currency: "TND",
+      },
+      undefined,
+      eventId
+    );
+  } else {
+    // Custom event for free demo protected download
+    trackFbEvent(
+      "PDFDemoDownloaded",
+      {
+        content_name: "PDF Demo Download (Watermark)",
+        content_category: template,
+      },
+      eventId
+    );
   }
+}
+
+/** User viewed CV templates or the builder main view (Essential for Meta ViewContent funnel) */
+export function trackCvTemplatesViewed(templateName = "Modèles de CV Professionnels", category = "CV Templates") {
+  const eventId = generateEventId("view_content");
+  trackFbEvent(
+    "ViewContent",
+    {
+      content_name: templateName,
+      content_category: category,
+      value: 12.9,
+      currency: "TND",
+    },
+    eventId
+  );
+  sendServerCAPI(
+    "ViewContent",
+    {
+      content_name: templateName,
+      content_category: category,
+      value: 12.9,
+      currency: "TND",
+    },
+    undefined,
+    eventId
+  );
+  trackGaEvent("view_item", {
+    item_name: templateName,
+    item_category: category,
+    value: 12.9,
+    currency: "TND",
+  });
 }
 
 /** User used the AI improvement feature */

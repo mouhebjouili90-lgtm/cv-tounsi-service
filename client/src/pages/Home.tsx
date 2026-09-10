@@ -14,6 +14,7 @@ import {
 import {
   trackEvent,
   trackBuilderStarted,
+  trackCvTemplatesViewed,
   trackWhatsAppClicked,
   trackCodeActivated,
   trackPDFDownloaded,
@@ -2576,9 +2577,11 @@ function Builder({
   };
 
   const selectTemplate = (template: TemplateId) => {
-    const allowedLanguages = templateCatalog[template].languages;
+    const meta = templateCatalog[template];
+    const allowedLanguages = meta ? meta.languages : ["fr"];
     const language = allowedLanguages.includes(data.language) ? data.language : allowedLanguages[0];
     setData((prev) => ({ ...prev, template, language }));
+    trackCvTemplatesViewed(meta?.label || template, meta?.category || "CV Template Selection");
   };
 
   const addExperience = () => {
@@ -4693,6 +4696,8 @@ export default function Home() {
   const [activeCvId, setActiveCvId] = useState<number | null>(null);
   const [isSavedCvsOpen, setIsSavedCvsOpen] = useState(false);
 
+  const hasTrackedEntryRef = useRef(false);
+
   // Auto-persist live draft on every change
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -4704,19 +4709,33 @@ export default function Home() {
     }
   }, [data]);
 
-  // Auto-persist builder view mode and handle direct Meta Ads / URL launch
+  // Auto-persist builder view mode, handle direct Meta Ads / URL launch and track entry events reliably
   useEffect(() => {
     if (typeof window !== "undefined") {
-      if (checkIsMetaAdOrStart()) {
+      const isAd = checkIsMetaAdOrStart();
+      if (isAd) {
         localStorage.setItem("cv_tounsi_builder_step", "0");
         if (!isBuilder) {
           setIsBuilder(true);
+        }
+      }
+
+      if (!hasTrackedEntryRef.current) {
+        hasTrackedEntryRef.current = true;
+        // Meta Standard Event: ViewContent when templates or CV builder are viewed
+        trackCvTemplatesViewed(
+          "Modèles de CV — " + (data.template || "Standard"),
+          "CV Templates"
+        );
+        // Meta Standard Event: InitiateCheckout when entering builder or landing directly via ad
+        if (isAd || isBuilder) {
           trackBuilderStarted(data.template, data.language);
         }
       }
+
       localStorage.setItem("cv_tounsi_in_builder", isBuilder ? "true" : "false");
     }
-  }, [isBuilder]);
+  }, [isBuilder, data.template, data.language]);
 
   const startBuilder = (targetStep: BuilderStep = 0) => {
     trackBuilderStarted(data.template, data.language);
