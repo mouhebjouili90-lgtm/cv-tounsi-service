@@ -103,10 +103,12 @@ Mission d'analyse :
 8. Enrichissement et équilibrage visuel A4 (CRUCIAL : Éviter les espaces vides) :
    - Les templates (notamment le modèle Professionnel à 2 colonnes) nécessitent une densité suffisante pour remplir harmonieusement une page A4.
    - 'profileSummary' : Rédige une véritable accroche professionnelle de 3 à 4 phrases valorisant l'expertise, les résultats et la valeur ajoutée du candidat dans son domaine cible.
-   - 'experiences' : Pour CHAQUE expérience, ne laisse JAMAIS une simple ligne vide. Rédige 2 à 4 puces concises d'impact (réalisations chiffrées, missions clés, outils utilisés, méthodes) basées sur ce qui est mentionné ou inhérent au poste.
    - 'skills' : Génère une liste riche de 6 à 10 compétences clés (hard skills techniques et soft skills relationnelles) indispensables pour le métier ciblé, séparées par des virgules.
    - 'languagesList' : Renseigne les langues du candidat (ex: Arabe, Français, Anglais avec niveaux de maîtrise).
 9. Langue du CV extrait ('language') : Détecte la langue principale du CV d'origine ('fr', 'en' ou 'ar') et conserve fidèlement cette langue pour toutes les données extraites et enrichies.
+10. Séparation rigoureuse entre Diplômes académiques et Certifications professionnelles :
+   - 'educations' : UNIQUEMENT les diplômes universitaires et étatiques (Baccalauréat, Licence, Master, Diplôme National d'Ingénieur, Doctorat, BTS).
+   - 'certifications' : Certifications professionnelles, formations continues et attestations (ex: AWS, Scrum Master, Google, Microsoft, CCNA, PMP, formations accélérées ou en ligne). Si le CV n'en comporte pas, renvoie un tableau vide [].
 
 Réponds UNIQUEMENT avec un JSON strict sans balises markdown au format suivant :
 {
@@ -150,10 +152,18 @@ Réponds UNIQUEMENT avec un JSON strict sans balises markdown au format suivant 
     "educations": [
       {
         "id": "edu-1",
-        "degree": "Diplôme obtenu",
+        "degree": "Diplôme universitaire obtenu",
         "school": "Université / Faculté",
         "year": "2020 - 2023",
         "location": "Tunis"
+      }
+    ],
+    "certifications": [
+      {
+        "id": "cert-1",
+        "name": "Nom de la certification / formation",
+        "issuer": "Organisme émetteur (AWS, Google, etc.)",
+        "date": "2023"
       }
     ],
     "skills": "Compétence 1, Compétence 2, Compétence 3",

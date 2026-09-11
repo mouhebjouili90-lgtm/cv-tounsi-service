@@ -1912,6 +1912,12 @@ h1, h2, h3, p { margin: 0; }
 .prof-edu-school { color: #536b50; font-weight: 500; font-size: 11px; }
 .prof-edu-year { color: #8a9686; font-size: 10px; font-weight: 600; }
 
+.prof-cert-list { display: flex; flex-direction: column; gap: 10px; }
+.prof-cert-item { font-size: 11px; }
+.prof-cert-name { display: block; color: #1e293b; font-weight: 700; font-size: 11.5px; margin-bottom: 2px; }
+.prof-cert-issuer { color: #536b50; font-weight: 500; font-size: 11px; }
+.prof-cert-date { color: #8a9686; font-size: 10px; font-weight: 600; }
+
 .prof-lang-list { display: flex; flex-direction: column; gap: 6px; font-size: 11px; }
 .prof-lang-item { display: flex; align-items: center; gap: 6px; color: #374151; font-weight: 500; }
 .prof-lang-dot { width: 5px; height: 5px; background: var(--olive); border-radius: 50%; }

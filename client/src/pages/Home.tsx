@@ -77,6 +77,7 @@ import {
   Copy,
   HelpCircle,
   UploadCloud,
+  Award,
 } from "lucide-react";
 
 const heroImage = "/manus-storage/cv-tounsi-hero-reference_82281e8d.jpg";
@@ -124,6 +125,14 @@ export type EducationItem = {
   school: string;
   year: string;
   location?: string;
+};
+
+export type CertificationItem = {
+  id: string;
+  name: string;
+  issuer: string;
+  date: string;
+  credentialUrl?: string;
 };
 
 export type TemplateMeta = {
@@ -260,6 +269,7 @@ export const resumeCopy: Record<
     experience: string;
     studentExperience: string;
     education: string;
+    certifications: string;
     skills: string;
     contact: string;
     languages: string;
@@ -270,7 +280,8 @@ export const resumeCopy: Record<
     profile: "PROFIL PROFESSIONNEL",
     experience: "EXPÉRIENCE PROFESSIONNELLE",
     studentExperience: "PROJETS ACADÉMIQUES, STAGES & BÉNÉVOLAT",
-    education: "FORMATION & DIPLÔMES",
+    education: "FORMATION & DIPLÔMES ACADÉMIQUES",
+    certifications: "CERTIFICATIONS & FORMATIONS PROFESSIONNELLES",
     skills: "COMPÉTENCES CLÉS",
     contact: "COORDONNÉES",
     languages: "LANGUES",
@@ -280,7 +291,8 @@ export const resumeCopy: Record<
     profile: "PROFESSIONAL SUMMARY",
     experience: "WORK EXPERIENCE",
     studentExperience: "ACADEMIC PROJECTS & INTERNSHIPS",
-    education: "EDUCATION & QUALIFICATIONS",
+    education: "EDUCATION & ACADEMIC DEGREES",
+    certifications: "CERTIFICATIONS & PROFESSIONAL TRAINING",
     skills: "CORE SKILLS",
     contact: "CONTACT",
     languages: "LANGUAGES",
@@ -290,7 +302,8 @@ export const resumeCopy: Record<
     profile: "BERUFSPROFIL",
     experience: "BERUFSERFAHRUNG",
     studentExperience: "AKADEMISCHE PROJEKTE & PRAKTIKA",
-    education: "AUSBILDUNG",
+    education: "AUSBILDUNG & ABSCHLÜSSE",
+    certifications: "ZERTIFIKATE & WEITERBILDUNG",
     skills: "KERNKOMPETENZEN",
     contact: "KONTAKT",
     languages: "SPRACHEN",
@@ -300,7 +313,8 @@ export const resumeCopy: Record<
     profile: "PROFILO PROFESSIONALE",
     experience: "ESPERIENZA PROFESSIONALE",
     studentExperience: "PROGETTI ACCADEMICI E TIROCINI",
-    education: "ISTRUZIONE E FORMAZIONE",
+    education: "ISTRUZIONE E FORMAZIONE ACCADEMICA",
+    certifications: "CERTIFICAZIONI E CORSI PROFESSIONALI",
     skills: "COMPETENZE PRINCIPALI",
     contact: "CONTATTI",
     languages: "LINGUE",
@@ -310,7 +324,8 @@ export const resumeCopy: Record<
     profile: "الملف المهني",
     experience: "الخبرة المهنية",
     studentExperience: "المشاريع الأكاديمية والتربصات",
-    education: "التعليم والتكوين",
+    education: "التعليم والشهائد الجامعية",
+    certifications: "الشهائد المهنية والتكوين المستمر",
     skills: "المهارات الرئيسية",
     contact: "معلومات الاتصال",
     languages: "اللغات",
@@ -328,6 +343,7 @@ export type CvData = {
   profileSummary: string;
   experiences: ExperienceItem[];
   educations: EducationItem[];
+  certifications?: CertificationItem[];
   skills: string;
   languagesList: string;
   language: Language;
@@ -361,6 +377,7 @@ export const blankCvData: CvData = {
       location: "",
     },
   ],
+  certifications: [],
   skills: "",
   languagesList: "",
   language: "fr",
@@ -405,6 +422,20 @@ export const showcaseSampleData: CvData = {
       school: "Institut Supérieur de Gestion de Tunis (ISG)",
       year: "2018 — 2021",
       location: "Tunis, Tunisie",
+    },
+  ],
+  certifications: [
+    {
+      id: "cert-1",
+      name: "Google Digital Marketing & Analytics Professional",
+      issuer: "Google Career Certificates",
+      date: "2023",
+    },
+    {
+      id: "cert-2",
+      name: "Meta Certified Digital Marketing Associate",
+      issuer: "Meta Blueprint",
+      date: "2023",
     },
   ],
   skills:
@@ -458,6 +489,20 @@ export const studentSampleData: CvData = {
       school: "Lycée Pilote de Tunis",
       year: "2021",
       location: "Tunis, Tunisie",
+    },
+  ],
+  certifications: [
+    {
+      id: "cert-1",
+      name: "AWS Certified Cloud Practitioner (CLF-C02)",
+      issuer: "Amazon Web Services (AWS)",
+      date: "2024",
+    },
+    {
+      id: "cert-2",
+      name: "Scrum Master Certified (SMC)",
+      issuer: "Scrum Alliance",
+      date: "2023",
     },
   ],
   skills:
@@ -598,6 +643,14 @@ function ProfessionalTemplate({
       const next = [...prev.educations];
       next[idx] = { ...next[idx], [key]: val };
       return { ...prev, educations: next };
+    });
+  };
+
+  const updateCert = (idx: number, key: keyof CertificationItem, val: string) => {
+    onFieldChange?.((prev) => {
+      const next = [...(prev.certifications || [])];
+      next[idx] = { ...next[idx], [key]: val };
+      return { ...prev, certifications: next };
     });
   };
 
@@ -752,6 +805,53 @@ function ProfessionalTemplate({
               ))}
             </div>
           </div>
+
+          {/* Certifications & Formations Continues */}
+          {data.certifications && data.certifications.length > 0 && (
+            <div className="prof-side-section">
+              <h3 className="prof-side-title">
+                <Award size={13} className="prof-side-icon" />
+                {copy.certifications}
+              </h3>
+              <div className="prof-edu-list prof-cert-list">
+                {data.certifications.map((cert, idx) => (
+                  <div key={cert.id || idx} className="prof-edu-item prof-cert-item">
+                    {editable ? (
+                      <>
+                        <EditableZone
+                          tag="strong"
+                          className="prof-edu-degree prof-cert-name"
+                          value={cert.name}
+                          onChange={(val) => updateCert(idx, "name", val)}
+                          placeholder="Intitulé du certificat"
+                        />
+                        <EditableZone
+                          tag="div"
+                          className="prof-edu-school prof-cert-issuer"
+                          value={cert.issuer}
+                          onChange={(val) => updateCert(idx, "issuer", val)}
+                          placeholder="Organisme émetteur"
+                        />
+                        <EditableZone
+                          tag="span"
+                          className="prof-edu-year prof-cert-date"
+                          value={cert.date}
+                          onChange={(val) => updateCert(idx, "date", val)}
+                          placeholder="Année"
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <strong className="prof-edu-degree prof-cert-name">{cert.name}</strong>
+                        <div className="prof-edu-school prof-cert-issuer">{cert.issuer}</div>
+                        <span className="prof-edu-year prof-cert-date">{cert.date}</span>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Langues */}
           <div className="prof-side-section">
@@ -912,6 +1012,14 @@ function CanadianTemplate({
     });
   };
 
+  const updateCert = (idx: number, key: keyof CertificationItem, val: string) => {
+    onFieldChange?.((prev) => {
+      const next = [...(prev.certifications || [])];
+      next[idx] = { ...next[idx], [key]: val };
+      return { ...prev, certifications: next };
+    });
+  };
+
   const renderEducationSection = () => (
     <section className="can-section">
       <h2 className="can-section-title">{copy.education}</h2>
@@ -961,6 +1069,59 @@ function CanadianTemplate({
       </div>
     </section>
   );
+
+  const renderCertificationsSection = () => {
+    if (!data.certifications || data.certifications.length === 0) return null;
+    return (
+      <section className="can-section">
+        <h2 className="can-section-title">{copy.certifications}</h2>
+        <div className="can-edu-list">
+          {data.certifications.map((cert, idx) => (
+            <div key={cert.id || idx} className="can-edu-block">
+              <div className="can-exp-row-top">
+                {editable ? (
+                  <>
+                    <EditableZone
+                      tag="strong"
+                      className="can-edu-degree"
+                      value={cert.name}
+                      onChange={(val) => updateCert(idx, "name", val)}
+                      placeholder="Intitulé de la certification"
+                    />
+                    <EditableZone
+                      tag="span"
+                      className="can-edu-year"
+                      value={cert.date}
+                      onChange={(val) => updateCert(idx, "date", val)}
+                      placeholder="Année"
+                    />
+                  </>
+                ) : (
+                  <>
+                    <strong className="can-edu-degree">{cert.name}</strong>
+                    <span className="can-edu-year">{cert.date}</span>
+                  </>
+                )}
+              </div>
+              <div className="can-exp-row-sub">
+                {editable ? (
+                  <EditableZone
+                    tag="span"
+                    className="can-edu-school"
+                    value={cert.issuer}
+                    onChange={(val) => updateCert(idx, "issuer", val)}
+                    placeholder="Organisme émetteur"
+                  />
+                ) : (
+                  <span className="can-edu-school">{cert.issuer}</span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  };
 
   const renderExperienceSection = () => (
     <section className="can-section">
@@ -1131,12 +1292,14 @@ function CanadianTemplate({
       {isStudent ? (
         <>
           {renderEducationSection()}
+          {renderCertificationsSection()}
           {renderExperienceSection()}
         </>
       ) : (
         <>
           {renderExperienceSection()}
           {renderEducationSection()}
+          {renderCertificationsSection()}
         </>
       )}
 
@@ -1214,6 +1377,14 @@ function EuropassTemplate({
     });
   };
 
+  const updateCert = (idx: number, key: keyof CertificationItem, val: string) => {
+    onFieldChange?.((prev) => {
+      const next = [...(prev.certifications || [])];
+      next[idx] = { ...next[idx], [key]: val };
+      return { ...prev, certifications: next };
+    });
+  };
+
   const renderEduRow = () => (
     <div className="euro-grid-row">
       <div className="euro-col-left">
@@ -1258,6 +1429,54 @@ function EuropassTemplate({
       </div>
     </div>
   );
+
+  const renderCertRow = () => {
+    if (!data.certifications || data.certifications.length === 0) return null;
+    return (
+      <div className="euro-grid-row">
+        <div className="euro-col-left">
+          <h2 className="euro-section-title">{copy.certifications}</h2>
+        </div>
+        <div className="euro-col-right">
+          {data.certifications.map((cert, idx) => (
+            <div key={cert.id || idx} className="euro-item-block">
+              {editable ? (
+                <>
+                  <EditableZone
+                    tag="div"
+                    className="euro-item-dates"
+                    value={cert.date}
+                    onChange={(val) => updateCert(idx, "date", val)}
+                    placeholder="Année"
+                  />
+                  <EditableZone
+                    tag="div"
+                    className="euro-item-role"
+                    value={cert.name}
+                    onChange={(val) => updateCert(idx, "name", val)}
+                    placeholder="Nom du certificat"
+                  />
+                  <EditableZone
+                    tag="div"
+                    className="euro-item-org"
+                    value={cert.issuer}
+                    onChange={(val) => updateCert(idx, "issuer", val)}
+                    placeholder="Organisme émetteur"
+                  />
+                </>
+              ) : (
+                <>
+                  <div className="euro-item-dates">{cert.date}</div>
+                  <div className="euro-item-role">{cert.name}</div>
+                  <div className="euro-item-org">{cert.issuer}</div>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
 
   const renderExpRow = () => (
     <div className="euro-grid-row">
@@ -1438,12 +1657,14 @@ function EuropassTemplate({
       {isStudent ? (
         <>
           {renderEduRow()}
+          {renderCertRow()}
           {renderExpRow()}
         </>
       ) : (
         <>
           {renderExpRow()}
           {renderEduRow()}
+          {renderCertRow()}
         </>
       )}
 
@@ -2185,6 +2406,10 @@ function Builder({
           extractedData.educations && extractedData.educations.length > 0
             ? extractedData.educations
             : prev.educations,
+        certifications:
+          extractedData.certifications && extractedData.certifications.length > 0
+            ? extractedData.certifications
+            : prev.certifications,
         skills: extractedData.skills || prev.skills,
         languagesList: extractedData.languagesList || prev.languagesList,
         profileType: extractedData.profileType || prev.profileType,
@@ -2623,9 +2848,9 @@ function Builder({
         ...prev.educations,
         {
           id: `edu-${Date.now()}`,
-          degree: "Nouveau diplôme ou certification",
-          school: "Nom de l'établissement",
-          year: "2022",
+          degree: "Nouveau diplôme universitaire",
+          school: "Nom de l'établissement / Université",
+          year: "2023",
           location: "Tunisie",
         },
       ],
@@ -2644,6 +2869,36 @@ function Builder({
       const nextEdu = [...prev.educations];
       nextEdu[index] = { ...nextEdu[index], [key]: val };
       return { ...prev, educations: nextEdu };
+    });
+  };
+
+  const addCertification = () => {
+    setData((prev) => ({
+      ...prev,
+      certifications: [
+        ...(prev.certifications || []),
+        {
+          id: `cert-${Date.now()}`,
+          name: "Nouvelle certification / formation",
+          issuer: "Organisme / Plateforme délivrante",
+          date: new Date().getFullYear().toString(),
+        },
+      ],
+    }));
+  };
+
+  const removeCertification = (index: number) => {
+    setData((prev) => ({
+      ...prev,
+      certifications: (prev.certifications || []).filter((_, i) => i !== index),
+    }));
+  };
+
+  const updateCertification = (index: number, key: keyof CertificationItem, val: string) => {
+    setData((prev) => {
+      const nextCerts = [...(prev.certifications || [])];
+      nextCerts[index] = { ...nextCerts[index], [key]: val };
+      return { ...prev, certifications: nextCerts };
     });
   };
 
@@ -2793,6 +3048,7 @@ function Builder({
           city: translated.city || prev.city,
           experiences: translated.experiences && translated.experiences.length > 0 ? translated.experiences : prev.experiences,
           educations: translated.educations && translated.educations.length > 0 ? translated.educations : prev.educations,
+          certifications: translated.certifications && translated.certifications.length > 0 ? translated.certifications : prev.certifications,
         }));
         toast.success(`تمت ترجمة كامل السيرة الذاتية إلى ${langNamesLabel[targetLang] || targetLang} بنجاح! 🎉`);
       }
@@ -3444,9 +3700,9 @@ function Builder({
             </div>
           </div>
 
-          {/* ── Formations & Diplômes ── */}
+          {/* ── Formations & Diplômes Universitaires ── */}
           <div className="section-subheading">
-            <GraduationCap size={16} /> الشهائد والتكوين الجامعي (Formations)
+            <GraduationCap size={16} /> الشهائد والتكوين الجامعي الأكاديمي (Diplômes)
           </div>
           <div className="experiences-cards-list">
             {data.educations.map((edu, idx) => (
@@ -3491,7 +3747,77 @@ function Builder({
 
           <div className="add-item-row">
             <button type="button" className="button button-quiet-add" onClick={addEducation}>
-              <Plus size={16} /> + إضافة شهادة أو تكوين آخر
+              <Plus size={16} /> + إضافة شهادة جامعية أخرى
+            </button>
+          </div>
+
+          {/* ── Certifications & Formations Professionnelles (Optionnel) ── */}
+          <div className="section-subheading" style={{ marginTop: "1.8rem" }}>
+            <Award size={16} /> الشهائد المهنية والتكوين المستمر (Certifications & Formations)
+            <span style={{ fontSize: "0.72rem", color: "#64748b", fontWeight: 400, marginRight: "8px" }}>
+              (اختياري · كندا، أوروبا والوظائف الدولية)
+            </span>
+          </div>
+
+          {(data.certifications && data.certifications.length > 0) ? (
+            <div className="experiences-cards-list">
+              {data.certifications.map((cert, idx) => (
+                <div key={cert.id || idx} className="experience-card-box">
+                  <div className="experience-card-top">
+                    <span className="exp-card-number">Certificat #{idx + 1}</span>
+                    <button
+                      type="button"
+                      className="button-icon-danger"
+                      onClick={() => removeCertification(idx)}
+                      title="Supprimer ce certificat"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
+
+                  <div className="form-grid">
+                    <Field
+                      label="Intitulé de la certification ou formation"
+                      value={cert.name}
+                      onChange={(v) => updateCertification(idx, "name", v)}
+                      placeholder="Ex. AWS Certified Cloud Practitioner, Scrum Master, Google Analytics..."
+                    />
+                    <Field
+                      label="Organisme émetteur / Plateforme"
+                      value={cert.issuer}
+                      onChange={(v) => updateCertification(idx, "issuer", v)}
+                      placeholder="Ex. Amazon Web Services, Coursera, Google, INSAT..."
+                    />
+                    <Field
+                      label="Année d'obtention"
+                      value={cert.date}
+                      onChange={(v) => updateCertification(idx, "date", v)}
+                      placeholder="Ex. 2024"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div
+              style={{
+                background: "#f8fafc",
+                border: "1px dashed #cbd5e1",
+                borderRadius: "10px",
+                padding: "0.85rem 1rem",
+                textAlign: "center",
+                color: "#64748b",
+                fontSize: "0.82rem",
+                marginBottom: "0.75rem",
+              }}
+            >
+              💡 ليس لديك شهائد مهنية حالياً؟ هذا القسم اختياري بالكامل ولن يظهر على ملف الـ PDF.
+            </div>
+          )}
+
+          <div className="add-item-row">
+            <button type="button" className="button button-quiet-add" onClick={addCertification}>
+              <Plus size={16} /> + إضافة شهادة مهنية أو دورة تدريبية
             </button>
           </div>
 
